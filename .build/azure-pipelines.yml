@@ -61,7 +61,7 @@ stages:
   displayName: Test Publishing for non main PRs
   condition: and(succeeded(),ne(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
-    - group: sabin.io AzureDevOps Gallery Powershell Publish2
+    - group: sabin.io AzureDevOps Gallery Powershell Publish
     - name : environment
       value: pr
   jobs:
