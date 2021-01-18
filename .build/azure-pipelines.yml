@@ -1,0 +1,81 @@
+
+name: $(BuildDefinitionName)_$(VersionNumber)_$(SourceBranchName)
+trigger:
+- master
+parameters:
+- name: logging
+  default: All
+  type: string
+
+variables:
+- name: artifactsPath
+  value: "$(Build.ArtifactStagingDirectory)/artifacts"
+- name: BaseVersionNumber 
+  value: "0.2"  
+- name: Minor 
+  value: $[counter(variables['BaseVersionNumber'], 1)]
+- name: VersionNumber 
+  value: $(BaseVersionNumber).$(Minor)
+- name: verboselogging
+  value: ${{parameters.logging}}
+
+stages: 
+- stage: BuildAndTest
+  displayName: Build and Test 
+  variables:
+  - name: environment 
+    value: "ci"
+
+  jobs: 
+  - template: azure-pipelines.buildTest.yml
+    parameters:
+      UsePowerShellCore: false
+      pool: sio-build-agents
+      PublishArtifacts: false
+    
+  - template: azure-pipelines.buildTest.yml
+    parameters:
+      UsePowerShellCore: true
+      pool: sio-build-agents
+      PublishArtifacts: true
+      
+  - template: azure-pipelines.buildTest.yml
+    parameters:
+      UsePowerShellCore: false
+      vmimage: ubuntu-latest
+      PublishArtifacts: false
+        
+- stage: TestPublishForCI
+  dependsOn: BuildAndTest
+  displayName: Test Publishing for master
+  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: sabin.io Powershell Publish
+    - name : environment
+      value: ci   
+  jobs:
+    - template: azure-pipelines.publish.yml
+  
+- stage: TestPublishForPR
+  dependsOn: BuildAndTest
+  displayName: Test Publishing for non master PRs
+  condition: and(succeeded(),ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: sabin.io AzureDevOps Gallery Powershell Publish
+    - name : environment
+      value: pr
+  jobs:
+    - template: azure-pipelines.publish.yml
+
+- stage: Publish
+  dependsOn: TestPublishForCI
+  displayName: Publish to prod
+  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: sabin.io Powershell Publish
+    - name : environment
+      value: prod
+  jobs:
+  - template: azure-pipelines.publish.yml
+
+        

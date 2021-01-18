@@ -1,0 +1,103 @@
+parameters: 
+- name: UsePowerShellCore
+  type: boolean
+- name: pool
+  type: string
+  values: 
+  - none
+  - sio-build-agents
+  - windows-latest 
+  - ubuntu-latest
+  - macOS-latest
+  default: 'none'
+- name: vmimage
+  type: string
+  default: ''
+
+- name: PublishArtifacts
+  type: boolean
+  default: false  
+
+jobs:
+- job: 
+  variables:
+    ${{ if eq(parameters.pool,'none') }}:
+      displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.vmimage }}
+    ${{ if ne(parameters.pool,'none') }}:
+      displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.pool }}
+
+  displayName: ${{variables.displayName}}
+  
+
+  pool:
+    ${{ if ne(parameters.pool,'none') }}:
+      name: ${{ parameters.pool }}
+    ${{ if eq(parameters.pool,'none') }}:
+      vmImage: ${{parameters.vmimage}}
+
+  steps:
+  - checkout: self
+    clean: false 
+
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        if ($PSVersionTable.PLatform -ne "Unix"){write-Host "##vso[task.setvariable variable=path;]$($env:localappdata)\Microsoft\dotnet;$($env:path)"}
+        write-Host $env:path
+
+  - task: PowerShell@2
+    inputs:
+      pwsh: ${{parameters.UsePowerShellCore}}
+      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      arguments: -Install 
+    displayName: 'Install'
+
+  - task: PowerShell@2
+    inputs:
+      pwsh: ${{parameters.UsePowerShellCore}}
+      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      arguments: -Install -Build  
+    displayName: 'Build'
+
+  - task: PowerShell@2
+    inputs:
+      pwsh: ${{parameters.UsePowerShellCore}}
+      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      arguments: -Install -Package  
+    displayName: 'Package'
+
+  - task: PowerShell@2
+    inputs:
+      pwsh: ${{parameters.UsePowerShellCore}}
+      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      arguments: -Install -Test  
+    displayName: 'Test'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testResultsFormat: NUnit
+      testRunTitle: (${{variables.displayName}})
+      testResultsFiles: |
+        **/*.tests.results.xml
+      searchFolder: '$(System.DefaultWorkingDirectory)/out/test-results'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - ${{if eq(Parameters.PublishArtifacts,'true') }}:
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish Tests Coverage'
+      inputs:
+        codeCoverageTool: 'JaCoCo'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/out/test-results/coverage_*.xml'
+        pathToSources: '$(System.DefaultWorkingDirectory)/src/$(ProjectName).module'
+        failIfCoverageEmpty: true
+
+    - publish: '$(artifactsPath)/.build'
+      artifact: '.build'
+      condition: succeededOrFailed()
+
+    - publish: '$(artifactsPath)/$(ProjectName)'
+      artifact: '$(ProjectName)'
+      condition: succeededOrFailed()
