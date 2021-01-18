@@ -1,6 +1,6 @@
 # Introduction
 
-Powershell module for Deploying SQL Server.
+Powershell module for Deploying a dacpac to SQL Server.
 
 ## Usage  
 
