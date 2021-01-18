@@ -104,7 +104,8 @@ Function Invoke-DatabaseDacpacDeploy {
             $sqlPackageCommand, "/OutputPath:$ScriptPath"
         }
 
-        Function Get-Arguments{
+        Function Expand-Arguments  
+        {
             $sqlPackageCommand  | ForEach-Object {
                 if ($_ -like "/v:DeployProperties"){
                     $_
@@ -113,10 +114,10 @@ Function Invoke-DatabaseDacpacDeploy {
                 }
             }
         }
-        (Get-Arguments) | ForEach-Object{ Write-Verbose $_}
+        (Expand-Arguments) | ForEach-Object{ Write-Verbose $_}
 
         $ErrorActionPreference ="Continue"
-        &$sqlpackagePath (Get-Arguments) 2>&1
+        &$sqlpackagePath (Expand-Arguments) 2>&1
         $ErrorActionPreference ="Stop"
         
         if ($LASTEXITCODE -ne 0) {

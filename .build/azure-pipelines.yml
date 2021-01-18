@@ -1,7 +1,7 @@
 
 name: $(BuildDefinitionName)_$(VersionNumber)_$(SourceBranchName)
 trigger:
-- master
+- main
 parameters:
 - name: logging
   default: All
@@ -11,7 +11,7 @@ variables:
 - name: artifactsPath
   value: "$(Build.ArtifactStagingDirectory)/artifacts"
 - name: BaseVersionNumber 
-  value: "0.2"  
+  value: "0.0"  
 - name: Minor 
   value: $[counter(variables['BaseVersionNumber'], 1)]
 - name: VersionNumber 
@@ -30,13 +30,13 @@ stages:
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: false
-      pool: sio-build-agents
+      pool: windows-latest
       PublishArtifacts: false
     
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: true
-      pool: sio-build-agents
+      pool: windows-latest
       PublishArtifacts: true
       
   - template: azure-pipelines.buildTest.yml
@@ -47,8 +47,8 @@ stages:
         
 - stage: TestPublishForCI
   dependsOn: BuildAndTest
-  displayName: Test Publishing for master
-  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Test Publishing for main
+  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io Powershell Publish
     - name : environment
@@ -58,8 +58,8 @@ stages:
   
 - stage: TestPublishForPR
   dependsOn: BuildAndTest
-  displayName: Test Publishing for non master PRs
-  condition: and(succeeded(),ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Test Publishing for non main PRs
+  condition: and(succeeded(),ne(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io AzureDevOps Gallery Powershell Publish
     - name : environment
@@ -70,7 +70,7 @@ stages:
 - stage: Publish
   dependsOn: TestPublishForCI
   displayName: Publish to prod
-  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io Powershell Publish
     - name : environment

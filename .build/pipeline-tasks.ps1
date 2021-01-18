@@ -8,7 +8,7 @@ param (
     [switch] $Publish,
     [switch] $Tidy,
     [switch] $noLogo,
-    [string] $environment = $env:environment,
+    [string] $environment = $env:ENVIRONMENT,
     [string] $rootPath = $env:rootpath,
     [string] $artifactsPath = $env:artifactspath,
     [string] $verboseLogging = $env:VerboseLogging, #"Install,Build,Package,DeployInfra,Deploy,Config,Module,*",
