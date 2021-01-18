@@ -16,8 +16,10 @@ BeforeAll {
     Write-Verbose "Module path Beforeall after - $ModulePath" -verbose
 
     Remove-Module $ProjectName -ErrorAction SilentlyContinue
-    gci (Join-path $ModulePath "Functions" "*.ps1") | %{ Write-Verbose "loading $_" -Verbose;
-    . $_}
+    Get-ChildItem ([System.IO.Path]::Combine($ModulePath,"Functions","*.ps1")) | ForEach-Object{
+         Write-Verbose "loading $_" -Verbose;
+       . $_
+    }
 }
 Describe 'deploy-guard' {
     BeforeAll {
