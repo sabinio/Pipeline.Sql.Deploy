@@ -16,7 +16,7 @@ schema: 2.0.0
 Write-DbDeployParameterLog [[-dacpacfile] <String>] [[-action] <String>] [[-TargetServerName] <String>]
  [[-TargetDatabaseName] <String>] [[-TargetIntegratedSecurity] <String>] [[-ServiceObjective] <String>]
  [[-PublishFile] <String>] [[-Variables] <String[]>] [[-TargetTimeout] <String>] [[-CommandTimeout] <String>]
- [[-sqlpackagePath] <String>] [[-Username] <String>] [<CommonParameters>]
+ [[-sqlpackagePath] <String>] [[-Username] <String>] [[-scriptParentPath] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -193,6 +193,21 @@ Aliases:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -scriptParentPath
+{{ Fill scriptParentPath Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 12
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
