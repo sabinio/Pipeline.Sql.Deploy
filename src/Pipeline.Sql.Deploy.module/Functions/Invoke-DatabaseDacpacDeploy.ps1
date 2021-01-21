@@ -118,6 +118,7 @@ Function Invoke-DatabaseDacpacDeploy {
         (Get-SqlPackageArgument) | ForEach-Object{ Write-Verbose $_}
 
         $ErrorActionPreference ="Continue"
+        
         invoke-command {
             &$sqlpackagePath (Get-SqlPackageArgument)  2>&1 #Ensure errors are sent to the errorvariable
             $LASTEXITCODE
@@ -125,7 +126,7 @@ Function Invoke-DatabaseDacpacDeploy {
         $ErrorActionPreference ="Stop"
         
         if ($sqlpackageerror) {
-            throw $sqlpackageerror
+            throw $sqlpackageerror=
         }
         $result =[PscustomObject]@{Scripts=Get-ChildItem "$ScriptParentPath\$TargetDatabaseName" -File -Recurse}
 
