@@ -12,7 +12,8 @@ Function Write-DbDeployParameterLog {
         [string] $TargetTimeout,
         [string] $CommandTimeout,
         [string] $sqlpackagePath,
-        [string] $Username
+        [string] $Username,
+        [string] $scriptParentPath
     )
 
     Write-host "Deploying database to server" 
@@ -28,6 +29,7 @@ Function Write-DbDeployParameterLog {
     Write-host "CommandTimeout           : $CommandTimeout" 
     Write-host "SQLPackagePath           : $sqlpackagePath" 
     Write-host "TargetUser               : $Username" 
+    write-host "scriptParentPath         : $scriptParentPath"
     Write-host "TargetPassword           : *************" 
 
 }

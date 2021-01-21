@@ -34,7 +34,7 @@ try {
     $pesterpreference.Run.PassThru = $true
     $pesterpreference.Filter.ExcludeTag =  "PSScriptAnalyzer" 
     
-	$NormalTests = Invoke-Pester -Configuration $pesterpreference 
+    $NormalTests = Invoke-Pester -Configuration $pesterpreference 
 	$NormalTests |Export-NUnitReport -path  "$outPath/test-results/$ProjectName.tests.results.xml" 
 	$pesterpreference = [PesterCOnfiguration]::Default     
 	

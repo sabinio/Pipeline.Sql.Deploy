@@ -35,5 +35,5 @@ Function Get-DeployPropertiesJson{
     
     $Settings = @{Parameters = $ParamValues; EnvironmentValues = $EnvironmentValues}
     
-    return (ConvertTo-Json $Settings -Compress).Replace('"', '@@') -replace "([a-z])\\\\""", "`$1\\\\`"" -replace "\[","&^" -replace "\]","`$"    
+    return (ConvertTo-Json $Settings -Compress).Replace('"', '@@') -replace "([a-z])\\\\""", "`$1\\\\`"" -replace "\[","&^" -replace "\]","~$"    
 }

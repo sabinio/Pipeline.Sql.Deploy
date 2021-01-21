@@ -53,7 +53,8 @@ Function Invoke-DatabaseDacpacDeploy {
                                     -TargetTimeout $TargetTimeout `
                                     -CommandTimeout $CommandTimeout `
                                     -sqlpackagePath $sqlpackagePath `
-                                    -Username $Username -ErrorAction Stop
+                                    -Username $TargetUser `
+                                    -scriptParentPath $scriptParentPath -ErrorAction Stop
 
         $DeployPropertiesJson = Get-DeployPropertiesJson -action $action `
                                     -TargetServerName $TargetServerName `
@@ -117,15 +118,20 @@ Function Invoke-DatabaseDacpacDeploy {
         (Get-SqlPackageArgument) | ForEach-Object{ Write-Verbose $_}
 
         $ErrorActionPreference ="Continue"
-        &$sqlpackagePath (Get-SqlPackageArgument) 2>&1
+        $SqlPackageExitCode = invoke-command {
+            &$sqlpackagePath (Get-SqlPackageArgument) 
+            $LASTEXITCODE
+        }
         $ErrorActionPreference ="Stop"
         
-        if ($LASTEXITCODE -ne 0) {
+        if ($SqlPackageExitCode -ne 0) {
             throw "Processing dacpac failed see previous errors - last exit code: $LASTEXITCODE"
         }
-        Get-ChildItem "$ScriptParentPath\$TargetDatabaseName" -File -Recurse| ForEach-Object {
-            
-            if ($OutputDeployScript){
+        $result =[PscustomObject]@{Scripts=Get-ChildItem "$ScriptParentPath\$TargetDatabaseName" -File -Recurse}
+
+        if ($OutputDeployScript){
+            $result.Scripts | ForEach-Object {
+
                 Write-Host "######################################### DB Deploy Script ######################################" 
                 Write-Host "Produced file $_"
                 Write-Host "-------------------------------------------------------------------------------------------------" 
@@ -135,6 +141,7 @@ Function Invoke-DatabaseDacpacDeploy {
                 }
             }
         }
+        return $result
     }
     Catch {
         Throw $_
