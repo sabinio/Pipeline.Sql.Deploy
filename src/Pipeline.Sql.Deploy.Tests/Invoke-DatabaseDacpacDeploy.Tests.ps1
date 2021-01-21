@@ -7,20 +7,24 @@ BeforeDiscovery{
 
 }
 BeforeAll {
-	Set-StrictMode -Version 1.0
+    Set-StrictMode -Version 1.0
+    $PSModuleAutoloadingPreference = "none"
+
     if (-not (Test-path  Variable:\ProjectName)) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
     $CommandName = [IO.Path]::GetFileName($PSCommandPath).Replace(".Tests.ps1", "")
     
-    Get-Module $ProjectName | Remove-Module $ProjectName -ErrorAction SilentlyContinue
+    Get-Module $ProjectName | Remove-Module  
 
     if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
   
     . $ModulePath\Functions\$CommandName.ps1
     . $ModulePath\Functions\Write-DbDeployParameterLog.ps1
-
+    . $ModulePath\Functions\Get-DeployPropertiesJson.ps1
+    
 }
 Describe 'Invoke-DatabaseDacpacDeploy' {
     BeforeAll {
+        $PSModuleAutoloadingPreference = "none"
         $dacpacPath = "TestDrive:\test.dacpac"
         Set-Content $dacpacPath -value "testdacpac"
         $publishFile = "TestDrive:\publish.xml"
