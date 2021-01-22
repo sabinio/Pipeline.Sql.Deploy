@@ -16,9 +16,9 @@ Function Get-DeployPropertiesJson{
 
     $EnvironmentValues = @{}
     
-    Get-ChildItem Env: | Where-Object Name -ne "Path" | ForEach-Object {
-        $EnvironmentValues.($_.Name) = $_.Value
-    }
+  #  Get-ChildItem Env: | Where-Object Name -ne "Path" | ForEach-Object {
+  #      $EnvironmentValues.($_.Name) = $_.Value
+  #   }
 
     $ParamValues = @{action          = $action
             TargetServerName         = $TargetServerName
