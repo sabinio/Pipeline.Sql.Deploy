@@ -29,7 +29,7 @@ Describe 'PSAnalyser Testing Modules ' -Tag "PSScriptAnalyzer" -ForEach $Modules
 		$RuleResults = Invoke-ScriptAnalyzer -Path $module.FullName  -ExcludeRule $ExcludeRules
 		$HasResults = $RuleResults.Count -ne 0
 	} 
-	It "Rule $($rule)" -TestCases $Rules {
+	It " Rule <_>" -TestCases $Rules {
 		if ($HasResults) {
 			($RuleResults | Where-Object { $_.Rulename -eq $rule }).Message | should -be $null Message "sdfsd"
                    

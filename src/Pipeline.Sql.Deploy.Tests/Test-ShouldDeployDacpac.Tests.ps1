@@ -15,10 +15,10 @@ BeforeAll {
     #. $ModuleBase\functions\$CommandName
     Write-Verbose "Module path Beforeall after - $ModulePath" -verbose
 
-    Remove-Module $ProjectName -ErrorAction SilentlyContinue
-    Get-ChildItem ([System.IO.Path]::Combine($ModulePath,"Functions","*.ps1")) | ForEach-Object{
+    get-module $ProjectName | Remove-Module -Force
+    Get-ChildItem ([System.IO.Path]::Combine($ModulePath,"Functions","*.ps1")) -Recurse | ForEach-Object{
          Write-Verbose "loading $_" -Verbose;
-       . $_
+       . $_.FullName
     }
 }
 Describe 'deploy-guard' {
@@ -33,12 +33,11 @@ Describe 'deploy-guard' {
 
         It "Given the settingsfile does not exist, result Should -Be true" {
             Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
+            Mock Test-DatabaseExists {$true}
             $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
                 
-            $result = Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile 
-                
-            $result | Should -Be $true
-    
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -DBDeploySettingsFile "sdfsd" | Should -Be $true
+            
             Assert-MockCalled Test-IsPreviousDeploySettingsFileMissing -Exactly 1    
         }
     }
@@ -54,9 +53,12 @@ Describe "test a"{
         It "Given the deploy settings have changed, result Should -Be true" {
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $true }
+            Mock Test-DatabaseExists {$true}
+           
             $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
-   
-            $result = Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile 
+            Mock Invoke-SqlScalar -ParameterFilter {$Query -eq "Select top 1 name from sys.databases where name = 'foo'"} {return "foo"}
+
+            $result = Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -DBDeploySettingsFile "Somefile"
                 
             $result | Should -Be $true
             
@@ -74,20 +76,19 @@ Describe "test b"{
         Set-Content $publishFile -value "testdacpac" 
     }
     Context 'Test-ShouldDeployDacpac' {
-                
         It "Given the deploy settings have changed, result Should -Be true" {
                 
-            $localsettings = "simon"
+            $localsettings =@{TargetServer = "."; TargetDatabaseName = "foo";variables="sdfsfs" }
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy -ParameterFilter { $Settings -eq $localsettings } { $true }
-
+            Mock Test-DatabaseExists {$true}
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
             
-            $result = Test-ShouldDeployDacpac -settings $localsettings -dacpacFile $dacpacPath -publishfile $publishFile 
+            $result = Test-ShouldDeployDacpac -settings $localsettings -dacpacFile $dacpacPath -publishfile $publishFile -DBDeploySettingsFile "settings.json"
                 
-            $result | Should -Be $true
-    
             Assert-MockCalled Test-HaveDeploySettingsChangedSinceLastDeploy -Exactly 1 -Scope It
             Assert-MockCalled Test-IsPreviousDeploySettingsFileMissing -Exactly 1 -Scope It
+            $result | Should -Be $true
+    
 
         }
     }
@@ -114,16 +115,16 @@ Describe "test b"{
     Context 'settings file exists, settings not changed' {
        
         It "Given database not found, deployguard returns true" {
-
+            Mock Test-DatabaseExists {$false}
+           
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
-            Mock Invoke-SqlScalar -ParameterFilter { $Query -like "Select top 1 name from sys.databases where name*" } {  }
     
             $settings = @{TargetServerName = "."; TargetDatabaseName = "dbdoesnotexist" }
             $result = Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -verbose
                 
             $result | Should -Be $true
-            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
+            Assert-MockCalled Test-DatabaseExists -Exactly 1 -Scope It
         }
     }
     Context "test" {  
@@ -132,7 +133,8 @@ Describe "test b"{
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
             Mock Invoke-SqlScalar -ParameterFilter { $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" } {}
     
-            Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'master' -and $Query -like "Select top 1 name from sys.databases where name*" } { 'randomName1' }
+            Mock Test-DatabaseExists {$true}
+
             $settings = @{TargetServer = "."; TargetDatabaseName = "tabledoesnotexist" }    
             $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile
                 
@@ -144,21 +146,24 @@ Describe "test b"{
         It "Given database found deployguard returns false if deployment table exists with later date" {
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
-            Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'master' -and $Query -like "Select top 1 name from sys.databases where name*" } { 'randomName1' }
+            Mock Test-DatabaseExists {$true}
+            Mock Get-Item -ParameterFilter { $Path -eq "bob.json"} {[PSCustomObject]@{LastWriteTimeUtc = (get-date -Year 2020 -Month 1 -day 1)}}
+
             Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'randomName1' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" } { Get-Date -Year 2200 -Month 1 -Day 1 }
     
             $settings = @{TargetServer = "."; TargetDatabaseName = "randomName1" }    
                 
-            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile  
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile  -DBDeploySettingsFile "bob.json"
                 
             $result | Should -Be $false
-            Assert-MockCalled Invoke-SqlScalar -Exactly 2 -Scope It
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
         }
             
         It "Given database found and a previous old deployment deployguard returns true if dacpac is newer" {
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
-            Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'master' -and $Query -like "Select top 1 name from sys.databases where name*" } { 'randomName2' }
+            Mock Test-DatabaseExists {$true}
+
             Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'randomName2' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" } { Get-Date -Year 1900 -Month 1 -Day 1 }
     
             $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" }    
@@ -166,7 +171,7 @@ Describe "test b"{
             $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile  
                 
             $result | Should -Be $true
-            Assert-MockCalled Invoke-SqlScalar -Exactly 2 -Scope It
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
         }        
     
     

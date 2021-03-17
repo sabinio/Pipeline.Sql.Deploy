@@ -33,6 +33,7 @@ try {
     $pesterpreference.Run.Container = $container
     $pesterpreference.Run.PassThru = $true
     $pesterpreference.Filter.ExcludeTag =  "PSScriptAnalyzer" 
+    $pesterpreference.Output.Verbosity = "Detailed"
     
     $NormalTests = Invoke-Pester -Configuration $pesterpreference 
 	$NormalTests |Export-NUnitReport -path  "$outPath/test-results/$ProjectName.tests.results.xml" 
