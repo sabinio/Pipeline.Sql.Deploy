@@ -10,10 +10,8 @@ BeforeAll {
 	$ModulePath = resolve-path $ModulePath
 	$SourcePath = Resolve-path $SourcePath
 	
-	Write-Verbose "$CommandName loading script"
 	. "$ModulePath/Functions/$CommandName.ps1"
-}
-BeforeAll{
+
 	Set-StrictMode -Version 1.0
 }
 Describe "Checking Previous Settings"  {
