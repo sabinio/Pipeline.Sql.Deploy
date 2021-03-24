@@ -137,7 +137,7 @@ catch {
             Write-Host -ForegroundColor Red $_.Command $_.Location $(if ($_.Arguments.Length -le 80) { $_.Arguments })
         }
     }  
-
+    $LASTEXITCODE= 0
     if ("$env:SYSTEM_COLLECTIONURI" -eq "")  {Throw } #Don't throw with Azure DevOps. You get an awful error
 } 
 finally{
