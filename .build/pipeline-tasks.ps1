@@ -18,13 +18,14 @@ param (
 $global:ErrorActionPreference = "Stop"
 $ErrorActionPreference = "Stop"
 
-push-location $PSScriptroot
-Set-StrictMode -Version 1.0
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-#get-azcontext -ListAvailable | Where-Object {$_.subscription.name -like "*sabin*"} | Select-Object -first 1 | set-azcontext
-
 try {
+    push-location $PSScriptroot
+    Set-StrictMode -Version 1.0
+
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+    #get-azcontext -ListAvailable | Where-Object {$_.subscription.name -like "*sabin*"} | Select-Object -first 1 | set-azcontext
+
     if ([string]::IsNullOrEmpty($environment)) {
             $environment = 'localdev'
     }

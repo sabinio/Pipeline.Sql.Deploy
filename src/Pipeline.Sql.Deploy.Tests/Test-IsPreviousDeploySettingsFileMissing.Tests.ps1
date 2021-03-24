@@ -1,6 +1,6 @@
 param($ModulePath, $SourcePath, $ProjectName)
 
-BeforeDiscovery {
+BeforeAll {
 	if (-not $PSBoundParameters.ContainsKey("ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
 	if (-not $PSBoundParameters.ContainsKey("ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 	if (-not  $PSBoundParameters.ContainsKey("SourcePath")) { $SourcePath = "$ModulePath" }
@@ -10,6 +10,7 @@ BeforeDiscovery {
 	$ModulePath = resolve-path $ModulePath
 	$SourcePath = Resolve-path $SourcePath
 	
+	Write-Verbose "$CommandName loading script"
 	. "$ModulePath/Functions/$CommandName.ps1"
 }
 BeforeAll{
@@ -18,7 +19,7 @@ BeforeAll{
 Describe "Checking Previous Settings"  {
 	
 	It "Should get settings from database"{
-		Test-IsPreviousDeploySettingsFileMissing 
+		Test-IsPreviousDeploySettingsFileMissing
 
     }
 
