@@ -2,12 +2,12 @@ param($ModulePath, $ProjectName)
 BeforeAll {
 	Set-StrictMode -Version 1.0
 	if (-not $PSBoundParameters.ContainsKey("ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not $PSBoundParameters.ContainsKey("ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+    if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 }
 BeforeDiscovery {
 	
 	if (-not $ProjectName) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not $ModulePath) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+    if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 }
 Describe "Tests" {
 	Context 'Ensure all Functions are being exported ' -Tag "ModuleInstall" {

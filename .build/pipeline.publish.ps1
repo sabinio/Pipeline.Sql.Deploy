@@ -75,7 +75,7 @@ param($settings, $ArtifactsPath)
         Write-Host "Running tests on module in ($DownloadModuleFolder)"
 
             
-        $container = New-PesterContainer -Path "$rootpath/src/$($settings.ProjectName).Tests" -Data @{ModulePath="$DownloadModuleFolder"}  #An empty data is required for Pester 5.1.0 Beta 
+        $container = New-PesterContainer -Path "$ArtifactsPath/$($settings.ProjectName).Tests" -Data @{ModulePath="$DownloadModuleFolder"}  #An empty data is required for Pester 5.1.0 Beta 
 
         $pesterpreference = [PesterCOnfiguration]::Default      
         $pesterpreference.TestResult.OutputPath="$outPath/test-results/$($settings.ProjectName).postPublish.tests.results.xml" 

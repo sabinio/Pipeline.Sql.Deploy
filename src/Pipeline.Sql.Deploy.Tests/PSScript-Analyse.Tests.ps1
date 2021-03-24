@@ -1,7 +1,7 @@
 param($ModulePath, $SourcePath, $ProjectName)
 BeforeDiscovery {
 	if (-not $PSBoundParameters.ContainsKey("ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not $PSBoundParameters.ContainsKey("ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+    if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 	if (-not  $PSBoundParameters.ContainsKey("SourcePath")) { $SourcePath = "$ModulePath" }
 
 	$ModulePath = resolve-path $ModulePath
@@ -18,7 +18,7 @@ BeforeAll {
 	
 	$ExcludeRules = @('PSAvoidTrailingWhitespace', 'PSAvoidUsingWriteHost' ,'PSUseOutputTypeCorrectly')
 	if (-not $PSBoundParameters.ContainsKey("ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not $PSBoundParameters.ContainsKey("ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+    if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 	if (-not  $PSBoundParameters.ContainsKey("SourcePath")) { $SourcePath = "$ModulePath" }
 	$ModulePath = resolve-path $ModulePath
 	$SourcePath = Resolve-path $SourcePath
