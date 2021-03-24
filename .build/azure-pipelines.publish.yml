@@ -20,6 +20,10 @@ jobs:
     inputs:
       artifact: $(ProjectName)
       path: $(artifactsPath)\$(ProjectName)
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: $(ProjectName).Tests
+      path: $(artifactsPath)\$(ProjectName).Tests
 
   - task: PowerShell@2
     inputs:
