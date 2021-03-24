@@ -74,7 +74,7 @@ Function Test-ShouldDeployDacpac {
                     Write-Host "ShouldDeploy? Yes - no settings file"            
                     $shouldDeploy = $true
                 }
-                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -DBDeploySettingsFile $DBDeploySettingsFile -Settings $Settings) {
+                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings (Get-DeploySettingsFromFile -DBDeploySettingsFile $DBDeploySettingsFile ) -Settings $Settings) {
                     Write-Host "ShouldDeploy? Yes - settings have changed"
                     $shouldDeploy = $true
                 }

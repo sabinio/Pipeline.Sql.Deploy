@@ -1,4 +1,5 @@
-function Test-DatabaseExists {
+function Test-DatabaseExists {  
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns","", Justification="Exists is not plural..build")]
     [CmdletBinding()]
     param([string]$TargetServer
         , [string]$TargetUser
