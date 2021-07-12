@@ -131,7 +131,7 @@ Describe "test b"{
         It "Given database found deployguard returns true if no deployment table exists" {
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
-            Mock Invoke-SqlScalar -ParameterFilter { $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" } {}
+            Mock Invoke-SqlScalar {}
     
             Mock Test-DatabaseExists {$true}
 
@@ -139,7 +139,7 @@ Describe "test b"{
             $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile
                 
             $result | Should -Be $true
-            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         }
     }
     Context "test2 " {
@@ -149,7 +149,7 @@ Describe "test b"{
             Mock Test-DatabaseExists {$true}
             Mock Get-Item -ParameterFilter { $Path -eq "bob.json"} {[PSCustomObject]@{LastWriteTimeUtc = (get-date -Year 2020 -Month 1 -day 1)}}
 
-            Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'randomName1' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" } { Get-Date -Year 2200 -Month 1 -Day 1 }
+            Mock Invoke-SqlScalar { Get-Date -Year 2200 -Month 1 -Day 1 }
     
             $settings = @{TargetServer = "."; TargetDatabaseName = "randomName1" }    
                 
@@ -157,6 +157,7 @@ Describe "test b"{
                 
             $result | Should -Be $false
             Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $DatabaseName -eq 'randomName1' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         }
             
         It "Given database found and a previous old deployment deployguard returns true if dacpac is newer" {
@@ -164,7 +165,7 @@ Describe "test b"{
             Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
             Mock Test-DatabaseExists {$true}
 
-            Mock Invoke-SqlScalar -ParameterFilter { $DatabaseName -eq 'randomName2' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" } { Get-Date -Year 1900 -Month 1 -Day 1 }
+            Mock Invoke-SqlScalar  { Get-Date -Year 1900 -Month 1 -Day 1 }
     
             $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" }    
     
@@ -172,6 +173,7 @@ Describe "test b"{
                 
             $result | Should -Be $true
             Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $DatabaseName -eq 'randomName2' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         }        
     
     

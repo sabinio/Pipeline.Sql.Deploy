@@ -79,7 +79,8 @@ Function Test-ShouldDeployDacpac {
                     $shouldDeploy = $true
                 }
                 else {
-                    $LastDeployDate = Invoke-SqlScalar -Query "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" `
+                    $dacpacname = (Get-Item $dacpacfile).basename 
+                    $LastDeployDate = Invoke-SqlScalar -Query "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = '$dacpacName' order by DeploymentCreated Desc" `
                         -DatabaseName $TargetDatabaseName `
                         -TargetServer $TargetServer `
                         -TargetUser $TargetUser `

@@ -1,3 +1,4 @@
 {
-    "powershell.pester.outputVerbosity": "Detailed"
+    "powershell.pester.outputVerbosity": "Detailed",
+    "powershell.pester.useLegacyCodeLens": false
 }
