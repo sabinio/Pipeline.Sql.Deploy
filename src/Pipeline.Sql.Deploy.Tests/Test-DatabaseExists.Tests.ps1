@@ -13,6 +13,7 @@ BeforeAll {
     if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
     get-module $ProjectName | Remove-Module -Force
     . $ModulePath\Functions\Internal\$CommandName.ps1
+    . $ModulePath\Functions\Internal\Invoke-SqlScalar.ps1
 }
 
 Describe 'Test-DatabaseExists' {
