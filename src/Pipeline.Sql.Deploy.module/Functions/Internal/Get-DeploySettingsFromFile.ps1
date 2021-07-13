@@ -3,6 +3,6 @@ function Get-DeploySettingsFromFile {
     param($DBDeploySettingsFile)
 
     Write-Verbose "Checking $DBDeploySettingsFile"
-    return (Get-Content $DBDeploySettingsFile -Raw).Trim()
+    return (Get-Content $DBDeploySettingsFile -Raw| ConvertFrom-Json -Depth 10)
     
 }
