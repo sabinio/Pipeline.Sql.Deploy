@@ -9,7 +9,7 @@ function Update-Manifest {
         throw "$psd1File does not exist!"
     }
 
-    [string] $prerelease = "$($settings.prerelease)"
+    [string] $prerelease = $settings.prerelease
     $VersionNumber = $settings.VersionNumber
     $VersionNumber = $VersionNumber.Trim()
 

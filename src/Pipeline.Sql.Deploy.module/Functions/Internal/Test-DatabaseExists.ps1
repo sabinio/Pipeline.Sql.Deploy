@@ -1,4 +1,5 @@
 function Test-DatabaseExists {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification='Not changed yet')]
     [CmdletBinding()]
     param([string]$TargetServer
         , [string]$TargetUser

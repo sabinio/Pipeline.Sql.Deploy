@@ -20,14 +20,11 @@ parameters:
 
 jobs:
 - job: 
-  variables:
-    ${{ if eq(parameters.pool,'none') }}:
-      displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.vmimage }}
-    ${{ if ne(parameters.pool,'none') }}:
-      displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.pool }}
 
-  displayName: ${{variables.displayName}}
-  
+  ${{ if eq(parameters.pool,'none') }}:
+    displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.vmimage }}
+  ${{ if ne(parameters.pool,'none') }}:
+    displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.pool }}
 
   pool:
     ${{ if ne(parameters.pool,'none') }}:
@@ -78,7 +75,7 @@ jobs:
     displayName: 'Publish Test Results'
     inputs:
       testResultsFormat: NUnit
-      testRunTitle: (${{variables.displayName}})
+      testRunTitle: Tests (PSCore=$(UsePowerShellCore))
       testResultsFiles: |
         **/*.tests.results.xml
       searchFolder: '$(System.DefaultWorkingDirectory)/out/test-results'

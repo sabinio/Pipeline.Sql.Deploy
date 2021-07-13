@@ -44,7 +44,9 @@ Describe 'PSAnalyser Testing scripts - <BaseName> <sourceFile>'  -Tag "PSScriptA
 		Write-Verbose "Scripts before - $BaseName" -Verbose
 		$sourceFile = $sourcefile.replace($ModulePath, $sourcePath )
 
-		$RuleResults = Invoke-ScriptAnalyzer -Path $sourcefile    -ExcludeRule $ExcludeRules
+		$RuleResults = Invoke-ScriptAnalyzer -Path $sourcefile    -ExcludeRule $ExcludeRules -Verbose
+		
+		Write-Verbose "Results- $RuleResults" -Verbose
 		$HasResults = $RuleResults.Count -ne 0
 	}
 	It "Rule <_> " -TestCases $Rules {

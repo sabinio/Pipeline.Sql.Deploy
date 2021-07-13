@@ -1,3 +1,5 @@
 {
-    "prerelease":"simon"
+    "prerelease":"simon",
+    "PowershellRepositoryUsername":"simon@sabin.io",
+    "PowershellRepositorykey":  "{Get-KeyVaultSecret 'simonsabinkv' 'AzureDevOpsPowershellRepositoryKey'}"
 }
