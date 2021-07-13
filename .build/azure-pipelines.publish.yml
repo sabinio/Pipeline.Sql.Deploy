@@ -6,15 +6,15 @@ jobs:
 
   steps:
   - checkout: none   
-  - task: PowerShell@2
-    inputs:
-      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
-      arguments: -Install
-
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: $(ProjectName)
-      path: $(artifactsPath)\$(ProjectName)
+      path: $(artifactsPath)/$(ProjectName)
+
+  - task: PowerShell@2
+    inputs:
+      filePath: $(artifactsPath)/$(ProjectName)/.build/pipeline-tasks.ps1
+      arguments: -Install
 
   - task: PowerShell@2
     inputs:
@@ -23,6 +23,6 @@ jobs:
       
   - task: PowerShell@2
     inputs:
-      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      filePath: $(artifactsPath)/$(ProjectName)/.build/pipeline-tasks.ps1
       arguments: -Install -Publish -PowershellRepositoryKey (Convertto-securestring $(NugetApiKey) -force -asplaintext)   
     displayName: 'Publish Module to PowerShell Gallery'

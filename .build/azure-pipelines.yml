@@ -30,13 +30,13 @@ stages:
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: false
-      vmimage: windows-latest
+      pool: sio-build-agents
       PublishArtifacts: false
     
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: true
-      vmimage: windows-latest
+      pool: sio-build-agents
       PublishArtifacts: true
       
   - template: azure-pipelines.buildTest.yml
