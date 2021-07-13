@@ -1,20 +1,19 @@
 Function Test-HaveDeploySettingsChangedSinceLastDeploy {
     [CmdletBinding()]
     param (
-        [string] $DBDeploySettingsFile,
+        $OldSettings,
         $Settings
     )
-    Write-Verbose "Checking $DBDeploySettingsFile"
-    $OldSettings = (Get-Content $DBDeploySettingsFile -Raw).Trim()
-    
-    Write-Verbose "OldSettings  $($OldSettings.Length)"
-    Write-Verbose $OldSettings
+    #Compares settings
 
-    $NewSettings = (Get-DbSettingsAsJson -settings $Settings )
-    Write-Verbose "NewSettings $($NewSettings.Length)"
-    Write-Verbose $NewSettings
-    for ($i = 0; $i -lt $NewSettings.Length; $i++) {
-        
+    $OldSettingsJson = (Get-DbSettingsAsJson -settings $OldSettings )
+    Write-Verbose "OldSettings  $($NewSettingsJson.Length)"
+    Write-Verbose $OldSettingsJson
+    $NewSettingsJson = (Get-DbSettingsAsJson -settings $Settings )
+    Write-Verbose "NewSettings $($NewSettingsJson.Length)"
+    Write-Verbose $NewSettingsJson
+    for ($i = 0; $i -lt $NewSettingsJson.Length; $i++) {
+        #ToDO show whats changed
     }
-    return $OldSettings -ne $NewSettings
+    return $OldSettingsJson -ne $NewSettingsJson
 }

@@ -16,13 +16,18 @@ BeforeAll{
 	
 	get-module pipeline.sql.deploy | remove-module
 	. "$ModulePath/Functions/$CommandName.ps1"
+
 	Set-StrictMode -Version 1.0
 	$env:psmodulepath =""
 }
 Describe "Checking Previous Settings"  {
-	
-	It "Should get settings from database"{
-		Test-IsPreviousDeploySettingsFileMissing "somemisingfile.txt"
+	It "Should return false if no path passed in"{
+		Test-IsPreviousDeploySettingsFileMissing | should -be $false
+
+    }
+	It "Should return false if no path passed in"{
+		Test-IsPreviousDeploySettingsFileMissing "somemissingfile.txt" | should -be $true
+
     }
 
 }

@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Test-HaveDeploySettingsChangedSinceLastDeploy [[-DBDeploySettingsFile] <String>] [[-Settings] <Object>]
+Test-HaveDeploySettingsChangedSinceLastDeploy [[-OldSettings] <Object>] [[-Settings] <Object>]
  [<CommonParameters>]
 ```
 
@@ -31,11 +31,11 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -DBDeploySettingsFile
-{{ Fill DBDeploySettingsFile Description }}
+### -OldSettings
+{{ Fill OldSettings Description }}
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
@@ -67,7 +67,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
-
 ## OUTPUTS
 
 ### System.Object

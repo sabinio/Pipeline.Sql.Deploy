@@ -75,7 +75,7 @@ jobs:
     displayName: 'Publish Test Results'
     inputs:
       testResultsFormat: NUnit
-      testRunTitle: Tests (PSCore=$(UsePowerShellCore))
+      testRunTitle: Tests ${{parameters.name}}
       testResultsFiles: |
         **/*.tests.results.xml
       searchFolder: '$(System.DefaultWorkingDirectory)/out/test-results'
