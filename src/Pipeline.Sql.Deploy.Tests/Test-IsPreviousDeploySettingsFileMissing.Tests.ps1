@@ -22,7 +22,7 @@ BeforeAll{
 Describe "Checking Previous Settings"  {
 	
 	It "Should get settings from database"{
-		Test-IsPreviousDeploySettingsFileMissing 
+		Test-IsPreviousDeploySettingsFileMissing "somemisingfile.txt"
     }
 
 }
