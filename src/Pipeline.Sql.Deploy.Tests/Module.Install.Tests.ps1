@@ -1,8 +1,8 @@
 param($ModulePath, $ProjectName)
 BeforeAll {
 	Set-StrictMode -Version 1.0
-	if (-not (Test-path "VariableProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not (Test-path "Variable:ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+	if (-not (Test-path "Variable:ProjectName")-or [string]::IsNullOrWhiteSpace($ProjectName) ) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
+	if (-not (Test-path "Variable:ModulePath") -or [string]::IsNullOrWhiteSpace($ModulePath) ) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 }
 BeforeDiscovery {
 	

@@ -1,4 +1,5 @@
 {
     "powershell.pester.outputVerbosity": "Detailed",
+    "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
     "powershell.pester.useLegacyCodeLens": false
 }
