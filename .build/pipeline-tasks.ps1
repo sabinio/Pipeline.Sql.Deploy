@@ -58,6 +58,7 @@ try {
     $settings = (Get-ProjectSettings -environment $environment -ConfigRootPath (join-path $PSScriptroot "config") -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "config") -overrides $parameterOverrides) 
     write-host ("##vso[build.updatebuildnumber] {0}.{1}" -f $settings.ProjectName, $settings.FullVersion)
 	write-host ("##vso[task.setvariable variable=ProjectName;IsOutput=true]{0}" -f $settings.ProjectName)
+	write-host ("##vso[task.setvariable variable=ProjectName;]{0}" -f $settings.ProjectName)
 
 	Write-Host ($settings | Convertto-json)
 	Write-Host (Get-ChildItem env: | out-string)
