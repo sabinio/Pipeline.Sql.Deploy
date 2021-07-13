@@ -9,7 +9,6 @@ jobs:
   
   - task: DownloadPipelineArtifact@2
     inputs:
-      artifact: $(ProjectName)
       path: $(artifactsPath)/$(ProjectName)
 
   - task: PowerShell@2

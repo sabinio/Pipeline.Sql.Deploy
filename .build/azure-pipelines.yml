@@ -68,7 +68,7 @@ stages:
   variables:
     - group: sabin.io AzureDevOps Gallery Powershell Publish
     - name: ProjectName
-      value: $[ stageDependencies.BuildAndTest.windows-core.outputs['install.ProjectName'] ]
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
     - name : environment
       value: pr
   jobs:
@@ -81,7 +81,7 @@ stages:
   variables:
     - group: sabin.io Powershell Publish
     - name: ProjectName
-      value: $[ stageDependencies.BuildAndTest.windows-core.outputs['install.ProjectName'] ]
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
     - name : environment
       value: prod
   jobs:
