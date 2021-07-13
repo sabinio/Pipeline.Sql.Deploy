@@ -32,21 +32,21 @@ stages:
       UsePowerShellCore: false
       pool: sio-build-agents
       PublishArtifacts: false
-      name: windows-noncore
+      name: windows_noncore
 
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: true
       pool: sio-build-agents
       PublishArtifacts: true
-      name: windows-core
+      name: windows_core
       
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: false
       vmimage: ubuntu-latest
       PublishArtifacts: false
-      name: ubuntu-core
+      name: ubuntu_core
 
 - stage: TestPublishForCI
   dependsOn: BuildAndTest
@@ -55,7 +55,7 @@ stages:
   variables:
     - group: sabin.io Powershell Publish
     - name: ProjectName
-      value: $[ stageDependencies.BuildAndTest.windows-core.outputs['install.ProjectName'] ]
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
     - name : environment
       value: ci   
   jobs:
