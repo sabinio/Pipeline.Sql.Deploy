@@ -6,7 +6,10 @@ function Save-DbSettingsToFile{
     )
 
     Write-Verbose "Saving DB deployment settings to $DBDeploySettingsFile"
+    
+    $parentFolder = Split-Path -Parent $DBDeploySettingsFile
 
-    New-Item -ItemType Directory (Split-Path -Parent $DBDeploySettingsFile) -Force | Out-Null
+    if (-not (Test-Path $parentFolder)){ New-Item -ItemType Directory parentFolder -Force | Out-Null}
+
     Get-SettingsAsJson $settings | Out-File $DBDeploySettingsFile -Force
 }

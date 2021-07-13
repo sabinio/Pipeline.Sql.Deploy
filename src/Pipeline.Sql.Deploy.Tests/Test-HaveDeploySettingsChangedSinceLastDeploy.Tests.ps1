@@ -24,7 +24,7 @@ Describe "Checking Previous Settings"  {
 	It "Should return false if no path passed in"{
 		$settings = @{Server="foo";database="bob"}
 		$DBDeploySettingsFile = "TestDrive:\CompareSettings.settings"
-		Save-DbSettingsToFile -Settings $settings -DBDeploySettingsFile $DBDeploySettingsFile
+		Save-DbSettingsToFile -Settings $settings -DBDeploySettingsFile $DBDeploySettingsFile -verbose
 
 		Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings (Get-DeploySettingsFromFile -DBDeploySettingsFile $DBDeploySettingsFile ) -Settings $Settings | Should -be $false
 		
