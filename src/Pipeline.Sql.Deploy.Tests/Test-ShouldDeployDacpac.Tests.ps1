@@ -3,9 +3,6 @@ param(
     $ModulePath,
     $ProjectName
 )
-BeforeDiscovery {
-    Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
-}
 BeforeAll {
     Set-StrictMode -Version 1.0
     $ErrorActionPreference="stop"
@@ -108,6 +105,7 @@ Describe 'deploy-guard' {
     Context "test" {  
         It "Given database found deployguard returns true if no deployment table exists" {
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
 
             $settings = @{TargetServer = "."; TargetDatabaseName = "tabledoesnotexist" }    
             Mock Get-DeploySettingsFromFile { $settings }

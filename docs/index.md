@@ -4,10 +4,8 @@ Welcome to the Pipeline.Sql.Deploy wiki!
 Here's a list of the cmdlets in this module.
 |Module|
 |-|
-|[_config](_config)
 |[Get-DbSettingsAsJson](Get-DbSettingsAsJson)
 |[Get-DeployPropertiesJson](Get-DeployPropertiesJson)
-|[index](index)
 |[Invoke-DatabaseDacpacDeploy](Invoke-DatabaseDacpacDeploy)
 |[Invoke-SqlScalar](Invoke-SqlScalar)
 |[New-SqlConnection](New-SqlConnection)
