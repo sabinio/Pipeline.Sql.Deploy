@@ -15,6 +15,7 @@ BeforeAll{
 	. "$ModulePath/Functions/$CommandName.ps1"
 	. "$ModulePath/Functions/Internal/Get-DeploySettingsFromFile.ps1"
 	. "$ModulePath/Functions/Save-DbSettingsToFile.ps1"
+	. "$ModulePath/Functions/Internal/Get-SettingsAsJson.ps1"
 	
 	Set-StrictMode -Version 1.0
 	$env:psmodulepath =""
