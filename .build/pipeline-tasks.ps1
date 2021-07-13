@@ -22,6 +22,7 @@ push-location $PSScriptroot
 Set-StrictMode -Version 1.0
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+#use this to connect to azure
 #get-azcontext -ListAvailable | Where-Object {$_.subscription.name -like "*sabin*"} | Select-Object -first 1 | set-azcontext
 
 try {
