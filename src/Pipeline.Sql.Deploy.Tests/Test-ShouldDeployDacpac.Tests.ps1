@@ -4,7 +4,7 @@ param(
     $ProjectName
 )
 BeforeDiscovery{
-    Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
+    Write-Verbose "Module path Beforedisco - $ModulePath" -verbose
 }
 BeforeAll {
 	Set-StrictMode -Version 1.0
@@ -13,11 +13,11 @@ BeforeAll {
     
     if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
     #. $ModuleBase\functions\$CommandName
-    Write-Verbose "Module path Beforeall after - $ModulePath" -verbose
+    Write-Verbose "Module path Beforeall after - $ModulePath" 
 
     get-module $ProjectName | Remove-Module -Force
     Get-ChildItem ([System.IO.Path]::Combine($ModulePath,"Functions","*.ps1")) -Recurse | ForEach-Object{
-         Write-Verbose "loading $_" -Verbose;
+         Write-Verbose "loading $_";
        . $_.FullName
     }
 }

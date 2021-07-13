@@ -1,9 +1,8 @@
 param($ModulePath, $SourcePath, $ProjectName)
 BeforeDiscovery {
-	if (-not (Test-path "Variable:ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not (Test-path "Variable:ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+	if (-not (Test-path "Variable:ProjectName")-or [string]::IsNullOrWhiteSpace($ProjectName) ) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
+	if (-not (Test-path "Variable:ModulePath") -or [string]::IsNullOrWhiteSpace($ModulePath) ) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 	if (-not  (Test-path "Variable:SourcePath") -or [string]::IsNullOrWhiteSpace($sourcePath)) { $SourcePath = "$ModulePath" }
-
 
 	Write-Verbose "ModulePath = $ModulePath" -Verbose
 	Write-Verbose "SourcePath = $SourcePath" -Verbose
@@ -46,7 +45,7 @@ Describe 'PSAnalyser Testing scripts - <BaseName> <sourceFile>'  -Tag "PSScriptA
 	BeforeAll {
 		$sourceFile = $sourcefile.replace($ModulePath, $sourcePath )
 
-		$RuleResults = Invoke-ScriptAnalyzer -Path $sourcefile    -ExcludeRule $ExcludeRules -Verbose
+		$RuleResults = Invoke-ScriptAnalyzer -Path $sourcefile    -ExcludeRule $ExcludeRules
 		$HasResults = $RuleResults.Count -ne 0
 	}
 	It "Rule <_> " -TestCases $Rules {
