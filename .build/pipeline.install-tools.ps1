@@ -36,7 +36,7 @@ if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -eq $L
 
 #Powershell Get needs to be first otherwise it gets loaded by use of import-module
 $modules = @{Module="PowerShellGet";Version=2.2.4.1},`
-@{Module="Pipeline.Config";Version="0.2.10";Latest=$true;Repository="PSGallery"},`
+@{Module="Pipeline.Config";Version="0.2.10";},`
 @{Module="Pester";Version="5.1.1"},`
 @{Module="PSScriptAnalyzer"},`
 @{Module="platyps"}
