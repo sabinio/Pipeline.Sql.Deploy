@@ -5,7 +5,8 @@ jobs:
     name: 'sio-build-agents'
 
   steps:
-  - checkout: none   
+  - checkout: none
+  
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: $(ProjectName)

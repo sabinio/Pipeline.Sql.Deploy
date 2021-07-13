@@ -1,6 +1,8 @@
 parameters: 
 - name: UsePowerShellCore
   type: boolean
+- name : name
+  type : string
 - name: pool
   type: string
   values: 
@@ -19,13 +21,10 @@ parameters:
   default: false  
 
 jobs:
-- job: 
+- job: ${{parameters.name}}
 
-  ${{ if eq(parameters.pool,'none') }}:
-    displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.vmimage }}
-  ${{ if ne(parameters.pool,'none') }}:
-    displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.pool }}
-
+  displayName: ${{parameters.name}}
+  
   pool:
     ${{ if ne(parameters.pool,'none') }}:
       name: ${{ parameters.pool }}
@@ -44,6 +43,7 @@ jobs:
         write-Host $env:path
 
   - task: PowerShell@2
+    name: install
     inputs:
       pwsh: ${{parameters.UsePowerShellCore}}
       filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1

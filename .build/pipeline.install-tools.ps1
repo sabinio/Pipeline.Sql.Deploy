@@ -18,7 +18,7 @@ function Repair-PSModulePath {
 
 if (Get-PSRepository PowershellGalleryTest  -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
 
-$LatestVersion = (Find-Module Pipeline.Tools -Repository "PSGallery").Version
+$LatestVersion = "0.2.165" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
 Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
 Repair-PSModulePath 
