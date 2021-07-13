@@ -4,7 +4,8 @@ Function Test-HaveDeploySettingsChangedSinceLastDeploy {
         $OldSettings,
         $Settings
     )
-   
+    #Compares settings
+
     $OldSettingsJson = (Get-DbSettingsAsJson -settings $OldSettings )
     Write-Verbose "OldSettings  $($NewSettingsJson.Length)"
     Write-Verbose $OldSettingsJson
@@ -12,7 +13,7 @@ Function Test-HaveDeploySettingsChangedSinceLastDeploy {
     Write-Verbose "NewSettings $($NewSettingsJson.Length)"
     Write-Verbose $NewSettingsJson
     for ($i = 0; $i -lt $NewSettingsJson.Length; $i++) {
-        
+        #ToDO show whats changed
     }
     return $OldSettingsJson -ne $NewSettingsJson
 }

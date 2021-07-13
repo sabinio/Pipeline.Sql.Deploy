@@ -53,19 +53,25 @@ Function Test-ShouldDeployDacpac {
         }
         else {
             #Get latest deploy for the required dacpac
-            if ($null -eq $DBDeploySettingsFile) {
-          
-              <#  $dacpacname = (Get-Item $dacpacfile).basename 
-                $DeployProperties = Invoke-SqlScalar -Query "Select DeployProperties from Deploy.Deployment order by DeploymentCreated Desc
-             #  where json_value(DeployProperties,'$.Parameters.dacpacname') = $dacpacName" `
-                    -DatabaseName $TargetDatabaseName `
-                    -TargetServer $TargetServer `
-                    -TargetUser $TargetUser `
-                    -TargetPasswordSecure $TargetPasswordSecure
+            if ([string]::IsNullOrWhiteSpace($DBDeploySettingsFile)) {
 
-                if ($DeployProperties)
-                Write-Verbose "Last deployment $LastDeployDate - dacpac date $dacpacDate"
-#>
+          
+                $dacpacname = (Get-Item $dacpacfile).basename 
+
+                $SettingsFromDB = Get-DeploySettingsFromDB -DacpacName $dacpacName -Server $TargetServer -User $TargetUser -PasswordSecure $TargetPasswordSecure -Database $TargetDatabaseName
+                
+                if ($null -eq $SettingsFromDB){
+                    Write-Host "no settings in DB need to deploy"
+                    $shouldDeploy = $true
+                }
+               elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings $SettingsFromDB.Settings -Settings $Settings) {
+                    Write-Host "ShouldDeploy? Yes - settings have changed"
+                    $shouldDeploy = $true
+                }
+                elseif ($SettingsFromDB.LastDeployDate -lt $dacpacDate) {
+                    Write-Host "last deploy date < dacpac date so we don't need to deploy the database"
+                    $shouldDeploy = $true
+                }   
             }
             else {
                 #previous behaviour using a DBDeploySettingsFile 
@@ -79,13 +85,12 @@ Function Test-ShouldDeployDacpac {
                     $shouldDeploy = $true
                 }
                 else {
-                    $LastDeployDate = Invoke-SqlScalar -Query "Select top 1 DeploymentCreated from Deploy.Deployment order by DeploymentCreated Desc" `
-                        -DatabaseName $TargetDatabaseName `
-                        -TargetServer $TargetServer `
-                        -TargetUser $TargetUser `
-                        -TargetPasswordSecure $TargetPasswordSecure
-                    if ($null -eq $LastDeployDate -or $LastDeployDate -lt $dacpacDate) {
-                        Write-Host "last deploy date > dacpac date so we don't need to deploy the database"
+                    $dacpacname = (Get-Item $dacpacfile).basename 
+
+                    $SettingsFromDB = Get-DeploySettingsFromDB -DacpacName $dacpacName -Server $TargetServer -User $TargetUser -PasswordSecure $TargetPasswordSecure -Database $TargetDatabaseName
+                    
+                    if ($null -eq $SettingsFromDB -or ($SettingsFromDB.LastDeployDate) -lt $dacpacDate) {
+                        Write-Host "last deploy date < dacpac date so we don't need to deploy the database"
                         $shouldDeploy = $true
                     }
                 }

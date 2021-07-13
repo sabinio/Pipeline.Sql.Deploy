@@ -30,27 +30,32 @@ stages:
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: false
-      vmimage: windows-latest
+      pool: sio-build-agents
       PublishArtifacts: false
-    
+      name: windows_noncore
+
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: true
-      vmimage: windows-latest
+      pool: sio-build-agents
       PublishArtifacts: true
+      name: windows_core
       
   - template: azure-pipelines.buildTest.yml
     parameters:
       UsePowerShellCore: false
       vmimage: ubuntu-latest
       PublishArtifacts: false
-        
+      name: ubuntu_core
+
 - stage: TestPublishForCI
   dependsOn: BuildAndTest
   displayName: Test Publishing for main
   condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io Powershell Publish
+    - name: ProjectName
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
     - name : environment
       value: ci   
   jobs:
@@ -62,6 +67,8 @@ stages:
   condition: and(succeeded(),ne(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io AzureDevOps Gallery Powershell Publish
+    - name: ProjectName
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
     - name : environment
       value: pr
   jobs:
@@ -73,6 +80,8 @@ stages:
   condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io Powershell Publish
+    - name: ProjectName
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
     - name : environment
       value: prod
   jobs:

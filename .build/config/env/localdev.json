@@ -4,7 +4,5 @@
     "prerelease":"dev",
     "PowershellRepository":"PowershellGalleryTest",
     "PowershellRepositoryFeed":"https://pkgs.dev.azure.com/sabinio/Sabin.IO/_packaging/PowershellGalleryTest/nuget/v2",
-    "FailOnTests":"{$true}",
-    "PowershellRepositoryUsername":"simon@sabin.io",
-    "PowershellRepositorykey":  "{Get-KeyVaultSecret 'simonsabinkv' 'AzureDevOpsPowershellRepositoryKey'}"
+    "FailOnTests":"{$true}"
 }

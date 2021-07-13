@@ -18,14 +18,14 @@ param (
 $global:ErrorActionPreference = "Stop"
 $ErrorActionPreference = "Stop"
 
+push-location $PSScriptroot
+Set-StrictMode -Version 1.0
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+#use this to connect to azure
+#get-azcontext -ListAvailable | Where-Object {$_.subscription.name -like "*sabin*"} | Select-Object -first 1 | set-azcontext
+
 try {
-    push-location $PSScriptroot
-    Set-StrictMode -Version 1.0
-
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-    #get-azcontext -ListAvailable | Where-Object {$_.subscription.name -like "*sabin*"} | Select-Object -first 1 | set-azcontext
-
     if ([string]::IsNullOrEmpty($environment)) {
             $environment = 'localdev'
     }
@@ -58,6 +58,7 @@ try {
 	Write-Host "##[group]Settings"
     $settings = (Get-ProjectSettings -environment $environment -ConfigRootPath (join-path $PSScriptroot "config") -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "config") -overrides $parameterOverrides) 
     write-host ("##vso[build.updatebuildnumber] {0}.{1}" -f $settings.ProjectName, $settings.FullVersion)
+	write-host ("##vso[task.setvariable variable=ProjectName;IsOutput=true]{0}" -f $settings.ProjectName)
 	write-host ("##vso[task.setvariable variable=ProjectName;]{0}" -f $settings.ProjectName)
 
 	Write-Host ($settings | Convertto-json)
@@ -138,7 +139,7 @@ catch {
             Write-Host -ForegroundColor Red $_.Command $_.Location $(if ($_.Arguments.Length -le 80) { $_.Arguments })
         }
     }  
-    $LASTEXITCODE= 0
+
     if ("$env:SYSTEM_COLLECTIONURI" -eq "")  {Throw } #Don't throw with Azure DevOps. You get an awful error
 } 
 finally{

@@ -5,25 +5,11 @@ jobs:
     name: 'sio-build-agents'
 
   steps:
-  - checkout: none  
+  - checkout: none
+  
   - task: DownloadPipelineArtifact@2
     inputs:
-      artifact: .build
-      path: $(System.DefaultWorkingDirectory)/.build
-
-  - task: PowerShell@2
-    inputs:
-      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
-      arguments: -Install
-
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      artifact: $(ProjectName)
-      path: $(artifactsPath)\$(ProjectName)
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      artifact: $(ProjectName).Tests
-      path: $(artifactsPath)\$(ProjectName).Tests
+      path: $(artifactsPath)
 
   - task: PowerShell@2
     inputs:
@@ -32,6 +18,6 @@ jobs:
       
   - task: PowerShell@2
     inputs:
-      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      filePath: $(artifactsPath)/.build/pipeline-tasks.ps1
       arguments: -Install -Publish -PowershellRepositoryKey (Convertto-securestring $(NugetApiKey) -force -asplaintext)   
     displayName: 'Publish Module to PowerShell Gallery'

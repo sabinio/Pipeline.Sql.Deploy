@@ -19,8 +19,14 @@ try {
     get-module $ProjectName | remove-module  -force
 
 	$container = New-PesterContainer -Path  "$rootpath/src/$ProjectName.Tests" -Data @{ModulePath="$artifactsPath\$ProjectName";ProjectName=$ProjectName}; #An empty data is required for Pester 5.1.0 Beta 
-
-	$ScriptAnalysis = Invoke-Pester -container $container -passthru -Tag "PSScriptAnalyzer" -ExcludeTag $settings.ExcludeTags
+	$filters = @{}
+	if ($settings.TestFilter -ne ""){
+		$filters.Name =$settings.TestFilter
+	}
+	else {
+		$filters.tag =  "PSScriptAnalyzer"
+	}
+	$ScriptAnalysis = Invoke-Pester -container $container -passthru @filters
 	$ScriptAnalysis | Export-NUnitReport -path  "$outPath/test-results/$ProjectName.PsScripttests.results.xml" `
 							
 	
@@ -33,9 +39,10 @@ try {
     $pesterpreference.Run.Container = $container
     $pesterpreference.Run.PassThru = $true
     $pesterpreference.Filter.ExcludeTag =  "PSScriptAnalyzer" 
-    $pesterpreference.Output.Verbosity = "Detailed"
+    $pesterpreference.Filter.FullName =  $settings.TestFilter 
     
     $NormalTests = Invoke-Pester -Configuration $pesterpreference 
+	
 	$NormalTests |Export-NUnitReport -path  "$outPath/test-results/$ProjectName.tests.results.xml" 
 	$pesterpreference = [PesterCOnfiguration]::Default     
 	

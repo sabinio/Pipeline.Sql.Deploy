@@ -3,7 +3,7 @@ Function Test-IsPreviousDeploySettingsFileMissing {
     param (
         [string]$DBDeploySettingsFile
     )
-        Write-Verbose "Test-IsPreviousDeploySettingsFileMissing ($DBDeploySettingsFile)" -Verbose
+        Write-Verbose "Test-IsPreviousDeploySettingsFileMissing ($DBDeploySettingsFile)"
         if ([String]::IsNullOrEmpty($DBDeploySettingsFile)){
             return $false
         }

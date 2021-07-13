@@ -1,6 +1,8 @@
 parameters: 
 - name: UsePowerShellCore
   type: boolean
+- name : name
+  type : string
 - name: pool
   type: string
   values: 
@@ -19,16 +21,10 @@ parameters:
   default: false  
 
 jobs:
-- job: 
-  variables:
-    ${{ if eq(parameters.pool,'none') }}:
-      displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.vmimage }}
-    ${{ if ne(parameters.pool,'none') }}:
-      displayName: pscore=${{parameters.UsePowerShellCore}} agent=${{ parameters.pool }}
+- job: ${{parameters.name}}
 
-  displayName: ${{variables.displayName}}
+  displayName: ${{parameters.name}}
   
-
   pool:
     ${{ if ne(parameters.pool,'none') }}:
       name: ${{ parameters.pool }}
@@ -47,6 +43,7 @@ jobs:
         write-Host $env:path
 
   - task: PowerShell@2
+    name: install
     inputs:
       pwsh: ${{parameters.UsePowerShellCore}}
       filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
@@ -78,7 +75,7 @@ jobs:
     displayName: 'Publish Test Results'
     inputs:
       testResultsFormat: NUnit
-      testRunTitle: (${{variables.displayName}})
+      testRunTitle: Tests ${{parameters.name}}
       testResultsFiles: |
         **/*.tests.results.xml
       searchFolder: '$(System.DefaultWorkingDirectory)/out/test-results'
@@ -100,8 +97,4 @@ jobs:
 
     - publish: '$(artifactsPath)/$(ProjectName)'
       artifact: '$(ProjectName)'
-      condition: succeededOrFailed()
-
-    - publish: '$(artifactsPath)/$(ProjectName).Tests'
-      artifact: '$(ProjectName).Tests'
       condition: succeededOrFailed()
