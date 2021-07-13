@@ -139,7 +139,7 @@ Describe "test b"{
             $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile
                 
             $result | Should -Be $true
-            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployPropertiesJSON,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         }
     }
     Context "test2 " {
@@ -157,7 +157,7 @@ Describe "test b"{
                 
             $result | Should -Be $false
             Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
-            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $DatabaseName -eq 'randomName1' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $DatabaseName -eq 'randomName1' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployPropertiesJSON,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         }
             
         It "Given database found and a previous old deployment deployguard returns true if dacpac is newer" {
@@ -173,7 +173,7 @@ Describe "test b"{
                 
             $result | Should -Be $true
             Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It
-            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $DatabaseName -eq 'randomName2' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployProperties,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
+            Assert-MockCalled Invoke-SqlScalar -Exactly 1 -Scope It -ParameterFilter { $DatabaseName -eq 'randomName2' -and $Query -eq "Select top 1 DeploymentCreated from Deploy.Deployment  where json_value(DeployPropertiesJSON,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         }        
     
     
