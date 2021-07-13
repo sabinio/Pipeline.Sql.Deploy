@@ -14,6 +14,7 @@ BeforeAll{
 	get-module pipeline.sql.deploy | remove-module
 	. "$ModulePath/Functions/$CommandName.ps1"
 	. "$ModulePath/Functions/Internal/Get-DeploySettingsFromFile.ps1"
+	. "$ModulePath/Functions/Save-DbSettingsToFile.ps1"
 	
 	Set-StrictMode -Version 1.0
 	$env:psmodulepath =""
