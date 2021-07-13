@@ -23,6 +23,6 @@ jobs:
       
   - task: PowerShell@2
     inputs:
-      filePath: $(artifactsPath)/$(ProjectName)/.build/pipeline-tasks.ps1
+      filePath: $(artifactsPath)/.build/pipeline-tasks.ps1
       arguments: -Install -Publish -PowershellRepositoryKey (Convertto-securestring $(NugetApiKey) -force -asplaintext)   
     displayName: 'Publish Module to PowerShell Gallery'
