@@ -1,11 +1,14 @@
 param($ModulePath, $SourcePath, $ProjectName)
 BeforeDiscovery {
-	if (-not $PSBoundParameters.ContainsKey("ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not $PSBoundParameters.ContainsKey("ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
-	if (-not  $PSBoundParameters.ContainsKey("SourcePath")) { $SourcePath = "$ModulePath" }
+	if (-not (Test-path "Variable:ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
+	if (-not (Test-path "Variable:ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+	if (-not  (Test-path "Variable:SourcePath") -or [string]::IsNullOrWhiteSpace($sourcePath)) { $SourcePath = "$ModulePath" }
 
+
+	Write-Verbose "ModulePath = $ModulePath" -Verbose
+	Write-Verbose "SourcePath = $SourcePath" -Verbose
 	$ModulePath = resolve-path $ModulePath
-	$SourcePath = Resolve-path $SourcePath
+	$SourcePath = Resolve-path $SourcePath 
 	$Modules = Get-ChildItem $ModulePath -Filter '*.psm1' -Recurse
 	
 	$Scripts = Get-ChildItem $ModulePath -Filter '*.ps1' -Recurse | Where-Object { $_.name -NotMatch 'Tests.ps1' }
@@ -17,9 +20,9 @@ BeforeDiscovery {
 BeforeAll {
 	
 	$ExcludeRules = @('PSAvoidTrailingWhitespace', 'PSAvoidUsingWriteHost' ,'PSUseOutputTypeCorrectly')
-	if (-not $PSBoundParameters.ContainsKey("ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not $PSBoundParameters.ContainsKey("ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
-	if (-not  $PSBoundParameters.ContainsKey("SourcePath")) { $SourcePath = "$ModulePath" }
+	if (-not (Test-path "Variable:ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
+	if (-not (Test-path "Variable:ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+	if (-not (Test-path "Variable:SourcePath")) { $SourcePath = "$ModulePath" }
 	$ModulePath = resolve-path $ModulePath
 	$SourcePath = Resolve-path $SourcePath
 }

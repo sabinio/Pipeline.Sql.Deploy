@@ -15,6 +15,7 @@ param($settings, $ArtifactsPath)
         #For each artifact to be produced by the build put an entry here. 
         
         Publish-Artifacts -artifactsPath  $artifactsPath -path "src/$($settings.ProjectName).module/*" -Name "$($settings.ProjectName)" -verbose:$VerbosePreference
+        Publish-Artifacts -artifactsPath  $artifactsPath -path "src/$($settings.ProjectName).Tests/*" -Name "$($settings.ProjectName).Tests" -verbose:$VerbosePreference
 
         Publish-Artifacts -artifactsPath  $artifactsPath -path "docs/*" -Name "docs" -verbose:$VerbosePreference
 
