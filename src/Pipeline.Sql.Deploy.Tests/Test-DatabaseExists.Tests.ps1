@@ -32,7 +32,7 @@ Describe 'Test-DatabaseExists' {
         Should -invoke Invoke-SqlScalar -Exactly 1 -ParameterFilter { $Query -eq "Select count(1) from sys.databases where name = '$DBName'" }
     }
 
-    It 'should return false if no databases found <_>' -TestCases (0,2,3,4)   {
+    It 'should return false if <_> databases found' -TestCases (0,2,3,4)   {
         [string] $Server = "bob"
         [string] $DBName = "dbbob"
         [string] $User = "oddman"
@@ -46,7 +46,7 @@ Describe 'Test-DatabaseExists' {
         Should -invoke Invoke-SqlScalar -Exactly 1 
         Should -invoke Invoke-SqlScalar -Exactly 1 -ParameterFilter { $Query -eq "Select count(1) from sys.databases where name = '$DBName'" }
     }
-    It 'should return false if no databases found <_>' -TestCases (1)   {
+    It 'should return true if <_> databases found' -TestCases (1)   {
         [string] $Server = "bob"
         [string] $DBName = "dbbob"
         [string] $User = "oddman"
