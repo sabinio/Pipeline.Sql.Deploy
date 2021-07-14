@@ -19,8 +19,8 @@ BeforeAll {
 Describe 'Save-DbSettingsToFile' {
     It 'should create parent folder if not exists' {
         
-        $Parent = [io.path]::Join("TestDrive:","ParentFolder")
-        $File = [io.path]::Join($Parent,"Settings.file")
+        $Parent = [io.path]::Combine("TestDrive:","ParentFolder")
+        $File = [io.path]::Combine($Parent,"Settings.file")
         if (test-path $Parent){Remove-item $Parent -Force -Recurse | out-null}
 
         Save-DbSettingsToFile -DBDeploySettingsFile $File -settings @{Server="localhost";Database="TestDB";User="TestUser";Password="TestPassword"}
