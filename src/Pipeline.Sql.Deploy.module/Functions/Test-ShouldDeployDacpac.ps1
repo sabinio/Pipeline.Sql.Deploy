@@ -60,11 +60,11 @@ Function Test-ShouldDeployDacpac {
 
                 $SettingsFromDB = Get-DeploySettingsFromDB -DacpacName $dacpacName -Server $TargetServer -User $TargetUser -PasswordSecure $TargetPasswordSecure -Database $TargetDatabaseName
                 
-                if ($null -eq $SettingsFromDB){
+                if ($null -eq $SettingsFromDB) {
                     Write-Host "no settings in DB need to deploy"
                     $shouldDeploy = $true
                 }
-               elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings $SettingsFromDB.Settings -Settings $Settings) {
+                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings $SettingsFromDB.Settings -Settings $Settings) {
                     Write-Host "ShouldDeploy? Yes - settings have changed"
                     $shouldDeploy = $true
                 }
@@ -89,12 +89,17 @@ Function Test-ShouldDeployDacpac {
 
                     $SettingsFromDB = Get-DeploySettingsFromDB -DacpacName $dacpacName -Server $TargetServer -User $TargetUser -PasswordSecure $TargetPasswordSecure -Database $TargetDatabaseName
                     
-                    if ($null -eq $SettingsFromDB -or ($SettingsFromDB.LastDeployDate) -lt $dacpacDate) {
+                    if ($null -eq $SettingsFromDB ) {
+                        Write-Host "no settings found in Db for $dacpacname"
+                        $shouldDeploy = $true
+                    }
+                    elseif ($SettingsFromDB.LastDeployDate -lt $dacpacDate) {
                         Write-Host "last deploy date < dacpac date so we don't need to deploy the database"
                         $shouldDeploy = $true
                     }
                 }
             }
+        
     
         }
     }

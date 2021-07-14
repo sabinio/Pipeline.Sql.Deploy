@@ -56,6 +56,7 @@ Function Invoke-DatabaseDacpacDeploy {
                                     -Username $TargetUser `
                                     -scriptParentPath $scriptParentPath -ErrorAction Stop
 
+        $dacpacname = (get-item $dacpacfile).basename
         $DeployPropertiesJson = Get-DeployPropertiesJson -action $action `
                                     -TargetServerName $TargetServerName `
                                     -TargetDatabaseName $TargetDatabaseName `
@@ -66,7 +67,9 @@ Function Invoke-DatabaseDacpacDeploy {
                                     -PublishFile $PublishFile `
                                     -Variables $Variables `
                                     -TargetTimeout $TargetTimeout `
-                                    -dacpacfile $dacpacfile	                                    
+                                    -dacpacfile $dacpacfile	     `
+                                    -dacpacName  $dacpacname                              
+
 
         $TargetDatabase = "/TargetServerName:$TargetServerName", "/TargetDatabaseName:$TargetDatabaseName"
 
