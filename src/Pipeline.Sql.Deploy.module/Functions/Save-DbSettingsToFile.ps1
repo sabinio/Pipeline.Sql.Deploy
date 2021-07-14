@@ -9,7 +9,7 @@ function Save-DbSettingsToFile{
     
     $parentFolder = Split-Path -Parent $DBDeploySettingsFile
 
-    if (-not (Test-Path $parentFolder)){ New-Item -ItemType Directory parentFolder -Force | Out-Null}
+    if (-not (Test-Path $parentFolder)){ New-Item -ItemType Directory $parentFolder -Force | Out-Null}
 
     Get-SettingsAsJson $settings | Out-File $DBDeploySettingsFile -Force
 }
