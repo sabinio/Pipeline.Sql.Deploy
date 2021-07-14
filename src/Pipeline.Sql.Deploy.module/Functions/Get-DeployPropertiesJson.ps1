@@ -11,7 +11,8 @@ Function Get-DeployPropertiesJson{
         [string] $PublishFile,
         [string[]] $Variables,
         [string] $TargetTimeout,
-        [string] $dacpacfile
+        [string] $dacpacfile,
+        [string] $dacpacname
     )
 
     $EnvironmentValues = @{}
@@ -31,6 +32,7 @@ Function Get-DeployPropertiesJson{
             Variables                = $Variables
             TargetTimeout            = $TargetTimeout
             dacpacfile               = $dacpacfile
+            dacpacname               = $dacpacname
     };    
     
     $Settings = @{Parameters = $ParamValues; EnvironmentValues = $EnvironmentValues}

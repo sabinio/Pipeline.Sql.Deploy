@@ -38,7 +38,9 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
                 $sqlpackagePath = "sqlpackage"
                 $folder = [System.io.path]::Combine("TestDrive:","ReturnValues","out")
                 if (test-path $folder){remove-item $folder -Force |out-null}
-                $dacpac = [System.io.path]::Combine("TestDrive:","ReturnValues","dacpac","test.dacpac")
+                $dacpac = [System.io.path]::Combine("TestDrive:","dacpac","test.dacpac")
+                new-item $dacpac -force -type file | out-null
+                
                 $targetDatabase = "ReturnValues"
                 $scripts = @("db.sql","master.sql")
                 $scripts | ForEach-Object{new-item -ItemType File ([System.io.path]::Combine($folder,$targetDatabase,$_)) -Force}
