@@ -11,14 +11,13 @@ BeforeAll {
     if (-not (Test-path  Variable:\ProjectName)) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
     if (-not (Test-path  Variable:\ModulePath) -or "$ModulePath" -eq "") {$ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
 
-    get-module $ProjectName | Remove-Module -Force
-    . $ModulePath\Functions\$CommandName
+#    get-module $ProjectName | Remove-Module -Force
     . $ModulePath\Functions\Internal\Get-SettingsAsJson.ps1
+    . $ModulePath\Functions\$CommandName.ps1
 }
 
 Describe 'Save-DbSettingsToFile' {
     It 'should create parent folder if not exists' {
-        
         $Parent = [io.path]::Combine("TestDrive:","ParentFolder")
         $File = [io.path]::Combine($Parent,"Settings.file")
         if (test-path $Parent){Remove-item $Parent -Force -Recurse | out-null}
