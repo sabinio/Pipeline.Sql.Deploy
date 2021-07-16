@@ -15,7 +15,8 @@ function Repair-PSModulePath {
         $env:PSModulePath = "$mydocsPath$([IO.Path]::PathSeparator)$($env:PSModulePath)"
     }
 }
-
+$DebugPreference="continue"
+Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -providerName NUget -name NugetPS
 
 if (Get-PSRepository PowershellGalleryTest  -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
 
@@ -27,7 +28,7 @@ Repair-PSModulePath
 if (-not ((get-module Pipeline.Tools -ListAvailable).Version -ge $LatestVersion)) {
     Write-Host "Installing Pipeline.Tools module $LatestVersion"
     get-module Pipeline.Tools |remove-module
-    Install-Module Pipeline.Tools -Scope CurrentUser -RequiredVersion $LatestVersion -Repository PSGallery -Verbose:$VerbosePreference -SkipPublisherCheck -AllowClobber -ErrorAction "Stop"
+    Install-Module Pipeline.Tools -Scope CurrentUser -RequiredVersion $LatestVersion  -Verbose:$VerbosePreference -SkipPublisherCheck -AllowClobber -ErrorAction "Stop" -Verbose:$VerbosePreference
 }
 if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $LatestVersion)){
     Write-Host "Importing Pipeline.Tools module  $LatestVersion"
