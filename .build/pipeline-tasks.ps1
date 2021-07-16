@@ -40,6 +40,7 @@ try {
     Write-Host "   Artifacts path  = $artifactsPath"
     Write-Host "   Out path        = $outPath"
     Write-Host "   PSScriptroot    = $PSScriptroot"
+    Write-Host "   Logging         = $VerboseLogging"
 
     if ($Clean) {
 		Write-Host "##[group]Clean"
@@ -50,7 +51,7 @@ try {
     if ($Install) { 
 		$InstallVerbose = (Test-LogAreaEnabled -logging $verboseLogging -area "install")
         Write-Host "##[command]./pipeline.install-tools.ps1 -workingPath $(join-path $artifactsPath "tools") -verbose:$InstallVerbose"
-		Write-Host "##[group]Install"
+		Write-Host "##[group]Install $InstallVerbose"
 		./pipeline.install-tools.ps1  -artifactsPath (join-path $artifactsPath "tools") -verbose:$InstallVerbose
 		Write-Host "##[endgroup]"
     }

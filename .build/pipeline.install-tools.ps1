@@ -25,9 +25,9 @@ Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
 Repair-PSModulePath 
 
-if (-not ((get-module Pipeline.Tools -ListAvailable).Version -ge $LatestVersion)) {
+if (-not ((get-module Pipeline.Tools -ListAvailable -Verbose:$VerbosePreference).Version -ge $LatestVersion)) {
     Write-Host "Installing Pipeline.Tools module $LatestVersion"
-    get-module Pipeline.Tools |remove-module
+    get-module Pipeline.Tools -Verbose:$VerbosePreference |remove-module -Verbose:$VerbosePreference
     Install-Module Pipeline.Tools -Scope CurrentUser -RequiredVersion $LatestVersion  -Verbose:$VerbosePreference -SkipPublisherCheck -AllowClobber -ErrorAction "Stop"
 }
 if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $LatestVersion)){
