@@ -2,7 +2,7 @@
 param($ArtifactsPath)
 
 function Repair-PSModulePath {
-
+    Write-host "Repair PSMOdulePath"
     if ($PSVersionTable.PsEdition -eq "Core") {
         $mydocsPath = join-path ([System.Environment]::GetFolderPath("MyDocuments")) "PowerShell/Modules"
     }
@@ -14,12 +14,13 @@ function Repair-PSModulePath {
         Write-Verbose "Adding LocalModule folder to PSModulePath"
         $env:PSModulePath = "$mydocsPath$([IO.Path]::PathSeparator)$($env:PSModulePath)"
     }
+    Write-host "Repair PSMOdulePath - End"
 }
 $DebugPreference="continue"
 #Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -providerName NUget -name NugetPS -Force
-if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne "Trusted"){set-psrepository -name PSGallery -InstallationPolicy Trusted}
+if ((Get-PSRepository -Name PSGallery -Verbose:$VerbosePreference).InstallationPolicy -ne "Trusted"){set-psrepository -name PSGallery -InstallationPolicy Trusted -Verbose:$VerbosePreference}
 
-if (Get-PSRepository PowershellGalleryTest  -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
+if (Get-PSRepository PowershellGalleryTest -Verbose:$VerbosePreference -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
 
 $LatestVersion = "0.2.165" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
 Write-Host "Getting Pipeline.Tools module $LatestVersion"
