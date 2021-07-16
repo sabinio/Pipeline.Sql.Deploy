@@ -41,6 +41,10 @@ try {
     Write-Host "   Out path        = $outPath"
     Write-Host "   PSScriptroot    = $PSScriptroot"
     Write-Host "   Logging         = $VerboseLogging"
+	Write-Host "   Environment"
+    Get-ChildItem env: | %{
+    Write-Host ("      {0,-30} = {1:300} " -f $_.Name,$_.Value)
+    }
 
     if ($Clean) {
 		Write-Host "##[group]Clean"
@@ -63,7 +67,6 @@ try {
 	write-host ("##vso[task.setvariable variable=ProjectName;]{0}" -f $settings.ProjectName)
 
 	Write-Host ($settings | Convertto-json)
-	Write-Host (Get-ChildItem env: | out-string)
 	Write-Host "##[endgroup]"
 
 	$testresultsFolder = join-path $outPath "test-results"  
