@@ -23,12 +23,12 @@ Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
 Repair-PSModulePath 
 
-if (-not ((get-module Pipeline.Tools -ListAvailable).Version -eq $LatestVersion)) {
+if (-not ((get-module Pipeline.Tools -ListAvailable).Version -ge $LatestVersion)) {
     Write-Host "Installing Pipeline.Tools module $LatestVersion"
     get-module Pipeline.Tools |remove-module
-    Install-Module Pipeline.Tools -Scope CurrentUser -RequiredVersion $LatestVersion -Force -Repository PSGallery -Verbose:$VerbosePreference -SkipPublisherCheck -AllowClobber -ErrorAction "Stop"
+    Install-Module Pipeline.Tools -Scope CurrentUser -RequiredVersion $LatestVersion -Repository PSGallery -Verbose:$VerbosePreference -SkipPublisherCheck -AllowClobber -ErrorAction "Stop"
 }
-if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -eq $LatestVersion)){
+if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $LatestVersion)){
     Write-Host "Importing Pipeline.Tools module  $LatestVersion"
     get-module Pipeline.Tools |remove-module
     Import-Module Pipeline.Tools -RequiredVersion $LatestVersion -Verbose:$VerbosePreference -ErrorAction "Stop"
