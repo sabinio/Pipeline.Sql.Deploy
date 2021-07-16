@@ -4,7 +4,7 @@ trigger:
 - main
 parameters:
 - name: logging
-  default: All
+  default: "*"
   type: string
 
 variables:
@@ -16,7 +16,7 @@ variables:
   value: $[counter(variables['BaseVersionNumber'], 1)]
 - name: VersionNumber 
   value: $(BaseVersionNumber).$(Minor)
-- name: verboselogging
+- name: VerboseLogging
   value: ${{parameters.logging}}
 
 stages: 

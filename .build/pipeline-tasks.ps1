@@ -9,9 +9,9 @@ param (
     [switch] $Tidy,
     [switch] $noLogo,
     [string] $environment = $env:ENVIRONMENT,
-    [string] $rootPath = $env:rootpath,
-    [string] $artifactsPath = $env:artifactspath,
-    [string] $verboseLogging = $env:VerboseLogging, #"Install,Build,Package,DeployInfra,Deploy,Config,Module,*",
+    [string] $rootPath = $env:ROOTPATH,
+    [string] $artifactsPath = $env:ARTIFACTSPATH,
+    [string] $verboseLogging = $env:VERBOSELOGGING, #"Install,Build,Package,DeployInfra,Deploy,Config,Module,*",
     [parameter(ValueFromRemainingArguments = $true)]
     $parameterOverrides
 )
@@ -40,6 +40,11 @@ try {
     Write-Host "   Artifacts path  = $artifactsPath"
     Write-Host "   Out path        = $outPath"
     Write-Host "   PSScriptroot    = $PSScriptroot"
+    Write-Host "   Logging         = $VerboseLogging"
+	Write-Host "   Environment"
+    Get-ChildItem env: | %{
+    Write-Host ("      {0,-30} = {1:300} " -f $_.Name,$_.Value)
+    }
 
     if ($Clean) {
 		Write-Host "##[group]Clean"
@@ -50,7 +55,7 @@ try {
     if ($Install) { 
 		$InstallVerbose = (Test-LogAreaEnabled -logging $verboseLogging -area "install")
         Write-Host "##[command]./pipeline.install-tools.ps1 -workingPath $(join-path $artifactsPath "tools") -verbose:$InstallVerbose"
-		Write-Host "##[group]Install"
+		Write-Host "##[group]Install $InstallVerbose"
 		./pipeline.install-tools.ps1  -artifactsPath (join-path $artifactsPath "tools") -verbose:$InstallVerbose
 		Write-Host "##[endgroup]"
     }
@@ -62,7 +67,6 @@ try {
 	write-host ("##vso[task.setvariable variable=ProjectName;]{0}" -f $settings.ProjectName)
 
 	Write-Host ($settings | Convertto-json)
-	Write-Host (Get-ChildItem env: | out-string)
 	Write-Host "##[endgroup]"
 
 	$testresultsFolder = join-path $outPath "test-results"  

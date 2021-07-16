@@ -18,7 +18,7 @@ BeforeAll{
 	. "$ModulePath/Functions/$CommandName.ps1"
 
 	Set-StrictMode -Version 1.0
-	$env:psmodulepath =""
+	$env:PSModulePath =""
 }
 Describe "Checking Previous Settings"  {
 	It "Should return false if no path passed in"{
