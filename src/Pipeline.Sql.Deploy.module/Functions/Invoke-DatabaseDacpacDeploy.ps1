@@ -104,7 +104,7 @@ Function Invoke-DatabaseDacpacDeploy {
       #  $sqlPackageCommand +="/p:CommentOutSetVarDeclarations=true"
         New-Item $ScriptParentPath\$TargetDatabaseName -ItemType "Directory" -Force | Out-null
         
-        if ($env:System_Debug) {
+        if ($env:SYSTEM_DEBUG) {
             $sqlPackageCommand, "/OutputPath:$ScriptPath"
         }
 

@@ -39,8 +39,8 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        if ($PSVersionTable.PLatform -ne "Unix"){write-Host "##vso[task.setvariable variable=path;]$($env:localappdata)\Microsoft\dotnet;$($env:path)"}
-        write-Host $env:path
+        if ($PSVersionTable.PLatform -ne "Unix"){write-Host "##vso[task.setvariable variable=path;]$($env:localappdata)\Microsoft\dotnet;$($env:PATH)"}
+        write-Host $env:PATH
 
   - task: PowerShell@2
     name: install

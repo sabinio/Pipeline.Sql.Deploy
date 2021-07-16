@@ -9,9 +9,9 @@ param (
     [switch] $Tidy,
     [switch] $noLogo,
     [string] $environment = $env:ENVIRONMENT,
-    [string] $rootPath = $env:rootpath,
-    [string] $artifactsPath = $env:artifactspath,
-    [string] $verboseLogging = $env:VerboseLogging, #"Install,Build,Package,DeployInfra,Deploy,Config,Module,*",
+    [string] $rootPath = $env:ROOTPATH,
+    [string] $artifactsPath = $env:ARTIFACTSPATH,
+    [string] $verboseLogging = $env:VERBOSELOGGING, #"Install,Build,Package,DeployInfra,Deploy,Config,Module,*",
     [parameter(ValueFromRemainingArguments = $true)]
     $parameterOverrides
 )
