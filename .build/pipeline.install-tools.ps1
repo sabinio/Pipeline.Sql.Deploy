@@ -16,7 +16,7 @@ function Repair-PSModulePath {
     }
 }
 $DebugPreference="continue"
-Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -providerName NUget -name NugetPS
+Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -providerName NUget -name NugetPS -Force
 
 if (Get-PSRepository PowershellGalleryTest  -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
 
