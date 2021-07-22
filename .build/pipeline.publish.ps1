@@ -77,16 +77,22 @@ param($settings, $ArtifactsPath)
             
         $container = New-PesterContainer -Path "$artifactspath/$($settings.ProjectName).Tests" -Data @{ModulePath="$DownloadModuleFolder"}  #An empty data is required for Pester 5.1.0 Beta 
 
-        $pesterpreference = [PesterCOnfiguration]::Default      
-        $pesterpreference.TestResult.OutputPath="$outPath/test-results/$($settings.ProjectName).postPublish.tests.results.xml" 
-        $pesterpreference.TestResult.OutputFormat="NUnitXml"
-        $pesterpreference.Run.Container = $container
-        $pesterpreference.Run.PassThru = $true
-        $pesterpreference.Filter.Tag =  "ModuleInstall" 
-        $pesterpreference.Output.Verbosity= "Detailed"
-        
-        Invoke-Pester -Configuration $pesterpreference 
-    }
+        $pesterpreference = New-PesterConfiguration @{
+				TestResult=@{OutputPath="$outPath/test-results/$($settings.ProjectName).postPublish.tests.results.xml" 
+        					;OutputFormat="NUnitXml"
+							;Enabled=$true
+							;TestSuiteName="PostPublish"};
+        		Run=@{Container = $container
+					 ;PassThru=$true}
+        		Filter=@{Tag =  "ModuleInstall" };
+        		Output=@{Verbosity= "Detailed"}
+		}
+
+		$results = Invoke-Pester -Configuration $pesterpreference 
+		if ($settings.FailOnTests -eq $true -and ($results.FailedCount -gt 0)) {
+				throw "Tests have failed see results above"
+			}    
+		}
     catch {
         Throw
     }

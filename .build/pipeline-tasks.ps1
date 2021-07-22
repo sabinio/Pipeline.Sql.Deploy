@@ -35,7 +35,8 @@ try {
 
     . $PSScriptroot/scripts/logging.ps1
 
-	Write-Host "Processing with "
+    Write-Host "##[group]Parameters"
+    Write-Host "Processing with "
     Write-Host "   Root path       = $rootpath"
     Write-Host "   Artifacts path  = $artifactsPath"
     Write-Host "   Out path        = $outPath"
@@ -45,7 +46,8 @@ try {
     Get-ChildItem env: | %{
     Write-Host ("      {0,-30} = {1:300} " -f $_.Name,$_.Value)
     }
-
+    Write-Host "##[endgroup]"
+    
     if ($Clean) {
 		Write-Host "##[group]Clean"
         if (Test-path $artifactsPath) { Remove-Item -Path $artifactsPath -Recurse -Force | Out-Null }
@@ -66,7 +68,8 @@ try {
 	write-host ("##vso[task.setvariable variable=ProjectName;IsOutput=true]{0}" -f $settings.ProjectName)
 	write-host ("##vso[task.setvariable variable=ProjectName;]{0}" -f $settings.ProjectName)
 
-	Write-Host ($settings | Convertto-json)
+	Write-Host ($settings | Convertto-json -depth 5)
+
 	Write-Host "##[endgroup]"
 
 	$testresultsFolder = join-path $outPath "test-results"  

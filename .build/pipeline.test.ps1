@@ -18,40 +18,54 @@ try {
     }
     get-module $ProjectName | remove-module  -force
 
-	$container = New-PesterContainer -Path  "$rootpath/src/$ProjectName.Tests" -Data @{ModulePath="$artifactsPath\$ProjectName";ProjectName=$ProjectName}; #An empty data is required for Pester 5.1.0 Beta 
-	$filters = @{}
+	$container = New-PesterContainer -Path  "$rootpath/src/$ProjectName.Tests" -Data @{ModulePath="$artifactsPath\$ProjectName";ProjectName=$ProjectName}; 
+	
+	$pesterpreference = New-PesterConfiguration @{
+		TestResult=@{OutputPath="$outPath/test-results/$ProjectName.PsScripttests.results.xml"
+					;Enabled=$true
+					;TestSuiteName="PSScriptAnalyser"};
+		Run 		= @{Container = $container;
+						PassThru = $true};
+		Output		= @{Verbosity= "Normal"}
+	}
 	if ($settings.TestFilter -ne ""){
-		$filters.Name =$settings.TestFilter
+		$pesterpreference.Filter.Fullname  =$settings.TestFilter
 	}
 	else {
-		$filters.tag =  "PSScriptAnalyzer"
+		$pesterpreference.Filter.Tag =  "PSScriptAnalyzer"
 	}
-	$ScriptAnalysis = Invoke-Pester -container $container -passthru @filters
-	$ScriptAnalysis | Export-NUnitReport -path  "$outPath/test-results/$ProjectName.PsScripttests.results.xml" `
-							
-	
+
+	$ScriptAnalysis = Invoke-Pester -Configuration $pesterpreference
+
+
 	$container = New-PesterContainer -Path "$rootpath/src/$ProjectName.Tests" -Data @{ModulePath="$artifactsPath\$ProjectName";ProjectName=$ProjectName}  #An empty data is required for Pester 5.1.0 Beta 
 
-	$pesterpreference = [PesterCOnfiguration]::Default      
-	$pesterpreference.CodeCoverage.Enabled=$true
-	$pesterpreference.CodeCoverage.OutputPath  = "$outPath/test-results/coverage_$ProjectName.xml"  
-	$pesterpreference.CodeCoverage.Path = "$artifactsPath\$ProjectName\Functions\*.ps1" 
-    $pesterpreference.Run.Container = $container
-    $pesterpreference.Run.PassThru = $true
-    $pesterpreference.Filter.ExcludeTag =  "PSScriptAnalyzer" 
-    $pesterpreference.Filter.FullName =  $settings.TestFilter 
+	$pesterpreference = New-PesterConfiguration @{
+		TestResult=@{OutputPath="$outPath/test-results/$ProjectName.tests.results.xml" 
+					;Enabled=$true
+					;TestSuiteName="Tests"};
+
+		CodeCoverage= @{Enabled=$true;
+						OutputPath  =  "$outPath/test-results/coverage_$ProjectName.xml" 
+						Path = "$artifactsPath/$ProjectName/Functions\*.ps1";
+						};
+		Run 		= @{Container = $container;
+						PassThru = $true};
+		Filter 		= @{ExcludeTag =  "PSScriptAnalyzer";
+		   		   		FullName =  $settings.TestFilter}
+		Output		= @{Verbosity= "Detailed"}
+	}
+
+	if ($VerbosePreference -eq "Continue"){
+		$pesterpreference.Debug = @{WriteDebugMessages = $true
+   								   ;WriteDebugMessagesFrom ="Mock"}
+	}
     
     $NormalTests = Invoke-Pester -Configuration $pesterpreference 
-	
-	$NormalTests |Export-NUnitReport -path  "$outPath/test-results/$ProjectName.tests.results.xml" 
-	$pesterpreference = [PesterCOnfiguration]::Default     
-	
-    Write-Host "Normal Tests Total $($NormalTests.TotalCount ) Passed $($NormalTests.PassedCount) Skipped $($NormalTests.NotRunCount)"
-    Write-Host "ScriptAnalysis Tests Total $($ScriptAnalysis.TotalCount ) Passed $($ScriptAnalysis.PassedCount) Skipped $( $ScriptAnalysis.NotRunCount) "
-    if ($settings.FailOnTests -eq $true -and `
-        ($NormalTests.TotalCount -ne ($NormalTests.PassedCount + $NormalTests.NotRunCount)`
-        -or $ScriptAnalysis.TotalCount -ne ($ScriptAnalysis.PassedCount+ $ScriptAnalysis.NotRunCount)  ))
-        {
+		
+    Write-Host "Normal Tests Total $($NormalTests.TotalCount ) Passed $($NormalTests.PassedCount) NotRun $($NormalTests.NotRunCount) Skipped $($NormalTests.SkippedCount)"
+    Write-Host "ScriptAnalysis Tests Total $($ScriptAnalysis.TotalCount ) Passed $($ScriptAnalysis.PassedCount) NotRun $( $ScriptAnalysis.NotRunCount) "
+    if ($settings.FailOnTests -eq $true -and ($NormalTests.FailedCount -gt 0 -or $ScriptAnalysis.FailedCount -gt 0)){
             Throw "Tests Failed see above"
     }
 }
