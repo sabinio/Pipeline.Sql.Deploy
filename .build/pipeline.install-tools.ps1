@@ -23,7 +23,7 @@ Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -provi
 
 if (Get-PSRepository PowershellGalleryTest -Verbose:$VerbosePreference -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
 
-$LatestVersion = "0.2.165" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
+$LatestVersion = "0.2.170" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
 Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
 Repair-PSModulePath 
@@ -40,12 +40,9 @@ if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $L
 }
 
 #Powershell Get needs to be first otherwise it gets loaded by use of import-module
-$modules = @{Module="PowerShellGet";Version=2.2.4.1},`
-@{Module="Pipeline.Config";Version="0.2.10";},`
-@{Module="Pester";Version="5.1.1"},`
-@{Module="PSScriptAnalyzer"},`
-@{Module="platyps"}
-$modules  |ForEach-Object{ Install-PsModuleFast @_ -Verbose:$VerbosePreference}
+$modules =    [scriptblock]::create( (Get-Content $psscriptroot\modules.ps1 -raw )).Invoke()
+
+$modules | ForEach-Object{ 	Install-PsModuleFast @_  -verbose:$VerbosePreference}
 
 Write-Host "Modules loaded "
 Write-Host (get-module $modules.module | Format-Table Name, Version,ModuleType, Path| Out-String)

@@ -18,27 +18,37 @@ try {
 	Test-ModuleManifest ([IO.Path]::Combine($rootpath, "src", "$ProjectName.module", "$ProjectName.psd1"))
 	Update-ModuleManifest -Path ([IO.Path]::Combine($rootpath, "src", "$ProjectName.module", "$ProjectName.psd1"))   -FunctionsToExport $Functions
 		
-	$container = New-PesterContainer -Path "$rootpath/src/$ProjectName.ConfigTests";
-	Write-Host ($Container | Format-List | out-string)
+	$config = New-PesterConfiguration @{
+		Run        = @{
+			PassThru = $true;
+			Path     = "$rootpath/src/$ProjectName.ConfigTests" 
+		};
+		TestResult = @{
+			Enabled    = $true;
+			OutputPath = "$outPath/test-results/$ProjectName.configTests.results.xml" 
+			SuiteName  = "ConfigTests"
+		};
+		Filter     = @{
+			ExcludeTag = "$($settings.ExcludeTags)"
+		}
+	}
 
-	$config = [PesterConfiguration]::Default
-	$Config.Run.PassThru = $true
-	$config.Run.Path = "$rootpath/src/$ProjectName.ConfigTests" 
-	#	$config.Run.Container=@($container) 
-	$config.Filter.Tag = "PSScriptAnalyzer"
-	$config.Filter.ExcludeTag = "$($settings.ExcludeTags)"
-
-	$results = Invoke-Pester -container $container -passthru -ExcludeTag "$($settings.ExcludeTags)" 
-	$results | Export-NUnitReport -path  "$outPath/test-results/$ProjectName.configTests.results.xml" 
-    
-	if ($settings.FailOnTests -eq $true -and $results.TotalCount -ne ($results.PassedCount + $results.SkippedCount)) {
+	$results = Invoke-Pester  -Configuration $config 
+   
+	if ($settings.FailOnTests -eq $true -and $results.FailedCount -gt 0) {
 		throw "Tests have failed see results above"
 	}    
+	
+	$config.Run.Path =  "$rootpath/src/$ProjectName.Tests"
+	$config.Filter.ExcludeTag = ""
+	$config.Filter.Tag = "ModuleInstall"
+	$config.TestResult.OutputPath = "$outPath/test-results/$ProjectName.ModuleInstall.results.xml" 
 
-	$container = New-PesterContainer -Path  "$rootpath/src/$ProjectName.Tests"  #An empty data is required for Pester 5.1.0 Beta 
-	  
-	$results = Invoke-Pester -container $container -passthru 	-Tag "ModuleInstall" 	
-	$results | Export-NUnitReport -path "$outPath/test-results/$ProjectName.ModuleInstall.results.xml" 
+	$results = Invoke-Pester -configuration  $config
+
+	if ($settings.FailOnTests -eq $true -and $results.FailedCount -gt 0) {
+		throw "Tests have failed see results above"
+	}    
 }
 catch {
 	throw
