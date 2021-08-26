@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param($ArtifactsPath)
-
+try{
 function Repair-PSModulePath {
     Write-host "Repair PSMOdulePath"
     if ($PSVersionTable.PsEdition -eq "Core") {
@@ -40,12 +40,33 @@ if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $L
 }
 
 #Powershell Get needs to be first otherwise it gets loaded by use of import-module
-$modules =    [scriptblock]::create( (Get-Content $psscriptroot\modules.ps1 -raw )).Invoke()
-
+$modulefile = "$psscriptroot\modules.ps1"
+$modules =  Invoke-Expression (Get-Content $modulefile -raw ) 
+$moduleLock=@{}
+$needNewLock =$false
+if (test-path  "$modulefile.lock" ){
+    $moduleLock = Invoke-Expression  (get-content "$modulefile.lock" -raw)
+}
+foreach ($module in $modules  ){
+    $lockVersion = ($moduleLock | where-object {$_.Module -eq $module.Module}).Version
+    if ($null -ne $lockVersion){
+        Write-Host ("Locking module {0,-20} to {1,10}" -f $module.Module ,$lockVersion )
+        $module.Version = $lockVersion
+    }
+    else{
+        $needNewLock = $true
+    }
+}
 $modules | ForEach-Object{ 	Install-PsModuleFast @_  -verbose:$VerbosePreference}
 
 Write-Host "Modules loaded "
 Write-Host (get-module $modules.module | Format-Table Name, Version,ModuleType, Path| Out-String)
+if ($needNewLock) {
+   Write-Host "Saving lock file"
+   (get-module $modules.module | ForEach-Object{ "@{Module=`"$($_.Name)`";Version=`"$($_.Version)`"}" }) -Join ",`n" | out-file -encoding utf8 "$modulefile.lock"}
 
 Install-AzDoArtifactsCredProvider
-
+}
+catch{
+    throw
+}
