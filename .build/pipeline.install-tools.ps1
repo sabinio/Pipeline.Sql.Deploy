@@ -43,12 +43,12 @@ if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $L
 $modules =  Invoke-Expression (Get-Content $psscriptroot\modules.ps1 -raw ) 
 $moduleLock=@{}
 if (test-path  $psscriptroot\modules.ps1.lock ){
-    $moduleLock = Get-Content $psscriptroot\modules.ps1.lock -Raw | convertfrom-json -AsHashtable
+    $moduleLock = Get-Content $psscriptroot\modules.ps1.lock -Raw | convertfrom-json
 }
 foreach ($module in $modules  ){
-    $lockVersion = $moduleLock.($module.Module)
+    $lockVersion = "$($moduleLock.($module.Module))"
     if ($null -ne $lockVersion){
-        Write-Host "Locking module $($module.Module) to $lockVersion "
+        Write-Host ("Locking module {0,-20} to {1,-10}" -f $module.Module ,$lockVersion )
         $module.Version = $lockVersion
     }
 }
