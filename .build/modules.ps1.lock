@@ -1,20 +1,26 @@
 [
   {
-    "Az.keyVault": "3.4.5"
+    "Module": "Az.keyVault",
+    "Version": "3.4.5"
   },
   {
-    "Pester": "5.2.2"
+    "Module": "Pester",
+    "Version": "5.2.2"
   },
   {
-    "Pipeline.Config": "0.2.67"
+    "Module": "Pipeline.Config",
+    "Version": "0.2.67"
   },
   {
-    "platyps": "0.14.2"
+    "Module": "platyps",
+    "Version": "0.14.2"
   },
   {
-    "PowerShellGet": "2.2.5"
+    "Module": "PowerShellGet",
+    "Version": "2.2.5"
   },
   {
-    "PSScriptAnalyzer": "1.19.1"
+    "Module": "PSScriptAnalyzer",
+    "Version": "1.19.1"
   }
 ]

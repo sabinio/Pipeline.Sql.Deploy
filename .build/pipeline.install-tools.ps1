@@ -46,9 +46,9 @@ if (test-path  $psscriptroot\modules.ps1.lock ){
     $moduleLock = Get-Content $psscriptroot\modules.ps1.lock -Raw | convertfrom-json
 }
 foreach ($module in $modules  ){
-    $lockVersion = "$($moduleLock.($module.Module))"
+    $lockVersion = $moduleLock | where-object {$_.Module -eq $module.Module} | select-object -ExpandProperty Version
     if ($null -ne $lockVersion){
-        Write-Host ("Locking module {0,-20} to {1,-10}" -f $module.Module ,$lockVersion )
+        Write-Host ("Locking module {0,-20} to {1,10}" -f $module.Module ,$lockVersion )
         $module.Version = $lockVersion
     }
 }
@@ -56,7 +56,7 @@ $modules | ForEach-Object{ 	Install-PsModuleFast @_  -verbose:$VerbosePreference
 
 Write-Host "Modules loaded "
 Write-Host (get-module $modules.module | Format-Table Name, Version,ModuleType, Path| Out-String)
-get-module $modules.module | ForEach-Object{ [PSCustomObject]@{ $_.Name= "$($_.Version)" }} | Convertto-json | out-file -encoding utf8 $psscriptroot\modules.ps1.lock
+get-module $modules.module | ForEach-Object{ [PSCustomObject]@{Module= $_.Name;Version= "$($_.Version)" }} | Convertto-json | out-file -encoding utf8 $psscriptroot\modules.ps1.lock
 
 Install-AzDoArtifactsCredProvider
 }
