@@ -1,0 +1,20 @@
+[
+  {
+    "Az.keyVault": "3.4.5"
+  },
+  {
+    "Pester": "5.2.2"
+  },
+  {
+    "Pipeline.Config": "0.2.67"
+  },
+  {
+    "platyps": "0.14.2"
+  },
+  {
+    "PowerShellGet": "2.2.5"
+  },
+  {
+    "PSScriptAnalyzer": "1.19.1"
+  }
+]
