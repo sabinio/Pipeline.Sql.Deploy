@@ -40,7 +40,6 @@ if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $L
 }
 
 #Powershell Get needs to be first otherwise it gets loaded by use of import-module
-
 $modules =  Invoke-Expression (Get-Content $psscriptroot\modules.ps1 -raw ) 
 $moduleLock=@{}
 if (test-path  $psscriptroot\modules.ps1.lock ){
