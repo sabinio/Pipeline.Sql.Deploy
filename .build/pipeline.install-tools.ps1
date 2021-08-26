@@ -40,10 +40,12 @@ if (-not ((get-module Pipeline.Tools -Verbose:$VerbosePreference).Version -ge $L
 }
 
 #Powershell Get needs to be first otherwise it gets loaded by use of import-module
-$modules =  Invoke-Expression (Get-Content $psscriptroot\modules.ps1 -raw ) 
+$modulefile = "$psscriptroot\modules.ps1"
+$modules =  Invoke-Expression (Get-Content $modulefile -raw ) 
 $moduleLock=@{}
-if (test-path  $psscriptroot\modules.ps1.lock ){
-    $moduleLock = Get-Content $psscriptroot\modules.ps1.lock -Raw | convertfrom-json
+$needNewLock =$false
+if (test-path  "$modulefile.lock" ){
+    $moduleLock = Invoke-Expression  (get-content "$modulefile.lock" -raw)
 }
 foreach ($module in $modules  ){
     $lockVersion = $moduleLock | where-object {$_.Module -eq $module.Module} | select-object -ExpandProperty Version
@@ -51,12 +53,17 @@ foreach ($module in $modules  ){
         Write-Host ("Locking module {0,-20} to {1,10}" -f $module.Module ,$lockVersion )
         $module.Version = $lockVersion
     }
+    else{
+        $needNewLock = $true
+    }
 }
 $modules | ForEach-Object{ 	Install-PsModuleFast @_  -verbose:$VerbosePreference}
 
 Write-Host "Modules loaded "
 Write-Host (get-module $modules.module | Format-Table Name, Version,ModuleType, Path| Out-String)
-get-module $modules.module | ForEach-Object{ [PSCustomObject]@{Module= $_.Name;Version= "$($_.Version)" }} | Convertto-json | out-file -encoding utf8 $psscriptroot\modules.ps1.lock
+if ($needNewLock) {
+   Write-Host "Saving lock file"
+   (get-module $modules.module | ForEach-Object{ "@{Module=`"$($_.Name)`";Version=`"$($_.Version)`"}" }) -Join ",`n" | out-file -encoding utf8 "$modulefile.lock"}
 
 Install-AzDoArtifactsCredProvider
 }
