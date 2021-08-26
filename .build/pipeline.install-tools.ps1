@@ -48,7 +48,7 @@ if (test-path  "$modulefile.lock" ){
     $moduleLock = Invoke-Expression  (get-content "$modulefile.lock" -raw)
 }
 foreach ($module in $modules  ){
-    $lockVersion = $moduleLock | where-object {$_.Module -eq $module.Module} | select-object -ExpandProperty Version
+    $lockVersion = ($moduleLock | where-object {$_.Module -eq $module.Module}).Version
     if ($null -ne $lockVersion){
         Write-Host ("Locking module {0,-20} to {1,10}" -f $module.Module ,$lockVersion )
         $module.Version = $lockVersion
