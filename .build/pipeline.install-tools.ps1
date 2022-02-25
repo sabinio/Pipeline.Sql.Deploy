@@ -72,13 +72,20 @@ Install-AzDoArtifactsCredProvider
 
 Write-verbose "Downloading sqlpackage"
 # if (-not ( Test-path "$PackagePath\sqlpackage")){ New-Item -ItemType Directory -Path "$PackagePath\sqlpackage"  |Out-Null}
-$url = "https://go.microsoft.com/fwlink/?linkid=2109019"
-$url = "https://go.microsoft.com/fwlink/?linkid=2185669"
+
+if ($PSVersionTable.Platform -eq "Unix"){
+    $url = "https://go.microsoft.com/fwlink/?linkid=2109019"
+    $sqlpackageExeName = "sqlpackage"
+}
+else{
+    $sqlpackageExeName = "sqlpackage.exe"
+    $url = "https://go.microsoft.com/fwlink/?linkid=2185669"
+}
 
 Install-ToolFromUrl -ToolPath "$ToolsPath\sqlpackage" -url $url;
 
 $env:sqlPackagePath = resolve-path "$ToolsPath\sqlpackage"
-$env:SqlpackagePathExe = join-path $env:sqlPackagePath "sqlpackage.exe"
+$env:SqlpackagePathExe = join-path $env:sqlPackagePath $sqlpackageExeName
 Write-Host "sqlpackage installed"
 
 Install-Nuget
