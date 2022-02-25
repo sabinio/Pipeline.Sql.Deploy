@@ -16,8 +16,8 @@ schema: 2.0.0
 Invoke-DatabaseDacpacDeploy [-dacpacfile] <String> [-sqlpackagePath] <String> [-action] <String>
  [-scriptParentPath] <String> [-TargetServerName] <String> [-TargetDatabaseName] <String>
  [[-TargetUser] <String>] [[-TargetPasswordSecure] <SecureString>] [[-TargetIntegratedSecurity] <String>]
- [[-ServiceObjective] <String>] [[-PublishFile] <String>] [-OutputDeployScript] [-Variables] <Object>
- [-TargetTimeout] <Object> [-CommandTimeout] <Object> [<CommonParameters>]
+ [[-ServiceObjective] <Object>] [[-PublishFile] <String>] [-OutputDeployScript] [-Variables] <Object>
+ [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -83,12 +83,27 @@ Accept wildcard characters: False
 {{ Fill ServiceObjective Description }}
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: 9
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SettingsToCheck
+{{ Fill SettingsToCheck Description }}
+
+```yaml
+Type: Object
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 14
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

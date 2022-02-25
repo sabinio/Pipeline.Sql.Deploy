@@ -19,7 +19,7 @@ Function Invoke-DatabaseDacpacDeploy {
         [securestring]$TargetPasswordSecure, 
         [string]$TargetIntegratedSecurity ,
 
-        [string]$ServiceObjective,
+        $ServiceObjective,
 
         [string]$PublishFile,
         [Switch]$OutputDeployScript,
@@ -28,7 +28,8 @@ Function Invoke-DatabaseDacpacDeploy {
         [Parameter(Mandatory=$true)]
         $TargetTimeout,
         [Parameter(Mandatory=$true)]
-        $CommandTimeout
+        $CommandTimeout,
+        $SettingsToCheck
     )
 
     try {
@@ -56,8 +57,7 @@ Function Invoke-DatabaseDacpacDeploy {
                                     -Username $TargetUser `
                                     -scriptParentPath $scriptParentPath -ErrorAction Stop
 
-        $dacpacname = (get-item $dacpacfile).basename
-        $DeployPropertiesJson = Get-DeployPropertiesJson -action $action `
+        $DeployProperties = Get-DeployProperties -action $action `
                                     -TargetServerName $TargetServerName `
                                     -TargetDatabaseName $TargetDatabaseName `
                                     -TargetUser $TargetUser `
@@ -68,7 +68,7 @@ Function Invoke-DatabaseDacpacDeploy {
                                     -Variables $Variables `
                                     -TargetTimeout $TargetTimeout `
                                     -dacpacfile $dacpacfile	     `
-                                    -dacpacName  $dacpacname                              
+                                    -SettingsToCheck $SettingsToCheck
 
 
         $TargetDatabase = "/TargetServerName:$TargetServerName", "/TargetDatabaseName:$TargetDatabaseName"
@@ -82,7 +82,7 @@ Function Invoke-DatabaseDacpacDeploy {
         
         $sqlPackageCommand += "/SourceFile:$dacpacFile"
 
-        $sqlPackageCommand += "/v:DeployProperties=`"$DeployPropertiesJson`""
+        $sqlPackageCommand += "/v:DeployProperties=`"$(Convert-ToSQLPackageSafeString $DeployProperties)`""
         
         if($ServiceObjective){
             $sqlPackageCommand += "/p:DatabaseServiceObjective=$ServiceObjective"

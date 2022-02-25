@@ -17,7 +17,13 @@ try {
 	Write-Host ([IO.Path]::Combine($rootpath, "src", "$ProjectName.module", "$ProjectName.psd1"))
 	Test-ModuleManifest ([IO.Path]::Combine($rootpath, "src", "$ProjectName.module", "$ProjectName.psd1"))
 	Update-ModuleManifest -Path ([IO.Path]::Combine($rootpath, "src", "$ProjectName.module", "$ProjectName.psd1"))   -FunctionsToExport $Functions
-		
+
+	#
+	.build/scripts/sqldb/build-sqldb.ps1 -dbSolutionPath $Settings.SolutionPath `
+	-nugetPath $env:nugetPath `
+	-Msbuild $env:MsBuildPath -config $Settings.buildConfig
+
+
 	$config = New-PesterConfiguration @{
 		Run        = @{
 			PassThru = $true;

@@ -1,8 +1,9 @@
 Function Test-ShouldDeployDacpac {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "", Justification = "Need to cater for users that ")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "", Justification = "Need to cater for users that want to pass strings ")]
     [CmdletBinding()]
     param (
         $settings,
+        $SettingsToCheck,
         [string]$dacpacfile,
         [string]$publishFile,
         [string]$DBDeploySettingsFile
@@ -38,6 +39,10 @@ Function Test-ShouldDeployDacpac {
     #Check date of dacpac against last deployment time
     $dacpacDate = (Get-Item $dacpacfile).LastWriteTimeUtc
     
+    if  ($null -eq $SettingsToCheck){
+        $SettingsToCheck = Get-DefaultSettingsToCheck -dacpacfile $dacpacfile -publishFile $publishFile  @settings     
+    }
+
     try {
         Write-Host "Checking if we should deploy database"
         $databaseExists = Test-DatabaseExists `
@@ -64,7 +69,7 @@ Function Test-ShouldDeployDacpac {
                     Write-Host "no settings in DB need to deploy"
                     $shouldDeploy = $true
                 }
-                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings $SettingsFromDB.Settings -Settings $Settings) {
+                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings $SettingsFromDB.SettingsToCheck -Settings $SettingsToCheck) {
                     Write-Host "ShouldDeploy? Yes - settings have changed"
                     $shouldDeploy = $true
                 }
@@ -80,7 +85,7 @@ Function Test-ShouldDeployDacpac {
                     Write-Host "ShouldDeploy? Yes - no settings file"            
                     $shouldDeploy = $true
                 }
-                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings (Get-DeploySettingsFromFile -DBDeploySettingsFile $DBDeploySettingsFile ) -Settings $Settings) {
+                elseif (Test-HaveDeploySettingsChangedSinceLastDeploy -OldSettings (Get-DeploySettingsFromFile -DBDeploySettingsFile $DBDeploySettingsFile ) -Settings $SettingsToCheck) {
                     Write-Host "ShouldDeploy? Yes - settings have changed"
                     $shouldDeploy = $true
                 }
@@ -109,7 +114,7 @@ Function Test-ShouldDeployDacpac {
         $shouldDeploy = $true
     }
 
-    Write-Verbose "Returning from Test-ShouldDeployDacpac with `$shouldDeploy = $shouldDeploy"
+    Write-Verbose "Returning from Test-ShouldDeployDacpac with ,$shouldDeploy = $shouldDeploy"
 
     return $shouldDeploy
 }

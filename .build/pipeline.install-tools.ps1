@@ -16,6 +16,9 @@ function Repair-PSModulePath {
     }
     Write-host "Repair PSMOdulePath - End"
 }
+
+$ToolsPath = $ArtifactsPath
+
 #$DebugPreference="continue"
 Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -providerName NUget -name NugetPS -Force -Verbose:$VerbosePreference -SkipValidate -Trusted
 
@@ -66,6 +69,24 @@ if ($needNewLock) {
    (get-module $modules.module | ForEach-Object{ "@{Module=`"$($_.Name)`";Version=`"$($_.Version)`"}" }) -Join ",`n" | out-file -encoding utf8 "$modulefile.lock"}
 
 Install-AzDoArtifactsCredProvider
+
+Write-verbose "Downloading sqlpackage"
+# if (-not ( Test-path "$PackagePath\sqlpackage")){ New-Item -ItemType Directory -Path "$PackagePath\sqlpackage"  |Out-Null}
+$url = "https://go.microsoft.com/fwlink/?linkid=2109019"
+$url = "https://go.microsoft.com/fwlink/?linkid=2185669"
+
+Install-ToolFromUrl -ToolPath "$ToolsPath\sqlpackage" -url $url;
+
+$env:sqlPackagePath = resolve-path "$ToolsPath\sqlpackage"
+$env:SqlpackagePathExe = join-path $env:sqlPackagePath "sqlpackage.exe"
+Write-Host "sqlpackage installed"
+
+Install-Nuget
+
+$Env:VSPath= (Get-VSSetupInstance | Sort-Object -Property InstallationVersion -Descending | Select-Object -First 1).InstallationPath 
+$Env:MsbuildPath = (Get-ChildItem $Env:VSPath msbuild.exe -Recurse | select-object -First 1).FullName
+Write-Host "Setting MsBuildPath to $($Env:MsbuildPath)"
+
 }
 catch{
     throw

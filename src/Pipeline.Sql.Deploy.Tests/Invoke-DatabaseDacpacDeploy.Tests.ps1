@@ -19,8 +19,9 @@ BeforeAll {
   
     . $ModulePath\Functions\$CommandName.ps1
     . $ModulePath\Functions\Write-DbDeployParameterLog.ps1
-    . $ModulePath\Functions\Get-DeployPropertiesJson.ps1
-    
+    . $ModulePath\Functions\Get-DeployProperties.ps1
+    . $ModulePath\Functions\Internal\Get-DefaultSettingsToCheck.ps1
+    . $ModulePath\Functions\Internal\Convert-ToSQLPackageSafeString.ps1
 }
 Describe 'Invoke-DatabaseDacpacDeploy' {
     BeforeAll {

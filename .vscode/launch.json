@@ -12,6 +12,16 @@
             "cwd": ""
         },
         {
+            "name": "PowerShell F8 Session",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/.vscode/run.ps1",
+            "args": [
+                "-file","${file}",
+                "{${selectedText}}"
+            ]
+        },
+        {
             "name": "PowerShell: Launch Current File",
             "type": "PowerShell",
             "request": "launch",
