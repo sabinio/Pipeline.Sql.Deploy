@@ -26,7 +26,7 @@ Register-PackageSource -Location https://www.powershellgallery.com/api/v2 -provi
 
 if (Get-PSRepository PowershellGalleryTest -Verbose:$VerbosePreference -ErrorAction SilentlyContinue){Unregister-PSRepository PowershellGalleryTest}
 
-$LatestVersion = "0.2.170" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
+$LatestVersion = "0.2.180" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
 Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
 Repair-PSModulePath 
@@ -68,13 +68,13 @@ if ($needNewLock) {
    Write-Host "Saving lock file"
    (get-module $modules.module | ForEach-Object{ "@{Module=`"$($_.Name)`";Version=`"$($_.Version)`"}" }) -Join ",`n" | out-file -encoding utf8 "$modulefile.lock"}
 
-Install-AzDoArtifactsCredProvider
+#Install-AzDoArtifactsCredProvider
 
 Write-verbose "Downloading sqlpackage"
 # if (-not ( Test-path "$PackagePath\sqlpackage")){ New-Item -ItemType Directory -Path "$PackagePath\sqlpackage"  |Out-Null}
 
 if ($PSVersionTable.Platform -eq "Unix"){
-    $url = "https://go.microsoft.com/fwlink/?linkid=2109019"
+    $url = "https://go.microsoft.com/fwlink/?linkid=2185670"
     $sqlpackageExeName = "sqlpackage"
 }
 else{
@@ -98,11 +98,8 @@ push-location $ToolsPath
     , @{package = "sabinio.Sql.System.Dacpacs"; env="SystemDacPacs" ;nugetextraparams="-DependencyVersion","Ignore"} `
     , @{package = "System.ComponentModel.Composition"; subpath = "\lib\netcoreapp2.0";version="5.0.0"; env="ComponentModel" ;nugetextraparams="-DependencyVersion","Ignore"} `
     , @{package = "System.IO.Packaging"; subpath = "\lib\netstandard2.0"; ;version="5.0.0";env="SystemIOPackaging" ;nugetextraparams="-DependencyVersion","Ignore"} `
-    , @{package = "NUnit.ConsoleRunner"; subpath = "\tools\"; env = "NunitToolsPath" ;nugetextraparams="-DependencyVersion","Ignore"} `
   | ForEach-Object { Install-ToolsPackageFromNuget -PackagePath . -Verbose:$VerbosePreference @_}
 
-  $env:NunitToolsPath  = Resolve-Path  $env:NunitToolsPath 
-  $env:NunitConsolePath = join-path $env:NunitToolsPath "NUNIT3-CONSOLE.exe"
   $env:NETCoreTargetsPath = resolve-path $env:NETCoreTargetsPath
   
   $env:SqlClient = Resolve-Path $env:SqlClient
