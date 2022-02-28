@@ -68,7 +68,7 @@ if ($needNewLock) {
    Write-Host "Saving lock file"
    (get-module $modules.module | ForEach-Object{ "@{Module=`"$($_.Name)`";Version=`"$($_.Version)`"}" }) -Join ",`n" | out-file -encoding utf8 "$modulefile.lock"}
 
-#Install-AzDoArtifactsCredProvider
+Install-AzDoArtifactsCredProvider
 
 Write-verbose "Downloading sqlpackage"
 # if (-not ( Test-path "$PackagePath\sqlpackage")){ New-Item -ItemType Directory -Path "$PackagePath\sqlpackage"  |Out-Null}
