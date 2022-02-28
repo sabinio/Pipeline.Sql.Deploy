@@ -17,9 +17,10 @@ try {
     $msbuildArgs = @()
     $msbuildArgs += $ExtraMSBuildSwitches
     $msbuildArgs += "/p:Configuration=$config"
+    $msbuildArgs += "/p:NetCoreBuild=true"
     $msbuildArgs += $dbsolutionpath
 
-    & $msbuild $msbuildArgs  2>&1
+    &dotnet build $msbuildArgs  2>&1
 
     if ($LASTEXITCODE -ne 0) {
         Throw

@@ -88,8 +88,46 @@ $env:sqlPackagePath = resolve-path "$ToolsPath\sqlpackage"
 $env:SqlpackagePathExe = join-path $env:sqlPackagePath $sqlpackageExeName
 Write-Host "sqlpackage installed"
 
-Install-Nuget
+push-location $ToolsPath
+    try{
+    Install-Nuget ([IO.Path]::Combine($ToolsPath, "Nuget", "nuget.exe")) -Verbose:$VerbosePreference
 
+
+    @{package = "Microsoft.SqlServer.DacFx"; subpath = "\lib\netstandard2.1"; ;env="NETCoreTargetsPath";nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "Microsoft.Data.SqlClient"; subpath = "\runtimes\win\lib\netcoreapp2.1"; version="3.0.1"; env="SqlClient" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "sabinio.Sql.System.Dacpacs"; env="SystemDacPacs" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "System.ComponentModel.Composition"; subpath = "\lib\netcoreapp2.0";version="5.0.0"; env="ComponentModel" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "System.IO.Packaging"; subpath = "\lib\netstandard2.0"; ;version="5.0.0";env="SystemIOPackaging" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "NUnit.ConsoleRunner"; subpath = "\tools\"; env = "NunitToolsPath" ;nugetextraparams="-DependencyVersion","Ignore"} `
+  | ForEach-Object { Install-ToolsPackageFromNuget -PackagePath . -Verbose:$VerbosePreference @_}
+
+  $env:NunitToolsPath  = Resolve-Path  $env:NunitToolsPath 
+  $env:NunitConsolePath = join-path $env:NunitToolsPath "NUNIT3-CONSOLE.exe"
+  $env:NETCoreTargetsPath = resolve-path $env:NETCoreTargetsPath
+  
+  $env:SqlClient = Resolve-Path $env:SqlClient
+  if ((copy-item (join-path $env:ComponentModel "*.dll")   $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:ComponentModel)" }
+  if ((copy-item (join-path $env:SystemIOPackaging "*.dll")   $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SystemIOPackaging)" }
+  if ((Copy-Item (join-path $env:SqlClient "*.dll")     $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SqlClient)" }
+  if ((Copy-Item (join-path $env:SystemDacPacs "*")  $env:NETCoreTargetsPath -Recurse -PassThru -Force).Count -eq 0) {Throw "Failed to copy files from $($env:SystemDacPacs)" }
+
+
+   <# @{package = "Microsoft.Build.Sql"; subpath = "\tools\netstandard2.1"; version = "0.1.1-alpha";env="MicrosoftBuildSqlRoot";nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "sabinio.Sql.System.Dacpacs"; env="SystemDacPacs" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    | ForEach-Object { Install-ToolsPackageFromNuget -PackagePath . -Verbose:$VerbosePreference @_}
+
+    $env:NETCoreTargetsPath = resolve-path ( [IO.Path]::Combine($env:MicrosoftBuildSqlRoot,"tools","netstandard2.1"))
+
+    if ((Copy-Item (join-path $env:SystemDacPacs "*")  $env:NETCoreTargetsPath -Recurse -PassThru -Force).Count -eq 0) {Throw "Failed to copy files from $($env:SystemDacPacs)" }
+
+    if ((Copy-Item (join-path $env:SystemDacPacs "*")  $env:NETCoreTargetsPath -Recurse -PassThru -Force).Count -eq 0) {Throw "Failed to copy files from $($env:SystemDacPacs)" }
+    #>
+}
+finally {
+    Pop-Location
+}
+
+<#
 if ($PSVersionTable.Platform -eq "Unix"){
     $Env:VSPath = "/mnt/c/program files/microsoft visual studio"
 }else{
@@ -97,6 +135,7 @@ if ($PSVersionTable.Platform -eq "Unix"){
 }
 $Env:MsbuildPath = (Get-ChildItem $Env:VSPath msbuild.exe -Recurse | select-object -First 1).FullName
 Write-Host "Setting MsBuildPath to $($Env:MsbuildPath)"
+#>
 
 }
 catch{
