@@ -57,7 +57,7 @@ Function Invoke-DatabaseDacpacDeploy {
                                     -Username $TargetUser `
                                     -scriptParentPath $scriptParentPath -ErrorAction Stop
 
-        $DeployProperties = Get-DeployProperties -action $action `
+        $DeployProperties = Get-DeployPropertiesHash -action $action `
                                     -TargetServerName $TargetServerName `
                                     -TargetDatabaseName $TargetDatabaseName `
                                     -TargetUser $TargetUser `

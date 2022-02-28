@@ -33,14 +33,18 @@ Function Test-ShouldDeployDacpac {
     if ($settings.TargetServerName) {
         $TargetServer = $settings.TargetServerName
     }
-    if ($publishFile) {
+    if ($null -eq $settings.publishFile){
+        $settings.publishFile = $publishFile
+    }
+    if ($null -ne $Settings.publishFile) {
         Write-Host "Publish File is not currently used to check if settings have changed. Consider adding publish file as a value in the settings parameter"
     }
+    
     #Check date of dacpac against last deployment time
     $dacpacDate = (Get-Item $dacpacfile).LastWriteTimeUtc
     
     if  ($null -eq $SettingsToCheck){
-        $SettingsToCheck = Get-DefaultSettingsToCheck -dacpacfile $dacpacfile -publishFile $publishFile  @settings     
+        $SettingsToCheck = Get-DefaultSettingsToCheck -dacpacfile $dacpacfile  @settings     
     }
 
     try {

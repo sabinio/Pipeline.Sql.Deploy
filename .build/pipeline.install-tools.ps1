@@ -90,7 +90,11 @@ Write-Host "sqlpackage installed"
 
 Install-Nuget
 
-$Env:VSPath= (Get-VSSetupInstance | Sort-Object -Property InstallationVersion -Descending | Select-Object -First 1).InstallationPath 
+if ($PSVersionTable.Platform -eq "Unix"){
+    $Env:VSPath = "/mnt/c/program files/microsoft visual studio"
+}else{
+    $Env:VSPath= (Get-VSSetupInstance | Sort-Object -Property InstallationVersion -Descending | Select-Object -First 1).InstallationPath 
+}
 $Env:MsbuildPath = (Get-ChildItem $Env:VSPath msbuild.exe -Recurse | select-object -First 1).FullName
 Write-Host "Setting MsBuildPath to $($Env:MsbuildPath)"
 

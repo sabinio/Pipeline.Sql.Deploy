@@ -1,4 +1,4 @@
-Function Get-DeployProperties{
+Function Get-DeployPropertiesHash{
     [CmdletBinding()]
     param(
         [string] $action, 
