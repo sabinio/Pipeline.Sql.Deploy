@@ -95,7 +95,7 @@ push-location $ToolsPath
     try{
     Install-Nuget ([IO.Path]::Combine($ToolsPath, "Nuget", "nuget.exe")) -Verbose:$VerbosePreference
 
-    &$env:Nuget sources list| Where-Object {$_ -like "*powershellGallerytest*"} | ForEach-Object{&$env:Nuget sources remove -name powershellgallerytest}
+    &$env:NugetPath sources list| Where-Object {$_ -like "*powershellGallerytest*"} | ForEach-Object{&$env:NugetPath sources remove -name powershellgallerytest}
 
     @{package = "Microsoft.SqlServer.DacFx"; subpath = "\lib\netstandard2.1"; ;env="NETCoreTargetsPath";nugetextraparams="-DependencyVersion","Ignore"} `
     , @{package = "Microsoft.Data.SqlClient"; subpath = "\runtimes\win\lib\netcoreapp2.1"; version="3.0.1"; env="SqlClient" ;nugetextraparams="-DependencyVersion","Ignore"} `
