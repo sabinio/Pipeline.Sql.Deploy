@@ -4,4 +4,4 @@
 @{Module="PSScriptAnalyzer";}
 @{Module="platyps";}
 @{Module="Az.keyVault";} 
-@{Module="VSSetup";}
+@{Module="SqlServer";}
