@@ -1,11 +1,4 @@
-param(
-    [parameter(Mandatory = $false)] $serverName,
-    $ModulePath,
-    $ProjectName
-)
-BeforeDiscovery{
 
-}
 BeforeAll {
     Set-StrictMode -Version 1.0
     $PSModuleAutoloadingPreference = "none"

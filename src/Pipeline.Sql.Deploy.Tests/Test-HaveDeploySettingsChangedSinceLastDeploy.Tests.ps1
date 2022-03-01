@@ -1,4 +1,3 @@
-param($ModulePath, $SourcePath, $ProjectName)
 
 
 BeforeAll{

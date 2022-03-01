@@ -1,8 +1,4 @@
-param(
-    [parameter(Mandatory = $false)] $serverName,
-    $ModulePath,
-    $ProjectName
-)
+
 BeforeDiscovery{
     Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
 }
