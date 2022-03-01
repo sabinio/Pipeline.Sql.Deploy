@@ -1,8 +1,4 @@
-param(
-    [parameter(Mandatory = $false)] $serverName,
-    $ModulePath,
-    $ProjectName
-)
+
 BeforeAll {
     Set-StrictMode -Version 1.0
     $ErrorActionPreference="stop"
@@ -120,11 +116,12 @@ Describe 'deploy-guard' {
         }
     }
     Context "Deploy Settings File" {
-        It "Given database found deployguard returns false if deployment table exists with later date than LastWriteTime of settings file" {
+        It "Given database found deployguard returns false if deployment table exists with later date than LastWriteTime of settings file and settings are the same" {
             $settings = @{TargetServer = "."; TargetDatabaseName = "randomName1" }    
            
             Mock Get-DeploySettingsFromFile { $settings }
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false } 
             Mock Test-DatabaseExists { $true }
             Mock Get-Item -ParameterFilter { $Path -eq "bob.json" } { [PSCustomObject]@{LastWriteTimeUtc = (get-date -Year 2020 -Month 1 -day 1) } }
 

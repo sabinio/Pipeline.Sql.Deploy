@@ -1,9 +1,5 @@
-param($ModulePath, $SourcePath, $ProjectName)
-
-BeforeDiscovery {
 
 
-}
 BeforeAll{
 	if (-not (Test-Path variable:ProjectName)) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
 	if (-not (Test-Path variable:ModulePath)) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }

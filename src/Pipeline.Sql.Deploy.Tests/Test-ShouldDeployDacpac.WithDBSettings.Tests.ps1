@@ -1,8 +1,4 @@
-param(
-    [parameter(Mandatory = $false)] $serverName,
-    $ModulePath,
-    $ProjectName
-)
+
 BeforeDiscovery{
     Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
 }
@@ -57,7 +53,7 @@ Describe "test a"{
             Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
             Mock Test-DatabaseExists {$true}
 
-            Mock Get-DeploySettingsfromDB { @{settings=@{TargetServer = "."; TargetDatabaseName = "foo2" }}}
+            Mock Get-DeploySettingsfromDB { @{settingsToCheck=@{TargetServer = "."; TargetDatabaseName = "foo2" }}}
             
             Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile | Should -Be $true
             
@@ -70,9 +66,9 @@ Describe "test a"{
             Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
             Mock Test-DatabaseExists {$true}
 
-            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settings = $settings }}
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settingsToCheck = $settings }}
     
-            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile | Should -Be $false
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -SettingsToCheck $Settings | Should -Be $false
             
             Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
         }
@@ -82,9 +78,9 @@ Describe "test a"{
             Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
             Mock Test-DatabaseExists {$true}
 
-            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settings = @{TargetServer = "."; TargetDatabaseName = "foo2" } }}
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settingsToCheck = @{TargetServer = "."; TargetDatabaseName = "foo2" } }}
     
-            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile | Should -Be $true
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings | Should -Be $true
             
             Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
         }
@@ -112,4 +108,5 @@ Describe "test b"{
         }
     }       
 }
+
 

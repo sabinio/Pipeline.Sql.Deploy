@@ -1,11 +1,4 @@
-param(
-    [parameter(Mandatory = $false)] $serverName,
-    $ModulePath,
-    $ProjectName
-)
-BeforeDiscovery{
 
-}
 BeforeAll {
     Set-StrictMode -Version 1.0
     $PSModuleAutoloadingPreference = "none"
@@ -19,8 +12,9 @@ BeforeAll {
   
     . $ModulePath\Functions\$CommandName.ps1
     . $ModulePath\Functions\Write-DbDeployParameterLog.ps1
-    . $ModulePath\Functions\Get-DeployPropertiesJson.ps1
-    
+    . $ModulePath\Functions\Internal\Get-DeployPropertiesHash.ps1
+    . $ModulePath\Functions\Internal\Get-DefaultSettingsToCheck.ps1
+    . $ModulePath\Functions\Internal\Convert-ToSQLPackageSafeString.ps1
 }
 Describe 'Invoke-DatabaseDacpacDeploy' {
     BeforeAll {

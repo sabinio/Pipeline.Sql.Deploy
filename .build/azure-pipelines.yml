@@ -41,12 +41,14 @@ stages:
       PublishArtifacts: true
       name: windows_core
       
-  - template: azure-pipelines.buildTest.yml
-    parameters:
-      UsePowerShellCore: false
-      vmimage: ubuntu-latest
-      PublishArtifacts: false
-      name: ubuntu_core
+#
+#  - template: azure-pipelines.buildTest.yml
+#    parameters:
+#      UsePowerShellCore: false
+#      vmimage: ubuntu-latest
+#      PublishArtifacts: false
+#      name: ubuntu_core
+#
 
 - stage: TestPublishForCI
   dependsOn: BuildAndTest

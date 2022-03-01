@@ -18,9 +18,10 @@ param (
 $global:ErrorActionPreference = "Stop"
 $ErrorActionPreference = "Stop"
 
-push-location $PSScriptroot
+push-location "$PSScriptroot/.."
 Set-StrictMode -Version 1.0
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 
 #use this to connect to azure
 #get-azcontext -ListAvailable | Where-Object {$_.subscription.name -like "*sabin*"} | Select-Object -first 1 | set-azcontext
@@ -58,7 +59,7 @@ try {
 		$InstallVerbose = (Test-LogAreaEnabled -logging $verboseLogging -area "install")
         Write-Host "##[command]./pipeline.install-tools.ps1 -workingPath $(join-path $artifactsPath "tools") -verbose:$InstallVerbose"
 		Write-Host "##[group]Install $InstallVerbose"
-		./pipeline.install-tools.ps1  -artifactsPath (join-path $artifactsPath "tools") -verbose:$InstallVerbose
+		./.build/pipeline.install-tools.ps1  -artifactsPath (join-path $artifactsPath "tools") -verbose:$InstallVerbose
 		Write-Host "##[endgroup]"
     }
 	
@@ -83,34 +84,34 @@ try {
 
     if ($Build) {     
 		Write-Host "##[group]Build"
-		./pipeline.build.ps1  -settings $settings -rootPath $rootPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "build")
-        ./pipeline.createdocs.ps1  -settings $settings -rootPath $rootPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "build")
+		./.build/pipeline.build.ps1  -settings $settings -rootPath $rootPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "build")
+        ./.build/pipeline.createdocs.ps1  -settings $settings -rootPath $rootPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "build")
 		Write-Host "##[endgroup]"
     }
 
     if ($Package) {
 		Write-Host "##[group]Package"
-        ./pipeline.package.ps1  -settings $settings -ArtifactsPath $artifactsPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "package")
+        ./.build/pipeline.package.ps1  -settings $settings -ArtifactsPath $artifactsPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "package")
 		Write-Host "##[endgroup]"
     }
 
     if ($Test) {
         Write-Host "##[group]Test"
-        ./pipeline.test.ps1 -ArtifactsPath $artifactsPath -settings $settings -rootpath $rootpath -outPath $outPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "test") 
+        ./.build/pipeline.test.ps1 -ArtifactsPath $artifactsPath -settings $settings -rootpath $rootpath -outPath $outPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "test") 
 		Write-Host "##[endgroup]"
     }
 
     if ($Publish) {
 		Write-Host "##[group]Publish"
-        . ./pipeline.update-manifest.ps1 
+        . ./.build/pipeline.update-manifest.ps1 
         Update-Manifest -settings $settings -ArtifactsPath $artifactsPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "publish")
-        ./pipeline.publish.ps1  -settings $settings -ArtifactsPath $artifactsPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "publish")
+        ./.build/pipeline.publish.ps1  -settings $settings -ArtifactsPath $artifactsPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "publish")
 		Write-Host "##[endgroup]"
     }
 
     if ($Tidy) {
 		Write-Host "##[group]Tidy"
-        ./pipeline.tidy.ps1 -ArtifactsPath $artifactsPath -settings $settings -outPath $outPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "tidy") 
+        ./.build/pipeline.tidy.ps1 -ArtifactsPath $artifactsPath -settings $settings -outPath $outPath -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "tidy") 
 		Write-Host "##[endgroup]"
     }
 }

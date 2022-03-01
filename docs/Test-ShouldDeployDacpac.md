@@ -13,8 +13,8 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Test-ShouldDeployDacpac [[-settings] <Object>] [[-dacpacfile] <String>] [[-publishFile] <String>]
- [[-DBDeploySettingsFile] <String>] [<CommonParameters>]
+Test-ShouldDeployDacpac [[-settings] <Object>] [[-SettingsToCheck] <Object>] [[-dacpacfile] <String>]
+ [[-publishFile] <String>] [[-DBDeploySettingsFile] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,7 +40,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 3
+Position: 4
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SettingsToCheck
+{{ Fill SettingsToCheck Description }}
+
+```yaml
+Type: Object
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -55,7 +70,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -70,7 +85,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -10,6 +10,7 @@ function Get-DeploySettingsFromDB{
   -Database $Database `
   -ServerInstance $ServerName `
   @sqlcmdparams
-  
- return @{LastDeployDate = $DeployRecord.DeploymentCreated; Settings=$DeployRecord.DeployPropertiesJSON}
+  $DeployPropertiesObject = ($DeployRecord.DeployPropertiesJSON | convertfrom-json)
+
+ return @{LastDeployDate = $DeployRecord.DeploymentCreated; SettingsToCheck=$DeployPropertiesObject.SettingsToCheck;Settings = $DeployPropertiesObject.Parameters }
 }

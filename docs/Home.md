@@ -6,6 +6,8 @@ Here's a list of the cmdlets in this module.
 |-|
 |[_config](_config)
 |[Get-DbSettingsAsJson](Get-DbSettingsAsJson)
+|[Get-DeployProperties](Get-DeployProperties)
+|[Get-DeployPropertiesHash](Get-DeployPropertiesHash)
 |[Get-DeployPropertiesJson](Get-DeployPropertiesJson)
 |[index](index)
 |[Invoke-DatabaseDacpacDeploy](Invoke-DatabaseDacpacDeploy)
