@@ -28,11 +28,11 @@ BeforeAll {
 
 Describe "Integration tests"{
     BeforeAll {
+        
         $dacpacPath = "TestDrive:\test.dacpac"
-        Set-Content $dacpacPath -value "testdacpac"
+        copy-item $PSScriptRoot\Test.dacpac $dacpacPath
         $publishFile = "TestDrive:\publish.xml"
         Set-Content $publishFile -value "testdacpac" 
-        $publishFile =  "TestDrive:\publish.xml"
 
         $dbDeployPath = "TestDrive:\deploy\"
         if (-not (Test-path $dbDeployPath)){new-item $dbDeployPath  -type directory | out-null}

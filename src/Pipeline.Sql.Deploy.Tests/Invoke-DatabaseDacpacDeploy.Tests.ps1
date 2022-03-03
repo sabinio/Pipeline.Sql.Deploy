@@ -12,6 +12,7 @@ BeforeAll {
   
     . $ModulePath\Functions\$CommandName.ps1
     . $ModulePath\Functions\Write-DbDeployParameterLog.ps1
+    . $ModulePath\Functions\Get-DacPacHash.ps1
     . $ModulePath\Functions\Internal\Get-DeployPropertiesHash.ps1
     . $ModulePath\Functions\Internal\Get-DefaultSettingsToCheck.ps1
     . $ModulePath\Functions\Internal\Convert-ToSQLPackageSafeString.ps1
@@ -20,7 +21,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
     BeforeAll {
         $PSModuleAutoloadingPreference = "none"
         $dacpacPath = "TestDrive:\test.dacpac"
-        Set-Content $dacpacPath -value "testdacpac"
+        copy-item $PSScriptRoot\Test.dacpac $dacpacPath -Force
         $publishFile = "TestDrive:\publish.xml"
         Set-Content $publishFile -value "testdacpac" 
     }
@@ -33,7 +34,8 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
                 $folder = [System.io.path]::Combine("TestDrive:","ReturnValues","out")
                 if (test-path $folder){remove-item $folder -Force |out-null}
                 $dacpac = [System.io.path]::Combine("TestDrive:","dacpac","test.dacpac")
-                new-item $dacpac -force -type file | out-null
+                new-item  TestDrive:/dacpac -type directory -force | Out-Null
+                copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
                 
                 $targetDatabase = "ReturnValues"
                 $scripts = @("db.sql","master.sql")

@@ -7,7 +7,8 @@ Function Test-ShouldDeployDacpac {
         [string]$dacpacfile,
         [string]$publishFile,
         [string]$DBDeploySettingsFile,
-        [Switch]$IgnoreDate
+        [Switch]$IgnoreDate,
+        [switch]$CompareHash
     )
     
     $shouldDeploy = $false
@@ -82,6 +83,10 @@ Function Test-ShouldDeployDacpac {
                     Write-Host "last deploy date < dacpac date so we do need to deploy the database"
                     $shouldDeploy = $true
                 }   
+                elseif($CompareHash){
+                    $Hash = Get-DacpacHash $dacpacfile
+                    $shouldDeploy = ($SettingsFromDB.Hash -ne $Hash)
+                }
             }
             else {
                 #previous behaviour using a DBDeploySettingsFile 
