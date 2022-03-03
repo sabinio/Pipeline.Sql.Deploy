@@ -4,7 +4,6 @@ Welcome to the Pipeline.Sql.Deploy wiki!
 Here's a list of the cmdlets in this module.
 |Module|
 |-|
-|[_config](_config)
 |[Get-DacPacHash](Get-DacPacHash)
 |[Get-DbSettingsAsJson](Get-DbSettingsAsJson)
 |[Get-DeployProperties](Get-DeployProperties)
@@ -19,3 +18,4 @@ Here's a list of the cmdlets in this module.
 |[Test-IsPreviousDeploySettingsFileMissing](Test-IsPreviousDeploySettingsFileMissing)
 |[Test-ShouldDeployDacpac](Test-ShouldDeployDacpac)
 |[Write-DbDeployParameterLog](Write-DbDeployParameterLog)
+|[_config](_config)

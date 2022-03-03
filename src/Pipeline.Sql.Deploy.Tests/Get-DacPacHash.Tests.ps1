@@ -16,6 +16,7 @@ Describe 'Get-DacPacHash' {
     It 'given a dacpac with hash of 1234 should return the hash (1234) from a dacpac' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
+        $Dacpaczip = "$dacpac.zip"
         $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
         new-item $DacpacOrigin -type file -force
         @"
@@ -25,7 +26,8 @@ Describe 'Get-DacPacHash' {
     </Checksums>
 </DacOrigin>
 "@ | out-File $DacpacOrigin
-        Compress-Archive $DacpacOrigin -DestinationPath $Dacpac
+        Compress-Archive $DacpacOrigin -DestinationPath $Dacpaczip
+        move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
     
         Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "1234"
     }
@@ -52,7 +54,7 @@ Describe 'Get-DacPacHash' {
     It 'given an archives thats not got an origin.xml return an error' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
-        
+        $Dacpaczip = "$dacpac.zip"
         $DacpacOther= "TestDrive:\DacPac\Other.xml"
         new-item $DacpacOther -type file -force
         @"
@@ -62,8 +64,9 @@ Describe 'Get-DacPacHash' {
     </Checksums>
 </DacOrigin>
 "@ | out-File $DacpacOther
-        Compress-Archive $DacpacOther -DestinationPath $Dacpac -Force
-    
+        Compress-Archive $DacpacOther -DestinationPath $Dacpaczip -Force
+        move-item $Dacpaczip $Dacpac -Force
+
         {Get-DacPacHash (Get-Item $Dacpac).FullName} | Should -Throw  "Can't find the Origin.xml file in the dacpac, would guess this isn't a dacpac"
     }
    
