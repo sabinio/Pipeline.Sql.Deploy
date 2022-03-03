@@ -6,7 +6,8 @@ Function Test-ShouldDeployDacpac {
         $SettingsToCheck,
         [string]$dacpacfile,
         [string]$publishFile,
-        [string]$DBDeploySettingsFile
+        [string]$DBDeploySettingsFile,
+        [Switch]$IgnoreDate
     )
     
     $shouldDeploy = $false
@@ -77,8 +78,8 @@ Function Test-ShouldDeployDacpac {
                     Write-Host "ShouldDeploy? Yes - settings have changed"
                     $shouldDeploy = $true
                 }
-                elseif ($SettingsFromDB.LastDeployDate -lt $dacpacDate) {
-                    Write-Host "last deploy date < dacpac date so we don't need to deploy the database"
+                elseif (-not $IgnoreDate -and $SettingsFromDB.LastDeployDate -lt $dacpacDate) {
+                    Write-Host "last deploy date < dacpac date so we do need to deploy the database"
                     $shouldDeploy = $true
                 }   
             }
@@ -102,8 +103,8 @@ Function Test-ShouldDeployDacpac {
                         Write-Host "no settings found in Db for $dacpacname"
                         $shouldDeploy = $true
                     }
-                    elseif ($SettingsFromDB.LastDeployDate -lt $dacpacDate) {
-                        Write-Host "last deploy date < dacpac date so we don't need to deploy the database"
+                    elseif (-not $IgnoreDate -and $SettingsFromDB.LastDeployDate -lt $dacpacDate) {
+                        Write-Host "last deploy date < dacpac date so we do need to deploy the database"
                         $shouldDeploy = $true
                     }
                 }

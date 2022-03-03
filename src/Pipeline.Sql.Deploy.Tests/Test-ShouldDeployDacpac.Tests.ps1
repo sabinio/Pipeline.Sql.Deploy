@@ -137,14 +137,30 @@ Describe 'deploy-guard' {
            
             Mock Get-DeploySettingsFromFile { $settings }
             Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
+            
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false} 
             Mock Test-DatabaseExists { $true }
 
             Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 1900 -Month 1 -Day 1) }}
             $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile   -DBDeploySettingsFile "something.json"
                 
             $result | Should -Be $true
-        }        
+        }       
         
+        It "Given database found and a previous old deployment deployguard returns false if dacpac is newer and ignore date is set" {
+            $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" }    
+           
+            Mock Get-DeploySettingsFromFile { $settings }
+            Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
+            
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false } 
+            Mock Test-DatabaseExists { $true }
+
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 1900 -Month 1 -Day 1) }}
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile   -DBDeploySettingsFile "something.json" -IgnoreDate
+                
+            $result | Should -Be $false
+        }         
     }
 }
 
