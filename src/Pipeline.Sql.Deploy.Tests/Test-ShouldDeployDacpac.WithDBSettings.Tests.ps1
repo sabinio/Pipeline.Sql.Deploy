@@ -84,6 +84,18 @@ Describe "test a"{
             
             Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
         }
+        It "Given the Hash has changed, result Should -Be true" {
+            $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
+
+            Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
+            Mock Test-DatabaseExists {$true}
+            Mock Get-DacPacHash {"1234"}
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1); settingsToCheck=$settings; Hash = 4567 }}
+    
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings | Should -Be $true
+            
+            Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
+        }
     }
 }
 Describe "test b"{

@@ -1,7 +1,3 @@
-param(
-    $ModulePath,
-    $ProjectName
-)
 BeforeDiscovery{
     Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
 }
@@ -58,5 +54,16 @@ Describe 'Invoke-scalar' {
 
         Should -invoke Invoke-SqlCmd -Exactly 1 
         Should -invoke Invoke-SqlCmd -Exactly 1 -ParameterFilter { $Credential -eq $null }
+    }
+
+    It 'should return Hash from DeployProperties' {
+        [string] $Server = "bob"
+        [string] $DBName = "dbbob"
+
+        Mock Invoke-SqlCmd { @{DeploymentCreated=(get-date);DeployPropertiesJSON='{"Hash":"1234"}'} }
+
+        $Properties = Get-DeploySettingsFromDB -Server $Server -Database $DBName  -DacpacName "test"
+
+        $Properties.Hash | Should -be "1234"
     }
 }

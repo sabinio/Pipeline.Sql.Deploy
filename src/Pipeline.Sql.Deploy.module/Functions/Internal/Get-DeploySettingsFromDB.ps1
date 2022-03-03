@@ -1,5 +1,6 @@
 function Get-DeploySettingsFromDB{
   [CmdletBinding()]
+  [OutputType([Hashtable])]
   param($ServerName, $Database,$User, [SecureString]$PasswordSecure, $DacpacName)
 
  $sqlcmdparams = @{}
@@ -12,5 +13,5 @@ function Get-DeploySettingsFromDB{
   @sqlcmdparams
   $DeployPropertiesObject = ($DeployRecord.DeployPropertiesJSON | convertfrom-json)
 
- return @{LastDeployDate = $DeployRecord.DeploymentCreated; SettingsToCheck=$DeployPropertiesObject.SettingsToCheck;Settings = $DeployPropertiesObject.Parameters }
+ return @{LastDeployDate = $DeployRecord.DeploymentCreated; SettingsToCheck=$DeployPropertiesObject.SettingsToCheck;Settings = $DeployPropertiesObject.Parameters;Hash=$DeployPropertiesObject.Hash }
 }
