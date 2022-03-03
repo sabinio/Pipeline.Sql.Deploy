@@ -92,7 +92,7 @@ Describe "test a"{
             Mock Get-DacPacHash {"1234"}
             Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1); settingsToCheck=$settings; Hash = 4567 }}
     
-            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings | Should -Be $true
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings -CompareHash | Should -Be $true
             
             Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
         }

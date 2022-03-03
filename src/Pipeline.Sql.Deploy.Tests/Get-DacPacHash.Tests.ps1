@@ -62,7 +62,7 @@ Describe 'Get-DacPacHash' {
     </Checksums>
 </DacOrigin>
 "@ | out-File $DacpacOther
-        Compress-Archive $DacpacOther -DestinationPath $Dacpac
+        Compress-Archive $DacpacOther -DestinationPath $Dacpac -Force
     
         {Get-DacPacHash (Get-Item $Dacpac).FullName} | Should -Throw  "Can't find the Origin.xml file in the dacpac, would guess this isn't a dacpac"
     }

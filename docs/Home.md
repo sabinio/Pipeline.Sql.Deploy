@@ -5,6 +5,7 @@ Here's a list of the cmdlets in this module.
 |Module|
 |-|
 |[_config](_config)
+|[Get-DacPacHash](Get-DacPacHash)
 |[Get-DbSettingsAsJson](Get-DbSettingsAsJson)
 |[Get-DeployProperties](Get-DeployProperties)
 |[Get-DeployPropertiesHash](Get-DeployPropertiesHash)
