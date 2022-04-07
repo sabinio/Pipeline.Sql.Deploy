@@ -92,3 +92,7 @@ jobs:
     - publish: '$(artifactsPath)/$(ProjectName)'
       artifact: '$(ProjectName)'
       condition: succeededOrFailed()
+
+    - publish: '$(artifactsPath)/$(ProjectName).Tests'
+      artifact: '$(ProjectName).Tests'
+      condition: succeededOrFailed()
