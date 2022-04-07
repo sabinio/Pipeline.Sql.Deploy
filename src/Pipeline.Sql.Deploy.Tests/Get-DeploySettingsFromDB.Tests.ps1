@@ -1,7 +1,3 @@
-param(
-    $ModulePath,
-    $ProjectName
-)
 BeforeDiscovery{
     Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
 }
@@ -15,8 +11,8 @@ BeforeAll {
     . $ModulePath\Functions\Internal\$CommandName.ps1
 }
 
-Describe 'Invoke-scalar' {
-    It 'should run correct query against the servermake connection to the server specified' {
+Describe 'Get-DeploySettingsFromDB' {
+    It 'should run correct query against the server and make connection to the server specified' {
         [string] $Server = "bob"
         [string] $DBName = "dbbob"
         [string] $User = "oddman"
@@ -30,7 +26,7 @@ Describe 'Invoke-scalar' {
         Should -invoke Invoke-SqlCmd -Exactly 1 
         Should -invoke Invoke-SqlCmd -Exactly 1 -ParameterFilter { $Query -eq "Select top 1 DeploymentCreated, DeployPropertiesJSON from Deploy.Deployment  where json_value(DeployPropertiesJSON,'$.Parameters.dacpacname') = 'test' order by DeploymentCreated Desc" }
         Should -invoke Invoke-SqlCmd -Exactly 1 -ParameterFilter { $Database -eq $DbName }
-        Should -invoke Invoke-SqlCmd -Exactly 1 -ParameterFilter { $server -eq $Server }
+        Should -invoke Invoke-SqlCmd -Exactly 1 -ParameterFilter { $ServerInstance -eq $Server }
     }
     It 'should run and connect with sql auth with correct password' {
         [string] $Server = "bob"
@@ -58,5 +54,16 @@ Describe 'Invoke-scalar' {
 
         Should -invoke Invoke-SqlCmd -Exactly 1 
         Should -invoke Invoke-SqlCmd -Exactly 1 -ParameterFilter { $Credential -eq $null }
+    }
+
+    It 'should return Hash from DeployProperties' {
+        [string] $Server = "bob"
+        [string] $DBName = "dbbob"
+
+        Mock Invoke-SqlCmd { @{DeploymentCreated=(get-date);DeployPropertiesJSON='{"Hash":"1234"}'} }
+
+        $Properties = Get-DeploySettingsFromDB -Server $Server -Database $DBName  -DacpacName "test"
+
+        $Properties.Hash | Should -be "1234"
     }
 }

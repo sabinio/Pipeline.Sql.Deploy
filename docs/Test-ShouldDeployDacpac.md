@@ -14,7 +14,7 @@ schema: 2.0.0
 
 ```
 Test-ShouldDeployDacpac [[-settings] <Object>] [[-SettingsToCheck] <Object>] [[-dacpacfile] <String>]
- [[-publishFile] <String>] [[-DBDeploySettingsFile] <String>] [<CommonParameters>]
+ [[-publishFile] <String>] [[-DBDeploySettingsFile] <String>] [-IgnoreDate] [-CompareHash] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,21 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
+### -CompareHash
+{{ Fill CompareHash Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -DBDeploySettingsFile
 {{ Fill DBDeploySettingsFile Description }}
 
@@ -41,6 +56,21 @@ Aliases:
 
 Required: False
 Position: 4
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IgnoreDate
+{{ Fill IgnoreDate Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

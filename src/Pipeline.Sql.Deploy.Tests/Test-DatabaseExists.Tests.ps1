@@ -17,7 +17,7 @@ BeforeAll {
 }
 
 Describe 'Test-DatabaseExists' {
-    It 'should run correct query against the servermake connection to the server specified' {
+    It 'should run correct query against the server' {
         [string] $Server = "bob"
         [string] $DBName = "dbbob"
         [string] $User = "oddman"

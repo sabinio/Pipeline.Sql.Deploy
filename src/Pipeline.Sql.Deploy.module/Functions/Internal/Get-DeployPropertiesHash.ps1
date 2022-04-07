@@ -1,5 +1,6 @@
 Function Get-DeployPropertiesHash{
     [CmdletBinding()]
+    [OutputType([Hashtable])]
     param(
         [string] $action, 
         [string] $TargetServerName, 
@@ -44,8 +45,9 @@ Function Get-DeployPropertiesHash{
     write-host "some text"
     write-host "some text"
     write-host "$psscriptroot"
+    $Hash = Get-DacPacHash $dacpacfile
 
-    $Settings = @{Parameters = $ParamValues;SettingsToCheck=$SettingsToCheck; EnvironmentValues = $EnvironmentValues}
+    $Settings = @{Parameters = $ParamValues;SettingsToCheck=$SettingsToCheck; EnvironmentValues = $EnvironmentValues; Hash=$Hash}
     
     return $Settings
 }
