@@ -9,6 +9,7 @@ function Get-DeploySettingsFromDB{
  $DeployRecord = Invoke-SqlCmd -Query "Select top 1 DeploymentCreated, DeployPropertiesJSON from Deploy.Deployment  where json_value(DeployPropertiesJSON,'$.Parameters.dacpacname') = '$DacpacName' order by DeploymentCreated Desc" `
   -Database $Database `
   -ServerInstance $ServerName `
+  -MaxCharLength 32767 `
   @sqlcmdparams
   $DeployPropertiesObject = ($DeployRecord.DeployPropertiesJSON | convertfrom-json)
 
