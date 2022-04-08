@@ -55,14 +55,14 @@ function Get-DacPacHash {
             if ($Zip.Entries.Name -eq "predeploy.sql") {
                 Write-Verbose "getting hash for predeploy.sql"
                 $predeployStream = $Zip.GetEntry("model.xml").Open()
-                $checksum+= (Get-FileHash $predeployStream).Hash      
+                $checksum+= (Get-FileHash -InputStream $predeployStream).Hash      
                 $predeployStream.Close()
                 $predeployStream.Dispose()
             }
             if ($Zip.Entries.Name -eq "postdeploy.sql") {
                 Write-Verbose "getting hash for postdeploy.sql"
                 $predeployStream = $Zip.GetEntry("model.xml").Open()
-                $checksum+= (Get-FileHash $predeployStream).Hash      
+                $checksum+= (Get-FileHash -InputStream $predeployStream).Hash      
                 $predeployStream.Close()
                 $predeployStream.Dispose()
             }
