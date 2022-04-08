@@ -4,7 +4,7 @@ trigger:
 - main
 parameters:
 - name: logging
-  default: "*"
+  default: ""
   type: string
 
 variables:

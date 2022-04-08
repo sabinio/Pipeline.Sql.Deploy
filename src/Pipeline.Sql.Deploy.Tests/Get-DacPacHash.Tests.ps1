@@ -10,6 +10,7 @@ BeforeAll {
          Write-Verbose "loading $_" -Verbose;
        . $_.FullName
     }
+    $ErrorActionPreference="stop"
 }
 
 Describe 'Get-DacPacHash' {
@@ -38,7 +39,120 @@ Describe 'Get-DacPacHash' {
     
         Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "1234"
     }
+
+    It 'given a dacpac with hash of 1234  and a predeploy script that returns hash 5678 then should return the hash (12345678) from a dacpac' {
+
+        $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
+        $Dacpaczip = "$dacpac.zip"
+        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
+        new-item $DacpacOrigin -type file -force
+        @"
+<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+    <Checksums>
+        <Checksum Uri="/model.xml">1234</Checksum>
+    </Checksums>
+</DacOrigin>
+"@ | out-File $DacpacOrigin
+
+        $DacpacModel = "TestDrive:\DacPac\model.xml"
+        new-item $DacpacModel -type file -force
+        @"
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+</DataSchemaModel>
+"@ | out-File $DacpacModel
+
+        $Predeploy = "TestDrive:\DacPac\predeploy.sql"
+        new-item $Predeploy -type file -force
+@"
+      print "Pre deploy script"
+"@ | out-File $Predeploy
+
+        
+        Get-ChildItem -Path $DacpacOrigin, $DacpacModel, $Predeploy | Compress-Archive -DestinationPath $Dacpaczip
+        move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
+    
+        Mock Get-FileHash {@{Hash="5678"}}
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "12345678"
+    }
   
+
+    It 'given a dacpac with hash of 1234  and a postdeploy script that returns hash 9999 then should return the hash (12349999) from a dacpac' {
+
+        $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
+        $Dacpaczip = "$dacpac.zip"
+        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
+        new-item $DacpacOrigin -type file -force
+        @"
+<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+    <Checksums>
+        <Checksum Uri="/model.xml">1234</Checksum>
+    </Checksums>
+</DacOrigin>
+"@ | out-File $DacpacOrigin
+
+        $DacpacModel = "TestDrive:\DacPac\model.xml"
+        new-item $DacpacModel -type file -force
+        @"
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+</DataSchemaModel>
+"@ | out-File $DacpacModel
+
+        $Postdeploy = "TestDrive:\DacPac\postdeploy.sql"
+        new-item $Postdeploy -type file -force
+@"
+      print "Post deploy script"
+"@ | out-File $Postdeploy
+
+        
+        Get-ChildItem -Path $DacpacOrigin, $DacpacModel, $Postdeploy | Compress-Archive -DestinationPath $Dacpaczip
+        move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
+    
+        Mock Get-FileHash {@{Hash="9999"}}
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "12349999"
+    }
+
+
+    It 'given a dacpac with hash of 1234  and a postdeploy script that returns hash 9999 then should return the hash (12349999) from a dacpac' {
+
+        $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
+        $Dacpaczip = "$dacpac.zip"
+        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
+        new-item $DacpacOrigin -type file -force
+        @"
+<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+    <Checksums>
+        <Checksum Uri="/model.xml">1234</Checksum>
+    </Checksums>
+</DacOrigin>
+"@ | out-File $DacpacOrigin
+
+        $DacpacModel = "TestDrive:\DacPac\model.xml"
+        new-item $DacpacModel -type file -force
+        @"
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+</DataSchemaModel>
+"@ | out-File $DacpacModel
+
+        $Postdeploy = "TestDrive:\DacPac\postdeploy.sql"
+        new-item $Postdeploy -type file -force
+@"
+      print "Post deploy script"
+"@ | out-File $Postdeploy
+        $Predeploy = "TestDrive:\DacPac\predeploy.sql"
+        new-item $Predeploy -type file -force
+@"
+print "Pre deploy script"
+"@ | out-File $Predeploy
+
+        
+        Get-ChildItem -Path $DacpacOrigin, $DacpacModel, $Postdeploy ,$Predeploy| Compress-Archive -DestinationPath $Dacpaczip
+        move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
+        $item=1
+        Mock Get-FileHash {@{Hash="9999"}}
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "123499999999"
+        Assert-MockCalled Get-FileHash -Exactly 2
+    }
+
     It 'given a dacpac with hash of 5678 which references a same db dacpac with a hash of 1234 should return the hash (12345678) from both dacpacs' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
