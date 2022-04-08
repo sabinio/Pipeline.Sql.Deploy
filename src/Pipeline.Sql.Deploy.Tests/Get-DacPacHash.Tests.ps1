@@ -10,6 +10,7 @@ BeforeAll {
          Write-Verbose "loading $_" -Verbose;
        . $_.FullName
     }
+    $ErrorActionPreference="stop"
 }
 
 Describe 'Get-DacPacHash' {

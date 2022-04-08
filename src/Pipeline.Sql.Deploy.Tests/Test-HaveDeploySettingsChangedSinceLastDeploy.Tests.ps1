@@ -18,7 +18,9 @@ BeforeAll{
 	
 	Set-StrictMode -Version 1.0
 	$env:PSModulePath =""
+	$ErrorActionPreference = "stop"
 }
+
 Describe "Checking Previous Settings"  {
 	It "Should return false if no path passed in"{
 		$settings = @{Server="foo";database="bob"}
@@ -29,6 +31,9 @@ Describe "Checking Previous Settings"  {
 		
     }
 
-
+	It "Should not fail if no old settings returned"{
+		Mock Get-SettingsAsJson {$null}
+		{Test-HaveDeploySettingsChangedSinceLastDeploy $null $null -verbose }| Should -not -Throw
+	}
 }
     
