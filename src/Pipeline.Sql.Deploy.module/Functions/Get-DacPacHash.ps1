@@ -8,6 +8,7 @@ function Get-DacPacHash {
     [xml]$dacpacXml = New-Object xml
     $dacPacZipOriginStream = $null
     $dacPacZipModelStream = $null
+    $IsRootDacPac = $null -eq $rootPath
     try {
         if ($null -eq $rootpath){
             $dacpacitem = (Get-Item $dacpacPath)
@@ -17,6 +18,7 @@ function Get-DacPacHash {
         else{
             $FulldacPacPath = Join-Path $rootPath $dacpacPath
         }
+        Write-Verbose "getting DacPac hash for $FulldacPacPath"
         $Zip = [io.compression.zipfile]::OpenRead($FulldacPacPath)
     }
     catch [System.IO.FileNotFoundException], [System.Management.Automation.ItemNotFoundException] {
@@ -47,6 +49,24 @@ function Get-DacPacHash {
         $dacpacXml.Load($dacPacZipOriginStream)
         #Write-Host "$dacpacPath - has checksum - $($dacpacXml.DacOrigin.Checksums.Checksum.'#text') "
         $checksum += $dacpacXml.DacOrigin.Checksums.Checksum.'#text'
+
+        if ($IsRootDacPac) {
+                
+            if ($Zip.Entries.Name -eq "predeploy.sql") {
+                Write-Verbose "getting hash for predeploy.sql"
+                $predeployStream = $Zip.GetEntry("model.xml").Open()
+                $checksum+= (Get-FileHash $predeployStream).Hash      
+                $predeployStream.Close()
+                $predeployStream.Dispose()
+            }
+            if ($Zip.Entries.Name -eq "postdeploy.sql") {
+                Write-Verbose "getting hash for postdeploy.sql"
+                $predeployStream = $Zip.GetEntry("model.xml").Open()
+                $checksum+= (Get-FileHash $predeployStream).Hash      
+                $predeployStream.Close()
+                $predeployStream.Dispose()
+            }
+        }
     }
     catch { Throw }
     finally {
