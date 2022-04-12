@@ -11,54 +11,78 @@ BeforeAll {
        . $_.FullName
     }
     $ErrorActionPreference="stop"
+
 }
 
 Describe 'Get-DacPacHash' {
-    It 'given a dacpac with hash of 1234 should return the hash (1234) from a dacpac' {
+    It 'given a dacpac model element with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 should return the hash (DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08) from a dacpac' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
-
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+    <header>
+        <CustomData Category="Reference" Type="SqlSchema">
+            <Metadata Name="FileName" Value="TestDrive:\DacPac\ReferencedDacPac.dacpac" />
+            <Metadata Name="LogicalName" Value="ReferencedDacPac.dacpac" />
+            <Metadata Name="ExternalParts" Value="[(Referenced)]" />
+        </CustomData>  
+    </header>
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account]">
+        </Element>
+    </model>
 </DataSchemaModel>
 "@ | out-File $DacpacModel
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path  $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
     
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "1234"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08"
     }
 
-    It 'given a dacpac with hash of 1234  and a predeploy script that returns hash 5678 then should return the hash (12345678) from a dacpac' {
+    It 'given a dacpac with identical model element with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 but different header element should still return the hash (DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08) ' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
+        $DacpacModel = "TestDrive:\DacPac\model.xml"
+        new-item $DacpacModel -type file -force
         @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+    <header>
+        <CustomData Category="Reference" Type="SqlSchema">
+            <Metadata Name="FileName" Value="TestDrive:\DacPac\DifferentReferencedDacPac.dacpac" />
+            <Metadata Name="LogicalName" Value="DifferentReferencedDacPac.dacpac" />
+            <Metadata Name="ExternalParts" Value="[(Referenced)]" />
+        </CustomData>  
+    </header>
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account]">
+        </Element>
+    </model>
+</DataSchemaModel>
+"@ | out-File $DacpacModel
+        Get-ChildItem -Path  $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
+        move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
+    
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08"
+    }
+
+    It 'given a dacpac with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 and a predeploy script that returns hash 206ECD474E2920B4AFAB073FA6D10C1B9371640E23125DCA8092E93FF6457C42 ' {
+
+        $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
+        $Dacpaczip = "$dacpac.zip"
 
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
-</DataSchemaModel>
+        <DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+        <model>
+            <Element Type="SqlTable" Name="[dbo].[Account]">
+            </Element>
+        </model>
+    </DataSchemaModel>
 "@ | out-File $DacpacModel
 
         $Predeploy = "TestDrive:\DacPac\predeploy.sql"
@@ -68,33 +92,26 @@ Describe 'Get-DacPacHash' {
 "@ | out-File $Predeploy
 
         
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel, $Predeploy | Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path  $DacpacModel, $Predeploy | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
-    
-        Mock Get-FileHash {@{Hash="5678"}}
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "12345678"
+
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08206ECD474E2920B4AFAB073FA6D10C1B9371640E23125DCA8092E93FF6457C42"
     }
   
 
-    It 'given a dacpac with hash of 1234  and a postdeploy script that returns hash 9999 then should return the hash (12349999) from a dacpac' {
+    It 'given a dacpac with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 and a postdeploy script that returns hash 7AE1A6B52631A1E5DBBC0D37B50182F90FD05A56096B0E8E19AE3849E249FC49 then should return the combined hash' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
-
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
-</DataSchemaModel>
+        <DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+        <model>
+            <Element Type="SqlTable" Name="[dbo].[Account]">
+            </Element>
+        </model>
+    </DataSchemaModel>
 "@ | out-File $DacpacModel
 
         $Postdeploy = "TestDrive:\DacPac\postdeploy.sql"
@@ -103,34 +120,27 @@ Describe 'Get-DacPacHash' {
       print "Post deploy script"
 "@ | out-File $Postdeploy
 
-        
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel, $Postdeploy | Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path $DacpacModel, $Postdeploy | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
-    
-        Mock Get-FileHash {@{Hash="9999"}}
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "12349999"
+
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD087AE1A6B52631A1E5DBBC0D37B50182F90FD05A56096B0E8E19AE3849E249FC49"
     }
 
 
-    It 'given a dacpac with hash of 1234  and a postdeploy script that returns hash 9999 then should return the hash (12349999) from a dacpac' {
+    It 'given a dacpac with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 and a predeploy script and a postdeploy script  then should return the combined hash' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
 
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
-</DataSchemaModel>
+        <DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+        <model>
+            <Element Type="SqlTable" Name="[dbo].[Account]">
+            </Element>
+        </model>
+    </DataSchemaModel>
 "@ | out-File $DacpacModel
 
         $Postdeploy = "TestDrive:\DacPac\postdeploy.sql"
@@ -138,34 +148,24 @@ Describe 'Get-DacPacHash' {
 @"
       print "Post deploy script"
 "@ | out-File $Postdeploy
+
         $Predeploy = "TestDrive:\DacPac\predeploy.sql"
         new-item $Predeploy -type file -force
 @"
-print "Pre deploy script"
+      print "Pre deploy script"
 "@ | out-File $Predeploy
 
         
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel, $Postdeploy ,$Predeploy| Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path $DacpacModel, $Postdeploy ,$Predeploy| Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
-        $item=1
-        Mock Get-FileHash {@{Hash="9999"}}
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "123499999999"
-        Assert-MockCalled Get-FileHash -Exactly 2
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD087AE1A6B52631A1E5DBBC0D37B50182F90FD05A56096B0E8E19AE3849E249FC49206ECD474E2920B4AFAB073FA6D10C1B9371640E23125DCA8092E93FF6457C42"
+        #Assert-MockCalled Get-FileHash -Exactly 2
     }
 
-    It 'given a dacpac with hash of 5678 which references a same db dacpac with a hash of 1234 should return the hash (12345678) from both dacpacs' {
+    It 'given a dacpac with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 which references a same db dacpac with a hash of 13FD99548209FBD167F6693965A1161C27F12DB7E8CEBF4341007D1506B05AE7 should return the combined hash from both dacpacs' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">5678</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
 
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
@@ -177,52 +177,40 @@ print "Pre deploy script"
             <Metadata Name="LogicalName" Value="ReferencedDacPac.dacpac" />
         </CustomData>     
     </Header>
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account]">
+        </Element>
+    </model>    
 </DataSchemaModel>
 "@ | out-File $DacpacModel
 
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
-
-
 
         $DacpacReferenced = "TestDrive:\DacPac\ReferencedDacPac.dacpac"
         $DacpacReferencedzip = "$DacpacReferenced.zip"
-        $DacpacReferencedOrigin = "TestDrive:\ReferencedDacPac\Origin.xml"
-        new-item $DacpacReferencedOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacReferencedOrigin
 
         $DacpacReferencedModel = "TestDrive:\ReferencedDacPac\model.xml"
         new-item $DacpacReferencedModel -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[TblAccount]">
+        </Element>
+    </model>  
 </DataSchemaModel>
 "@ | out-File $DacpacReferencedModel
 
-        Get-ChildItem -Path $DacpacReferencedOrigin, $DacpacReferencedModel | Compress-Archive -DestinationPath $DacpacReferencedzip
+        Get-ChildItem -Path $DacpacReferencedModel | Compress-Archive -DestinationPath $DacpacReferencedzip
         move-item $DacpacReferencedzip $DacpacReferenced -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
     
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "12345678"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD0813FD99548209FBD167F6693965A1161C27F12DB7E8CEBF4341007D1506B05AE7"
     }    
 
-    It 'given a dacpac which references a dacpac which in turn references a third dacpac, hash should be obtains from all three dacpacs' {
+    It 'given a dacpac which references a dacpac which in turn references a third dacpac, combined hash should be obtains from all three dacpacs' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">5678</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
 
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
@@ -234,81 +222,64 @@ print "Pre deploy script"
             <Metadata Name="LogicalName" Value="ReferencedDacPac.dacpac" />
         </CustomData>     
     </Header>
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account]">
+        </Element>
+    </model>      
 </DataSchemaModel>
 "@ | out-File $DacpacModel
 
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
-
-
 
         $DacpacReferenced = "TestDrive:\DacPac\ReferencedDacPac.dacpac"
         $DacpacReferencedzip = "$DacpacReferenced.zip"
-        $DacpacReferencedOrigin = "TestDrive:\ReferencedDacPac\Origin.xml"
-        new-item $DacpacReferencedOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacReferencedOrigin
+
 
         $DacpacReferencedModel = "TestDrive:\ReferencedDacPac\model.xml"
         new-item $DacpacReferencedModel -type file -force
         @"
-        <DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
-        <Header>
-            <CustomData Category="Reference" Type="SqlSchema">
-                <Metadata Name="FileName" Value="TestDrive:\DacPac\ReferencedDacPac2.dacpac" />
-                <Metadata Name="LogicalName" Value="ReferencedDacPac2.dacpac" />
-            </CustomData>     
-        </Header>
-    </DataSchemaModel>
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+    <Header>
+        <CustomData Category="Reference" Type="SqlSchema">
+            <Metadata Name="FileName" Value="TestDrive:\DacPac\ReferencedDacPac2.dacpac" />
+            <Metadata Name="LogicalName" Value="ReferencedDacPac2.dacpac" />
+        </CustomData>     
+    </Header>
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account2]">
+        </Element>
+    </model>          
+</DataSchemaModel>
 "@ | out-File $DacpacReferencedModel
 
-        Get-ChildItem -Path $DacpacReferencedOrigin, $DacpacReferencedModel | Compress-Archive -DestinationPath $DacpacReferencedzip
+        Get-ChildItem -Path  $DacpacReferencedModel | Compress-Archive -DestinationPath $DacpacReferencedzip
         move-item $DacpacReferencedzip $DacpacReferenced -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
 
         $DacpacReferenced2 = "TestDrive:\DacPac\ReferencedDacPac2.dacpac"
         $DacpacReferenced2zip = "$DacpacReferenced2.zip"
-        $DacpacReferenced2Origin = "TestDrive:\ReferencedDacPac2\Origin.xml"
-        new-item $DacpacReferenced2Origin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">abcd</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacReferenced2Origin
 
         $DacpacReferenced2Model = "TestDrive:\ReferencedDacPac2\model.xml"
         new-item $DacpacReferenced2Model -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">  
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account3]">
+        </Element>
+    </model>     
 </DataSchemaModel>
 "@ | out-File $DacpacReferenced2Model
 
-        Get-ChildItem -Path $DacpacReferenced2Origin, $DacpacReferenced2Model | Compress-Archive -DestinationPath $DacpacReferenced2zip
+        Get-ChildItem -Path $DacpacReferenced2Model | Compress-Archive -DestinationPath $DacpacReferenced2zip
         move-item $DacpacReferenced2zip $DacpacReferenced2 -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip        
 
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "abcd12345678"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08D3EAFE9F45F5881ADD3669155556885AA5C8E5E0D45E58F2DF1D0FB8CABB7690B0DE0AC154D8696BD8992F9E274BBCD476E2B836D20183730D5688C124B3B385"
     }    
 
-
-    It 'given a dacpac with hash of 1234 which references a different db dacpac with a hash of 5678 should return the hash (1234) from both dacpacs' {
+    It 'given a dacpac with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 which references a different db dacpac with a hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 should return the hash (1234) from both dacpacs' {
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
         $Dacpaczip = "$dacpac.zip"
-        $DacpacOrigin = "TestDrive:\DacPac\Origin.xml"
-        new-item $DacpacOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">1234</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacOrigin
 
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
@@ -321,34 +292,33 @@ print "Pre deploy script"
             <Metadata Name="ExternalParts" Value="[(Referenced)]" />
         </CustomData>     
     </Header>
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account]">
+        </Element>
+    </model>      
 </DataSchemaModel>
 "@ | out-File $DacpacModel
-        Get-ChildItem -Path $DacpacOrigin, $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
+        Get-ChildItem -Path $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
 
         $DacpacReferenced = "TestDrive:\DacPac\ReferencedDacPac.dacpac"
         $DacpacReferencedzip = "$DacpacReferenced.zip"
-        $DacpacReferencedOrigin = "TestDrive:\ReferencedDacPac\Origin.xml"
-        new-item $DacpacReferencedOrigin -type file -force
-        @"
-<DacOrigin xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
-    <Checksums>
-        <Checksum Uri="/model.xml">5678</Checksum>
-    </Checksums>
-</DacOrigin>
-"@ | out-File $DacpacReferencedOrigin
 
         $DacpacReferencedModel = "TestDrive:\ReferencedDacPac\model.xml"
         new-item $DacpacReferencedModel -type file -force
         @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
+<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">  
+    <model>
+        <Element Type="SqlTable" Name="[dbo].[Account2]">
+        </Element>
+    </model>     
 </DataSchemaModel>
 "@ | out-File $DacpacReferencedModel
 
-        Get-ChildItem -Path $DacpacReferencedOrigin, $DacpacReferencedModel | Compress-Archive -DestinationPath $DacpacReferencedzip
+        Get-ChildItem -Path  $DacpacReferencedModel | Compress-Archive -DestinationPath $DacpacReferencedzip
         move-item $DacpacReferencedzip $DacpacReferenced -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
         
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "1234"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08"
     }     
     It 'given a file thats not an archive return an error' {
 
@@ -368,22 +338,6 @@ print "Pre deploy script"
     It 'given a file that doesnt exist return an error' {
     
         {Get-DacPacHash c:\somenonexistentFile} | Should -Throw "Can't open dacpac file * doesn't exist"
-    }
-
-    It 'given an archives thats not got an origin.xml return an error' {
-
-        $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
-        $Dacpaczip = "$dacpac.zip"
-        $DacpacModel = "TestDrive:\DacPac\model.xml"
-        new-item $DacpacModel -type file -force
-        @"
-<DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
-</DataSchemaModel>
-"@ | out-File $DacpacModel        
-        Get-ChildItem -Path  $DacpacModel | Compress-Archive -DestinationPath $Dacpaczip -Force
-        move-item $Dacpaczip $Dacpac -Force
-
-        {Get-DacPacHash (Get-Item $Dacpac).FullName} | Should -Throw  "Can't find the Origin.xml file in the dacpac, would guess this isn't a dacpac"
     }
 
     It 'given an archive thats not got a model.xml return an error' {

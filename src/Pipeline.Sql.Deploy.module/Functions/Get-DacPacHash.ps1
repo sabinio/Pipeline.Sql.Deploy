@@ -6,7 +6,6 @@ function Get-DacPacHash {
         $rootPath
     )
     [xml]$dacpacXml = New-Object xml
-    $dacPacZipOriginStream = $null
     $dacPacZipModelStream = $null
     $IsRootDacPac = $null -eq $rootPath
     try {
@@ -29,51 +28,27 @@ function Get-DacPacHash {
         throw $ex
     }
     try {
-        if (-not ($Zip.Entries.Name -eq "Origin.xml")) {
-            Throw "Can't find the Origin.xml file in the dacpac, would guess this isn't a dacpac"
-        }
         if (-not ($Zip.Entries.Name -eq "model.xml")) {
             Throw "Can't find the model.xml file in the dacpac, would guess this isn't a dacpac"
         }
         $dacPacZipModelStream = $Zip.GetEntry("model.xml").Open()
         $dacpacXml.Load($dacPacZipModelStream)
         $checksum = ''
-        foreach ($dacpac in (($dacpacXml.DataSchemaModel.Header.CustomData | `
-                        Where-Object { $_.Category -eq "Reference" `
-                            -and $_.Type -eq "SqlSchema" `
-                            -and -not ($_.MetaData.Name -eq "ExternalParts") } `
-                ).MetaData | Where-Object { $_.Name -eq "LogicalName" })) {
-            $checksum += Get-DacPacHash -dacpacPath $dacpac.Value -rootPath $rootPath
+        $model = $dacpacXml.DataSchemaModel.Model.OuterXml;
+        $checksum += (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($model)))).Hash;
+
+        foreach ($dacpac in (Get-ReferencedDacpacsFromModel -modelxml $dacpacXml)) {
+            $checksum += Get-DacPacHash -dacpacPath $dacpac -rootPath $rootPath
         }
-        $dacPacZipOriginStream = $Zip.GetEntry("Origin.xml").Open()
-        $dacpacXml.Load($dacPacZipOriginStream)
-        #Write-Host "$dacpacPath - has checksum - $($dacpacXml.DacOrigin.Checksums.Checksum.'#text') "
-        $checksum += $dacpacXml.DacOrigin.Checksums.Checksum.'#text'
 
         if ($IsRootDacPac) {
-                
-            if ($Zip.Entries.Name -eq "predeploy.sql") {
-                Write-Verbose "getting hash for predeploy.sql"
-                $predeployStream = $Zip.GetEntry("model.xml").Open()
-                $checksum+= (Get-FileHash -InputStream $predeployStream).Hash      
-                $predeployStream.Close()
-                $predeployStream.Dispose()
-            }
-            if ($Zip.Entries.Name -eq "postdeploy.sql") {
-                Write-Verbose "getting hash for postdeploy.sql"
-                $predeployStream = $Zip.GetEntry("model.xml").Open()
-                $checksum+= (Get-FileHash -InputStream $predeployStream).Hash      
-                $predeployStream.Close()
-                $predeployStream.Dispose()
+            $Zip.Entries | Where-Object { $_.Name -in ("predeploy.sql", "postdeploy.sql")} | ForEach-Object {
+                $checksum += (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($_.Name)))).Hash;
             }
         }
     }
     catch { Throw }
     finally {
-        if ($null -ne $dacPacZipOriginStream) {
-            $dacPacZipOriginStream.Close()
-            $dacPacZipOriginStream.Dispose()
-        }
         if ($null -ne $dacPacZipModelStream) {
             $dacPacZipModelStream.Close()
             $dacPacZipModelStream.Dispose()
