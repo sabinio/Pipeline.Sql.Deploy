@@ -32,10 +32,8 @@ function Get-DacPacHash {
             Throw "Can't find the model.xml file in the dacpac, would guess this isn't a dacpac"
         }
         $dacPacZipModelStream = $Zip.GetEntry("model.xml").Open()
-        $dacpacXml.Load($dacPacZipModelStream)
-        $checksum = ''
-        $model = $dacpacXml.DataSchemaModel.Model.OuterXml;
-        $checksum += (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($model)))).Hash;
+        $dacpacXml.Load($dacPacZipModelStream)        
+        $checksum = Get-ModelChecksum $dacpacXml;
 
         foreach ($dacpac in (Get-ReferencedDacpacsFromModel -modelxml $dacpacXml)) {
             $checksum += Get-DacPacHash -dacpacPath $dacpac -rootPath $rootPath
@@ -43,11 +41,11 @@ function Get-DacPacHash {
 
         if ($IsRootDacPac) {
             $Zip.Entries | Where-Object { $_.Name -in ("predeploy.sql", "postdeploy.sql")} | ForEach-Object {
+                
                 $stream = $Zip.GetEntry($_.Name).open()
-                $checksum += (Get-FileHash -InputStream $stream ).Hash;
+                $checksum += (Get-FileHash -InputStream $stream -Algorithm SHA256).Hash;
                 $stream.Close();
-                $stream.Dispose();
-                 
+                $stream.Dispose();             
             }
         }
     }
