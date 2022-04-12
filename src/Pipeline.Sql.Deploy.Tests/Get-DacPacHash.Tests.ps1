@@ -85,17 +85,23 @@ Describe 'Get-DacPacHash' {
     </DataSchemaModel>
 "@ | out-File $DacpacModel
 
-        $Predeploy = "TestDrive:\DacPac\predeploy.sql"
-        new-item $Predeploy -type file -force
-@"
-      print "Pre deploy script"
-"@ | out-File $Predeploy
+        $PredeployFile = "TestDrive:\DacPac\predeploy.sql"
+        new-item $PredeployFile -type file -force
+        $Predeploy = @"
+            SELECT 'DF7C934283E27966F7A443D06EE2132724AEBA63FA1CD5281DDF1DD08'
+print "Pre deploy script"
+"@ 
+        Set-Content $PredeployFile -Value $Predeploy -Encoding utf8 -NoNewline
 
-        
-        Get-ChildItem -Path  $DacpacModel, $Predeploy | Compress-Archive -DestinationPath $Dacpaczip
+        $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($Predeploy))
+        $predeployhash = Get-FileHash -InputStream $stream -Algorithm SHA256
+        $stream.Dispose()
+
+        Get-ChildItem -Path  $DacpacModel, $PredeployFile | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
 
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08206ECD474E2920B4AFAB073FA6D10C1B9371640E23125DCA8092E93FF6457C42"
+        $predeployhash.hash | Should -be "684E4C1A05483E1FAFF6CCE543432FB14570286CEDAADEE314964706B5A31EC4"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08$($predeployhash.hash)"
     }
   
 
@@ -123,7 +129,7 @@ Describe 'Get-DacPacHash' {
         Get-ChildItem -Path $DacpacModel, $Postdeploy | Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
 
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD087AE1A6B52631A1E5DBBC0D37B50182F90FD05A56096B0E8E19AE3849E249FC49"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08089EFE9CBE8FA8F0A51FB48663F84BBD7DFEE4BBD3429490D5FBC5BD7BCFA45B"
     }
 
 
@@ -158,9 +164,48 @@ Describe 'Get-DacPacHash' {
         
         Get-ChildItem -Path $DacpacModel, $Postdeploy ,$Predeploy| Compress-Archive -DestinationPath $Dacpaczip
         move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
-        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD087AE1A6B52631A1E5DBBC0D37B50182F90FD05A56096B0E8E19AE3849E249FC49206ECD474E2920B4AFAB073FA6D10C1B9371640E23125DCA8092E93FF6457C42"
+        Get-DacPacHash (Get-Item $Dacpac).FullName | Should -be "DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08089EFE9CBE8FA8F0A51FB48663F84BBD7DFEE4BBD3429490D5FBC5BD7BCFA45BDB3DB5596BB699EC0A32A15EFE6B0FD6E5B392710F33823EF7BBF728012C0479"
         #Assert-MockCalled Get-FileHash -Exactly 2
     }
+
+    It 'given a changes to pre and post deploy ensure the hash is different' {
+
+        function generate-dacpac {
+            param ($dacpac, $content)
+            
+            $Dacpaczip = "$dacpac.zip"
+
+            $DacpacModel = "TestDrive:\DacPac\model.xml"
+            new-item $DacpacModel -type file -force
+@"
+            <DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">    
+            <model>
+                <Element Type="SqlTable" Name="[dbo].[Account]">
+                </Element>
+            </model>
+        </DataSchemaModel>
+"@ | out-File $DacpacModel
+
+            $Postdeploy = "TestDrive:\DacPac\postdeploy.sql"
+            new-item $Postdeploy -type file -force
+            $content| out-File $Postdeploy
+
+        Get-ChildItem -Path $DacpacModel, $Postdeploy | Compress-Archive -DestinationPath $Dacpaczip
+        move-item $Dacpaczip $Dacpac -Force #this is needed as powershell < 6 doesn't allow compress archive to anything other than a .zip
+        }
+
+        $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
+        generate-dacpac -dacpac $dacpac -content "Some predeploy script"
+        $hash1 = get-dacpachash (Get-Item $Dacpac).FullName
+        
+        generate-dacpac -dacpac $dacpac -content "Some other script"
+        $hash2 = get-dacpachash (Get-Item $Dacpac).FullName
+
+        $hash1 | should -not -be $null
+        $hash1 | should -not -be ""
+        $hash1 | should -not -be $hash2
+    }
+
 
     It 'given a dacpac with hash of DF7C934283E27966F7C0C9A57C443D06EE2132724AEBA63FA1CD5281DDF1DD08 which references a same db dacpac with a hash of 13FD99548209FBD167F6693965A1161C27F12DB7E8CEBF4341007D1506B05AE7 should return the combined hash from both dacpacs' {
 
@@ -169,7 +214,7 @@ Describe 'Get-DacPacHash' {
 
         $DacpacModel = "TestDrive:\DacPac\model.xml"
         new-item $DacpacModel -type file -force
-        @"
+@"
 <DataSchemaModel xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">     
     <Header>
         <CustomData Category="Reference" Type="SqlSchema">

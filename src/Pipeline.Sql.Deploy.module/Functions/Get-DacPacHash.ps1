@@ -43,7 +43,11 @@ function Get-DacPacHash {
 
         if ($IsRootDacPac) {
             $Zip.Entries | Where-Object { $_.Name -in ("predeploy.sql", "postdeploy.sql")} | ForEach-Object {
-                $checksum += (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($_.Name)))).Hash;
+                $stream = $Zip.GetEntry($_.Name).open()
+                $checksum += (Get-FileHash -InputStream $stream ).Hash;
+                $stream.Close();
+                $stream.Dispose();
+                 
             }
         }
     }
