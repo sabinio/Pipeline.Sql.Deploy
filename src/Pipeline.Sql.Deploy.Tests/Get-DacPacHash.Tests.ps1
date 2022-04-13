@@ -21,16 +21,17 @@ BeforeAll {
         new-item $DacpacModel -type file -force
         $modelXML | out-File $DacpacModel
 
+        #Ascii encoding is used because on windows powershell UTF8 writes a BOM whereas on powershell core the BOM is not written
         if ($null -ne $predeploycontent) {
             $predeploy = "TestDrive:\DacPac\predeploy.sql"
             new-item $predeploy -type file -force
-            $predeploycontent| out-File $predeploy  -Encoding utf8 -NoNewline
+            $predeploycontent| out-File $predeploy  -Encoding Ascii -NoNewline
         }
 
         if ($null -ne $postdeploycontent) {
             $Postdeploy = "TestDrive:\DacPac\postdeploy.sql"
             new-item $Postdeploy -type file -force
-            $postdeploycontent| out-File $Postdeploy  -Encoding utf8 -NoNewline
+            $postdeploycontent| out-File $Postdeploy  -Encoding Ascii -NoNewline
         }
 
 
@@ -85,8 +86,8 @@ Describe 'Get-DacPacHash' {
         $Predeploy = @"
 print "Pre deploy script"
 "@ 
-        $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($Predeploy))
-        $predeployhash = Get-FileHash -InputStream $stream -Algorithm SHA256
+        $stream = [IO.MemoryStream]::new([Text.Encoding]::Ascii.GetBytes($Predeploy))
+        $predeployhash = Get-FileHash -InputStream $stream # -Algorithm SHA256
         $stream.Dispose()
 
         $Dacpac = "TestDrive:\DacPac\TestDacPac.dacpac"
@@ -107,7 +108,7 @@ print "Pre deploy script"
         $Postdeploy = @"
 print "Post deploy script"
 "@ 
-        $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($Postdeploy))
+        $stream = [IO.MemoryStream]::new([Text.Encoding]::Ascii.GetBytes($Postdeploy))
         $postdeployhash = Get-FileHash -InputStream $stream -Algorithm SHA256
         $stream.Dispose()
 
@@ -128,14 +129,14 @@ print "Post deploy script"
         $Predeploy = @"
 print "Pre deploy script"
 "@ 
-        $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($Predeploy))
+        $stream = [IO.MemoryStream]::new([Text.Encoding]::Ascii.GetBytes($Predeploy))
         $predeployhash = Get-FileHash -InputStream $stream -Algorithm SHA256
         $stream.Dispose()
 
         $Postdeploy = @"
 print "Post deploy script"
 "@ 
-        $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($Postdeploy))
+        $stream = [IO.MemoryStream]::new([Text.Encoding]::Ascii.GetBytes($Postdeploy))
         $postdeployhash = Get-FileHash -InputStream $stream -Algorithm SHA256
         $stream.Dispose()
 
