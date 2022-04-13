@@ -16,6 +16,8 @@ BeforeAll {
     . $ModulePath\Functions\Internal\Get-DeployPropertiesHash.ps1
     . $ModulePath\Functions\Internal\Get-DefaultSettingsToCheck.ps1
     . $ModulePath\Functions\Internal\Convert-ToSQLPackageSafeString.ps1
+    . $ModulePath\Functions\Internal\Get-ReferencedDacpacsFromModel.ps1
+    . $ModulePath\Functions\Internal\Get-ModelChecksum.ps1
 }
 Describe 'Invoke-DatabaseDacpacDeploy' {
     BeforeAll {
