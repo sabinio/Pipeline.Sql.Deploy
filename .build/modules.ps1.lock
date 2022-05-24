@@ -3,5 +3,5 @@
 @{Module="Pipeline.Config";Version="0.2.74"},
 @{Module="platyps";Version="0.14.2"},
 @{Module="PowerShellGet";Version="2.2.5"},
-@{Module="PSScriptAnalyzer";Version="1.19.1"},
+@{Module="PSScriptAnalyzer";Version="1.20.0"},
 @{Module="SqlServer";Version="21.1.18245"}
