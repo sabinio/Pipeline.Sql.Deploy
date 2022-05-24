@@ -36,7 +36,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             mock invoke-command { 0 }
             $sqlpackagePath = "sqlpackage"
             $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
-            if (test-path $folder) { remove-item $folder -Force | out-null }
+            if (test-path $folder) { remove-item $folder -Force -Recurse| out-null }
             $dacpac = [System.io.path]::Combine("TestDrive:", "dacpac", "test.dacpac")
             new-item  TestDrive:/dacpac -type directory -force | Out-Null
             copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
@@ -55,7 +55,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             mock invoke-command {  $(&cmd /c dir bobby) } #simmulating a command failure
             $sqlpackagePath = "sqlpackage"
             $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
-            if (test-path $folder) { remove-item $folder -Force | out-null }
+            if (test-path $folder) { remove-item $folder -Force -Recurse| out-null }
             $dacpac = [System.io.path]::Combine("TestDrive:", "dacpac", "test.dacpac")
             new-item  TestDrive:/dacpac -type directory -force | Out-Null
             copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
