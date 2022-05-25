@@ -123,7 +123,7 @@ Function Invoke-DatabaseDacpacDeploy {
         $ErrorActionPreference ="Continue"
         
         invoke-command -ScriptBlock {
-            &$sqlpackagePath (Get-SqlPackageArgument)  2>&1 #Ensure errors are sent to the errorvariable
+            &$sqlpackagePath (Get-SqlPackageArgument)   #Ensure errors are sent to the errorvariable
             $LASTEXITCODE
         } -ev sqlpackageerror -OutVariable  SqlPackageExitCode
         $ErrorActionPreference ="Stop"
@@ -131,6 +131,10 @@ Function Invoke-DatabaseDacpacDeploy {
         if ($sqlpackageerror) {
             throw $sqlpackageerror
         }
+        if ($LASTEXITCODE -ne 0) {
+            throw "SqlPackage returned non-zero exit code: $LASTEXITCODE"
+        }
+        
         $result =[PscustomObject]@{Scripts=Get-ChildItem "$ScriptParentPath\$TargetDatabaseName" -File -Recurse}
 
         if ($OutputDeployScript){

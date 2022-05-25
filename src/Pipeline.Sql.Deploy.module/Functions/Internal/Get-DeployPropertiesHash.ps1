@@ -42,8 +42,7 @@ Function Get-DeployPropertiesHash{
     if ($null -eq $SettingsToCheck){
       $SettingsToCheck = Get-DefaultSettingsToCheck @ParamValues
     }
-    write-host "some text"
-    write-host "some text"
+
     write-host "$psscriptroot"
     $Hash = Get-DacPacHash $dacpacfile
 
