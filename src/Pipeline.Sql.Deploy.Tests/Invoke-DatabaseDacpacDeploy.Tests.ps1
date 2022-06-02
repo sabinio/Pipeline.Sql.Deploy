@@ -52,7 +52,8 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
         }
 
         It "When Dacpac is invalid" {
-            mock invoke-command {  $(&cmd /c dir bobby) } #simmulating a command failure
+            $LASTEXITCODE=99
+            mock invoke-command {  pwsh foo} #simmulating a command failure
             $sqlpackagePath = "sqlpackage"
             $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
             if (test-path $folder) { remove-item $folder -Force -Recurse| out-null }
@@ -60,7 +61,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             new-item  TestDrive:/dacpac -type directory -force | Out-Null
             copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
         
-            $targetDatabase = "ReturnValues"
+            $targetDatabase = "InvalidDacPac$($PsVersionTable.PsVersion)" 
             $scripts = @("db.sql", "master.sql")
             $scripts | ForEach-Object { new-item -ItemType File ([System.io.path]::Combine($folder, $targetDatabase, $_)) -Force }
             $exception =$Null

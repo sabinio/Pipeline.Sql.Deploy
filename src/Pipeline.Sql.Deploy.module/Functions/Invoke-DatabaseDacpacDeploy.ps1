@@ -122,16 +122,18 @@ Function Invoke-DatabaseDacpacDeploy {
 
         $ErrorActionPreference ="Continue"
         
+        $LASTEXITCODE = 0
+
         invoke-command -ScriptBlock {
-            &$sqlpackagePath (Get-SqlPackageArgument)   #Ensure errors are sent to the errorvariable
-            $LASTEXITCODE
-        } -ev sqlpackageerror -OutVariable  SqlPackageExitCode
+               &$sqlpackagePath (Get-SqlPackageArgument)   #Ensure errors are sent to the errorvariable
+        } -ev sqlpackageerror -OutVariable  SqlPackageExitCode 
+
         $ErrorActionPreference ="Stop"
         
         if ($sqlpackageerror) {
             throw $sqlpackageerror
         }
-        if ($LASTEXITCODE -ne 0) {
+        if ($Global:LASTEXITCODE -ne 0) {
             throw "SqlPackage returned non-zero exit code: $LASTEXITCODE"
         }
         
