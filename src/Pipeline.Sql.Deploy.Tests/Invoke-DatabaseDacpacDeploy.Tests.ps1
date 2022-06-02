@@ -33,7 +33,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
     Context 'Return values' {
 
         It "Returns list of scripts created" {
-            mock invoke-command { 0 }
+            mock invoke-command { $Global:LastExitCode=0 }
             $sqlpackagePath = "sqlpackage"
             $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
             if (test-path $folder) { remove-item $folder -Force -Recurse| out-null }
@@ -41,7 +41,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             new-item  TestDrive:/dacpac -type directory -force | Out-Null
             copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
                 
-            $targetDatabase = "ReturnValues"
+            $targetDatabase = "ReturnValues$($PsVersionTable.PsVersion)"
             $scripts = @("db.sql", "master.sql")
             $scripts | ForEach-Object { new-item -ItemType File ([System.io.path]::Combine($folder, $targetDatabase, $_)) -Force }
 
