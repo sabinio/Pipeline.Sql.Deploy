@@ -33,7 +33,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
     Context 'Return values' {
 
         It "Returns list of scripts created" {
-            mock invoke-command { 0 }
+            mock invoke-command { $Global:LastExitCode=0 }
             $sqlpackagePath = "sqlpackage"
             $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
             if (test-path $folder) { remove-item $folder -Force -Recurse| out-null }
