@@ -17,11 +17,10 @@ Function New-SqlConnection {
         if ($null -eq $Credential) {
             $TargetCredentials = New-Object System.Management.Automation.PSCredential($TargetUser, $TargetPasswordSecure )
         }
-
         else {
             $TargetCredentials = $Credential
         }
-        $connectionString = "Server=$TargetServer;Database=$DatabaseName;User ID=$TargetUser;Password=`$(`$TargetCredentials.GetNetworkCredential().Password)"
+        $connectionString = "Server=$TargetServer;Database=$DatabaseName;User ID=$($TargetCredentials.UserName);Password=`$(`$TargetCredentials.GetNetworkCredential().Password)"
     }
     else {
         $connectionString = "Server=$TargetServer;Database=$DatabaseName;trusted_connection=true"    
