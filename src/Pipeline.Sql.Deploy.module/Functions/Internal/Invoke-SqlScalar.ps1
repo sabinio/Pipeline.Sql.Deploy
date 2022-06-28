@@ -6,18 +6,23 @@ Function Invoke-SqlScalar {
         [string] $TargetUser,
         [securestring] $TargetPasswordSecure,
         [string] $Query
-        )
-    
-    $con = New-SqlConnection -TargetUser $TargetUser -TargetPasswordSecure $TargetPasswordSecure -DatabaseName $DatabaseName -TargetServer $TargetServer
+    )
+    $Params = @{DatabaseName = $DatabaseName; TargetServer = $TargetServer }
+    if (-not [String]::IsNullOrWhiteSpace($TargetUser)) {
+        $params.TargetUser = $TargetUser;
+        $params.TargetPassword = $TargetPasswordSecure;
+    }
+    $conString = Get-ConnectionString @Params #-TargetUser $TargetUser -TargetPasswordSecure $TargetPasswordSecure -DatabaseName $DatabaseName -TargetServer $TargetServer
+    $Con = new-sqlConnection -ConnectionString $conString
     
     Invoke-SqlScalarInternal -Connection $con -Query $Query 
 
     Close-SqlConnection $con
 } 
-Function Close-SqlConnection{
+Function Close-SqlConnection {
     [cmdletbinding()]
     param(
-         $Connection   
+        $Connection   
     )
     Write-Verbose "Close Connection"
     $connection.Close();
@@ -26,7 +31,7 @@ Function Close-SqlConnection{
 Function Invoke-SqlScalarInternal {
     [cmdletbinding()]
     param(
-         $Connection,    
+        $Connection,    
         [string] $Query)
 
     Write-Verbose "Invoke-SqlScalar $Query"
@@ -35,4 +40,4 @@ Function Invoke-SqlScalarInternal {
     $SqlCommand.CommandText = $Query;
     Write-Verbose "Execute query"
     $SqlCommand.ExecuteScalar();
-    }
+}

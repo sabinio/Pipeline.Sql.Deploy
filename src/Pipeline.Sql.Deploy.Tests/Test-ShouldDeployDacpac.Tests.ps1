@@ -114,6 +114,22 @@ Describe 'deploy-guard' {
             $result | Should -Be $true
             Should -invoke Get-DeploySettingsFromDB -Exactly 1 -Scope It
         }
+
+        It "Given database found deployguard returns true if no deployment table exists" {
+            Mock Test-IsPreviousDeploySettingsFileMissing { $false } 
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy { $false }
+
+            $settings = @{TargetServer = "."; TargetDatabaseName = "tabledoesnotexist" }    
+            Mock Get-DeploySettingsFromFile { $settings }
+          
+            Mock Get-DeploySettingsFromDB { $null}
+            Mock Test-DatabaseExists { $true }
+
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -Verbose  -DBDeploySettingsFile "something.json"
+                
+            $result | Should -Be $true
+            Should -invoke Get-DeploySettingsFromDB -Exactly 1 -Scope It
+        }
     }
     Context "Deploy Settings File" {
         It "Given database found deployguard returns false if deployment table exists with later date than LastWriteTime of settings file and settings are the same" {
@@ -132,7 +148,7 @@ Describe 'deploy-guard' {
             $result | Should -Be $false
         }
             
-        It "Given database found and a previous old deployment deployguard returns true if dacpac is newer" {
+        It "Given database found and a previous old deployment, deployguard returns true if dacpac is newer" {
             $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" }    
            
             Mock Get-DeploySettingsFromFile { $settings }
@@ -161,6 +177,83 @@ Describe 'deploy-guard' {
                 
             $result | Should -Be $false
         }         
+    }
+    Describe "Should use correct parameters"{
+        it "Should use username and password" {
+            $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" }    
+           
+            Mock Test-DatabaseExists { $false }
+
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile   -DBDeploySettingsFile "something.json" -IgnoreDate
+                
+           Should -Invoke Test-DatabaseExists -Exactly 1 -Scope It
+           $nullValue = $null
+           $nullValue2 = $null
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$TargetUSer -eq $nullValue -eq $targetPasswordSecure -eq $nullValue2} -Exactly 0 -Scope It
+           
+        }
+        it "Should use username and password sqlAdminLogin" {
+           
+            Mock Test-DatabaseExists { $false }
+                
+           $user = "bob"
+           $pwd = "bob" 
+           $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" ;sqlAdminLogin = $user; sqlAdminPassword = $pwd }
+           $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile  -DBDeploySettingsFile "something.json" -IgnoreDate
+           Should -Invoke Test-DatabaseExists -Exactly 1 -Scope It
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$TargetUser -eq $user } -Exactly 1 -Scope It
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$foo = New-Object System.Management.Automation.PSCredential($TargetUser, $targetPasswordSecure);
+            $foo.UserName -eq $user -and $foo.GetNetworkCredential().Password -eq $pwd} -Exactly 1 -Scope It
+           
+        }
+
+        it "Should use username and password with TargetUser" {
+           
+            Mock Test-DatabaseExists { $false }
+                
+           $user = "bob"
+           $pwd = "bob" 
+           $settings = @{TargetServer = "."; TargetDatabaseName = "randomName2" ;TargetUser = $user; TargetPasswordSecure = ($pwd| Convertto-SecureString -AsPlainText -Force) }
+           $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile   -DBDeploySettingsFile "something.json" -IgnoreDate
+           Should -Invoke Test-DatabaseExists -Exactly 1 -Scope It
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$TargetUser -eq $user } -Exactly 1 -Scope It
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$foo = New-Object System.Management.Automation.PSCredential($TargetUser, $targetPasswordSecure);
+            $foo.UserName -eq $user -and $foo.GetNetworkCredential().Password -eq $pwd} -Exactly 1 -Scope It
+           
+        }
+        it "Should use serverName for TargetServer" {
+            $settings = @{serverName = "Somerandom server"; TargetDatabaseName = "randomName2" }    
+           
+            Mock Test-DatabaseExists { $false }
+
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile   -DBDeploySettingsFile "something.json" -IgnoreDate
+                
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$TargetServer -eq $settings.serverName} -Exactly 1 -Scope It
+           
+        }
+        it "Should use TargetServerName for TargetServer" {
+            $settings = @{serverName = "Somerandom server2"; TargetDatabaseName = "randomName2" }    
+           
+            Mock Test-DatabaseExists { $false }
+
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile   -DBDeploySettingsFile "something.json" -IgnoreDate
+                
+           Should -Invoke Test-DatabaseExists -ParameterFilter {$TargetServer -eq $settings.serverName} -Exactly 1 -Scope It
+           
+        }
+
+        it "Should use TargetServerName for TargetServer" {
+            $settings = @{serverName = "Somerandom server2"; TargetDatabaseName = "randomName2" }    
+           
+            Mock Test-DatabaseExists { $false }
+            Mock Get-DefaultSettingsToCheck { @{} }
+            $publishFileValue = "SomeFile.publish"
+            $result = Test-ShouldDeployDacpac  -settings $settings -dacpacFile $dacpacPath -publishfile $publishFileValue   -DBDeploySettingsFile "something.json" -IgnoreDate
+                
+           Should -Invoke Get-DefaultSettingsToCheck -ParameterFilter {$publishFile -eq $publishFileValue} -Exactly 1 -Scope It
+           
+        }
+
     }
 }
 
