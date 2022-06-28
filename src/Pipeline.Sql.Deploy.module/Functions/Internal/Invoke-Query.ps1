@@ -14,8 +14,17 @@ Function Invoke-Query {
     if ($MaxCharLength) {
      write-host "MaxCharLength is ignored in Invoke-query"
     }
+    $Params = @{DatabaseName = $Database; TargetServer = $ServerInstance }
+    if (-not [String]::IsNullOrWhiteSpace($TargetUser)) {
+        $params.TargetUser = $TargetUser;
+        $params.TargetPassword = $TargetPasswordSecure;
+    }
+    elseif ($credential){
+        $params.Credential = $Credential;
+    }
 
-    $con = New-SqlConnection -TargetUser $TargetUser -TargetPasswordSecure $TargetPasswordSecure -DatabaseName $Database -TargetServer $ServerInstance -Credential $Credential
+    $conString = Get-ConnectionString @params
+    $Con = new-sqlConnection -ConnectionString $conString
     try{
     Invoke-QueryInternal -Connection $con -Query $Query 
     }

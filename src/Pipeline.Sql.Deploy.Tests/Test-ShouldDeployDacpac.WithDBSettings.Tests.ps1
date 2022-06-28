@@ -72,11 +72,52 @@ Describe "test a"{
             
             Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
         }
-        It "Given the deploy settings have changed and deployDate is later, result Should -Be true" {
+        It "Given the deploy settings have changed and deployDate from DB is later, result Should -Be true" {
             $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
 
             Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
             Mock Test-DatabaseExists {$true}
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy {$true}
+
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settingsToCheck = @{TargetServer = "."; TargetDatabaseName = "foo2" } }}
+    
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings | Should -Be $true
+            
+            Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
+        }
+        It "Given the deploy settings have NOT changed and deployDate from DB is earlier, result Should -Be true" {
+            $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
+
+            Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
+            Mock Test-DatabaseExists {$true}
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy {$false}
+
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2000 -Month 1 -Day 1);settingsToCheck = @{TargetServer = "."; TargetDatabaseName = "foo2" } }}
+    
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings | Should -Be $true
+            
+            Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
+        }
+
+        It "Given the deploy settings have NOT changed and deployDate from DB is later, result Should -Be false" {
+            $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
+
+            Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
+            Mock Test-DatabaseExists {$true}
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy {$false}
+
+            Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settingsToCheck = @{TargetServer = "."; TargetDatabaseName = "foo2" } }}
+    
+            Test-ShouldDeployDacpac -settings $settings -dacpacFile $dacpacPath -publishfile $publishFile -settingsToCheck $settings | Should -Be $false
+            
+            Should -invoke Test-IsPreviousDeploySettingsFileMissing -Exactly 0   #DB Settings no file passed
+        }
+        It "Given the deploy settings have changed and deployDate from DB is earlier, result Should -Be false" {
+            $settings = @{TargetServer = "."; TargetDatabaseName = "foo" }
+
+            Mock Test-IsPreviousDeploySettingsFileMissing { $true } 
+            Mock Test-DatabaseExists {$true}
+            Mock Test-HaveDeploySettingsChangedSinceLastDeploy {$true}
 
             Mock Get-DeploySettingsFromDB { @{lastDeployDate=(Get-Date -Year 2200 -Month 1 -Day 1);settingsToCheck = @{TargetServer = "."; TargetDatabaseName = "foo2" } }}
     

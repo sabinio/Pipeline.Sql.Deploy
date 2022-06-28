@@ -1,7 +1,3 @@
-param(
-    $ModulePath,
-    $ProjectName
-)
 BeforeDiscovery{
     Write-Verbose "Module path Beforedisco - $ModulePath"-verbose
 }
@@ -35,6 +31,6 @@ Describe 'Invoke-scalar' {
 
         Invoke-SqlScalar -TargetServer $Server -DatabaseName $DBName -TargetUser $User -TargetPasswordSecure $pwd -Query "select 1" 
 
-        Assert-MockCalled New-SqlConnection -ParameterFilter { $TargetServer -eq $Server } -Exactly 1 
+        Assert-MockCalled New-SqlConnection -ParameterFilter { $ConnectionString -like "*Server=$Server*" } -Exactly 1 
     }
 }

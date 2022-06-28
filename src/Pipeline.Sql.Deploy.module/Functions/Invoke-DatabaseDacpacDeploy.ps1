@@ -73,45 +73,45 @@ Function Invoke-DatabaseDacpacDeploy {
 
         $TargetDatabase = "/TargetServerName:$TargetServerName", "/TargetDatabaseName:$TargetDatabaseName"
 
-        $sqlPackageCommand = @()
-        $sqlPackageCommand += "/Action:$Action" 
+        $sqlPackageCommand = New-Object Collections.Generic.List[String]
+        Add-ToList $sqlPackageCommand "/Action:$Action"
 
         if ($PublishFile) {
-            $sqlPackageCommand += "/Profile:$publishFile"
+            Add-ToList $sqlPackageCommand "/Profile:$publishFile"
         }
         
-        $sqlPackageCommand += "/SourceFile:$dacpacFile"
+        Add-ToList $sqlPackageCommand "/SourceFile:$dacpacFile"
 
-        $sqlPackageCommand += "/v:DeployProperties=`"$(Convert-ToSQLPackageSafeString $DeployProperties)`""
+        Add-ToList $sqlPackageCommand "/v:DeployProperties=`"$(Convert-ToSQLPackageSafeString $DeployProperties)`""
         
         if($ServiceObjective){
-            $sqlPackageCommand += "/p:DatabaseServiceObjective=$ServiceObjective"
+            Add-ToList $sqlPackageCommand "/p:DatabaseServiceObjective=$ServiceObjective"
         }
 
-        $sqlPackageCommand += "/TargetTimeout:$TargetTimeout"
+        Add-ToList $sqlPackageCommand "/TargetTimeout:$TargetTimeout"
         
         if ($Action -eq "Publish"){
-            $sqlPackageCommand += "/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"db.sql")
+            Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"db.sql"))
         }
         elseif($Action -eq "Script"){
-            $sqlPackageCommand += "/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"db.sql")
+            Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"db.sql"))
         }
 
-        $sqlPackageCommand += "/p:CommandTimeout=$CommandTimeout "
-        $sqlPackageCommand += $Security
-        $sqlPackageCommand += $Variables
-        $sqlPackageCommand += $TargetDatabase 
+        Add-ToList $sqlPackageCommand "/p:CommandTimeout=$CommandTimeout"
+        Add-ToList $sqlPackageCommand -items $Security
+        Add-ToList $sqlPackageCommand -items $Variables
+        Add-ToList $sqlPackageCommand -items $TargetDatabase 
       #  $sqlPackageCommand +="/p:CommentOutSetVarDeclarations=true"
         New-Item $ScriptParentPath\$TargetDatabaseName -ItemType "Directory" -Force | Out-null
         
         if ($env:SYSTEM_DEBUG) {
-            $sqlPackageCommand, "/OutputPath:$ScriptPath"
+            $sqlPackageCommand
         }
 
         Function Get-SqlPackageArgument  
         {
             $sqlPackageCommand  | ForEach-Object {
-                if ($_ -like "/v:DeployProperties"){
+                if ($_ -like "*/v:DeployProperties*"){
                     $_
                 }else{
                     $ExecutionContext.InvokeCommand.ExpandString($_)
@@ -130,9 +130,6 @@ Function Invoke-DatabaseDacpacDeploy {
 
         $ErrorActionPreference ="Stop"
         
-        if ($sqlpackageerror) {
-            throw $sqlpackageerror
-        }
         if ($Global:LASTEXITCODE -ne 0) {
             throw "SqlPackage returned non-zero exit code: $LASTEXITCODE"
         }
@@ -146,7 +143,7 @@ Function Invoke-DatabaseDacpacDeploy {
                 Write-Host "Produced file $_"
                 Write-Host "-------------------------------------------------------------------------------------------------" 
                 Get-Content $_.FullName | ForEach-Object { 
-                    if ($_ -notlike ':setvar DedployProperties*') {Write-Host $_}
+                    if ($_ -notlike '*:setvar DeployProperties*') {Write-Host $_}
                     else {Write-host ":setvar DeployProperties ### masked ####"}
                 }
             }

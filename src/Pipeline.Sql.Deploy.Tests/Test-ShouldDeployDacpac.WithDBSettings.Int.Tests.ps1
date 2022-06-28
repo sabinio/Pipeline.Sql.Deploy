@@ -67,6 +67,7 @@ Describe "Integration tests"{
             
             Test-ShouldDeployDacpac -settings $DBSettings -dacpacFile $settings.dacpacPath -Verbose  -publishFile $settings.publishFile | Should -be $false
         }
+        
         It "Given database is deployed and a settings changed Test-ShouldDeployDacpac should retun $true" {
             $publish = $publishFile
             $DBSettings = [ordered]@{TargetServerName=$settings.serverName;
