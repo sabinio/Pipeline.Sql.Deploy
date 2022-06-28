@@ -149,10 +149,10 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
         
             $result  | should -contain "/Action:script"
-            $result  | should -contain "/SourceFile:TestDrive:\dacpac\test.dacpac"
+            $result -replace "[/\\]",""  | should -contain "SourceFile:TestDrive:dacpactest.dacpac"
             $result  | should -contain '/v:DeployProperties="{}"'
             $result  | should -contain "/TargetTimeout:10"
-            $result  | should -contain "/OutputPath:TestDrive:\ReturnValues\out\SomeDatabase\db.sql"
+            $result  -replace "[/\\]","" | should -contain "OutputPath:TestDrive:ReturnValuesoutSomeDatabasedb.sql"
             $result  | should -contain "/p:CommandTimeout=100"
             $result  | should -contain "/TargetServerName:."
             $result  | should -contain "/TargetDatabaseName:SomeDatabase"
