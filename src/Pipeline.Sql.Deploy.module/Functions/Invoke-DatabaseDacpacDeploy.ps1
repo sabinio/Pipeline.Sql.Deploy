@@ -29,7 +29,8 @@ Function Invoke-DatabaseDacpacDeploy {
         $TargetTimeout,
         [Parameter(Mandatory=$true)]
         $CommandTimeout,
-        $SettingsToCheck
+        $SettingsToCheck,
+        [string]$DBScriptPrefix
     )
 
     try {
@@ -90,18 +91,19 @@ Function Invoke-DatabaseDacpacDeploy {
 
         Add-ToList $sqlPackageCommand "/TargetTimeout:$TargetTimeout"
         
+        if ([string]::IsNullOrWhiteSpace($DBScriptPrefix) ){$DBScriptPrefix= [io.path]::GetFileNameWithoutExtension($dacpacfile)}
         if ($Action -eq "Publish"){
-            Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"db.sql"))
+            Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"$DBScriptPrefix`_db.sql"))
         }
         elseif($Action -eq "Script"){
-            Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"db.sql"))
+            Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath,$TargetDatabaseName,"$DBScriptPrefix`_db.sql"))
         }
 
         Add-ToList $sqlPackageCommand "/p:CommandTimeout=$CommandTimeout"
         Add-ToList $sqlPackageCommand -items $Security
         Add-ToList $sqlPackageCommand -items $Variables
         Add-ToList $sqlPackageCommand -items $TargetDatabase 
-      #  $sqlPackageCommand +="/p:CommentOutSetVarDeclarations=true"
+      #  $sqlPackageCommand +="/p:CommentOutSetVarDeclarations=true
         New-Item $ScriptParentPath\$TargetDatabaseName -ItemType "Directory" -Force | Out-null
         
         if ($env:SYSTEM_DEBUG) {
