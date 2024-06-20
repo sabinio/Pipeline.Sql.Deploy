@@ -163,6 +163,29 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             $result  | should -contain "/TargetDatabaseName:SomeDatabase"
             
         }
+
+        It "Should allow for Drift Report"{
+            $env:SYSTEM_DEBUG = "true"
+            $Global:LASTEXITCODE = 0
+            mock invoke-command {  } 
+            mock Get-DeployPropertiesHash { @{} }
+
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "DriftReport"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -PublishFile "foo.xml" -Variables @("/v:foo","/p:bob","/TargetTrustServerCertificate:true") -TargetTimeout 10 -ServiceObjective p10 -CommandTimeout 100 
+        
+            $result  | should -contain "/Action:DriftReport"
+            $result  -replace "[/\\]","" | should -contain "OutputPath:TestDrive:ReturnValuesoutSomeDatabasetest_drift.xml"
+            $result | should  -not -belike "/SourceFile*"
+            $result | should  -not -belike "/profile*"
+            $result | should -not -BeLike "/v:*"
+            $result | should -not -belike "/p:*"
+            $result | should -contain "/TargetTrustServerCertificate:True"
+            
+            $result | should -contain "/TargetTimeout:10"
+            $result | should -contain "/TargetServerName:."
+            $result | should -contain "/TargetDatabaseName:SomeDatabase"
+            
+        }
+
         AfterAll {
             $env:SYSTEM_DEBUG = $previousDebug
         }
