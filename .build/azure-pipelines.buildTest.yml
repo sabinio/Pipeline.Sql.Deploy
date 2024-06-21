@@ -44,25 +44,18 @@ jobs:
         write-Host $env:PATH
 
   - task: PowerShell@2
-    name: install
+    name: build
     inputs:
       pwsh: ${{parameters.UsePowerShellCore}}
       filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
-      arguments: -Install 
-    displayName: 'Install'
-
-  - task: PowerShell@2
-    inputs:
-      pwsh: ${{parameters.UsePowerShellCore}}
-      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
-      arguments: -Install -Build  -Package
+      arguments: -Build  -Package
     displayName: 'Build and Package'
 
   - task: PowerShell@2
     inputs:
       pwsh: ${{parameters.UsePowerShellCore}}
       filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
-      arguments: -Install -Test  
+      arguments:  -Test  
     displayName: 'Test'
 
   - task: PublishTestResults@2

@@ -17,7 +17,6 @@ try {
     $msbuildArgs = @()
     $msbuildArgs += $ExtraMSBuildSwitches
     $msbuildArgs += "/p:Configuration=$config"
-    $msbuildArgs += "/p:NetCoreBuild=true"
     $msbuildArgs += $dbsolutionpath
 
     &dotnet build $msbuildArgs  2>&1

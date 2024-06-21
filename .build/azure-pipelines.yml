@@ -57,7 +57,7 @@ stages:
   variables:
     - group: sabin.io Powershell Publish
     - name: ProjectName
-      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['build.ProjectName'] ]
     - name : environment
       value: ci   
   jobs:
@@ -70,20 +70,22 @@ stages:
   variables:
     - group: sabin.io AzureDevOps Gallery Powershell Publish
     - name: ProjectName
-      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['build.ProjectName'] ]
     - name : environment
       value: pr
   jobs:
     - template: azure-pipelines.publish.yml
 
 - stage: Publish
-  dependsOn: TestPublishForCI
+  dependsOn: 
+  - TestPublishForCI
+  - BuildAndTest
   displayName: Publish to prod
   condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     - group: sabin.io Powershell Publish
     - name: ProjectName
-      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['install.ProjectName'] ]
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['build.ProjectName'] ]
     - name : environment
       value: prod
   jobs:

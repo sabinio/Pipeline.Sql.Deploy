@@ -108,7 +108,7 @@ Function Invoke-DatabaseDacpacDeploy {
                 Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_db.sql"))
             }
             elseif ($Action -eq "Script") {
-                Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_db.sql"))
+                Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_db.sql"))
             }
         }
 

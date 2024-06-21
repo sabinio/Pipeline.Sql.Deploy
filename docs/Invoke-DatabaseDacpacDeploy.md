@@ -17,7 +17,8 @@ Invoke-DatabaseDacpacDeploy [-dacpacfile] <String> [-sqlpackagePath] <String> [-
  [-scriptParentPath] <String> [-TargetServerName] <String> [-TargetDatabaseName] <String>
  [[-TargetUser] <String>] [[-TargetPasswordSecure] <SecureString>] [[-TargetIntegratedSecurity] <String>]
  [[-ServiceObjective] <Object>] [[-PublishFile] <String>] [-OutputDeployScript] [-Variables] <Object>
- [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>] [<CommonParameters>]
+ [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>]
+ [[-DBScriptPrefix] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,6 +45,21 @@ Aliases:
 
 Required: True
 Position: 13
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DBScriptPrefix
+{{ Fill DBScriptPrefix Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 15
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -269,6 +285,21 @@ Aliases:
 
 Required: True
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

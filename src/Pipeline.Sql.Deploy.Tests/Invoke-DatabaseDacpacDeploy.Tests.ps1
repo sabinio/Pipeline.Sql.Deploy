@@ -119,11 +119,11 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
     
         It "Shoud use dacpac as prefix for scriptfiles nothing passed in" {
             Invoke-DatabaseDacpacDeploy -ServiceObjective "ReallyFast" -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
-            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*/OutputPath:*$DacpacName`_db.sql" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*/DeployScriptPath:*$DacpacName`_db.sql" } -Exactly 1 
         }
         It "Shoud use dacpac as prefix for scriptfiles nothing passed in" {
             Invoke-DatabaseDacpacDeploy -DBScriptPrefix "foo" -ServiceObjective "ReallyFast" -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
-            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*/OutputPath:*foo`_db.sql" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*/DeployScriptPath:*foo`_db.sql" } -Exactly 1 
         }
         It "Shoud use dacpac as prefix for scriptfiles nothing passed in" {
             Invoke-DatabaseDacpacDeploy -ServiceObjective "ReallyFast" -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "publish"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
@@ -157,7 +157,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             $result -replace "[/\\]",""  | should -contain "SourceFile:TestDrive:dacpactest.dacpac"
             $result  | should -contain '/v:DeployProperties="{}"'
             $result  | should -contain "/TargetTimeout:10"
-            $result  -replace "[/\\]","" | should -contain "OutputPath:TestDrive:ReturnValuesoutSomeDatabasetest_db.sql"
+            $result  -replace "[/\\]","" | should -contain "DeployScriptPath:TestDrive:ReturnValuesoutSomeDatabasetest_db.sql"
             $result  | should -contain "/p:CommandTimeout=100"
             $result  | should -contain "/TargetServerName:."
             $result  | should -contain "/TargetDatabaseName:SomeDatabase"
