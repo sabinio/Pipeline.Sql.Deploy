@@ -1,13 +1,13 @@
 ﻿[CmdletBinding()]
 param (
     [switch] $Clean,
-    [switch] $Install,
     [switch] $Test,
     [Switch] $Build,
     [switch] $Package,
     [switch] $Publish,
     [switch] $Tidy,
     [switch] $noLogo,
+    [switch] $LoadAllmodules,
     [string] $environment = $env:ENVIRONMENT,
     [string] $rootPath = $env:ROOTPATH,
     [string] $artifactsPath = $env:ARTIFACTSPATH,
@@ -55,14 +55,32 @@ try {
         if (Test-path $outPath) { Remove-Item -Path $outPath -Recurse -Force | Out-Null }
 		Write-Host "##[endgroup]"
     }
-    if ($Install) { 
-		$InstallVerbose = (Test-LogAreaEnabled -logging $verboseLogging -area "install")
-        Write-Host "##[command]./pipeline.install-tools.ps1 -workingPath $(join-path $artifactsPath "tools") -verbose:$InstallVerbose"
-		Write-Host "##[group]Install $InstallVerbose"
-		./.build/pipeline.install-tools.ps1  -artifactsPath (join-path $artifactsPath "tools") -verbose:$InstallVerbose
-		Write-Host "##[endgroup]"
+	$dependencies = @(
+   @{"Build"               = @{Modules = @("platyps","Az.keyVault"); Tools = @()  }},
+   @{"package"            = @{Modules = @(); Tools = @() }},
+   @{"publish"            = @{Modules = @("Az.keyVault"); Tools = @() }},
+   @{"test"           = @{Modules = @("Pester","PSScriptAnalyzer"); Tools = @() }}
+)
+    $modules = New-Object System.Collections.ArrayList
+    $tools = New-Object System.Collections.ArrayList
+    $PSBoundParameters.keys |ForEach-Object{
+        if ($dependencies.$_.modules) {$modules.addrange($dependencies.$_.modules)}
+        if ($dependencies.$_.tools) {$tools.AddRange($dependencies.$_.tools)}
     }
-	
+    $modules.add("Pipeline.Config") | Out-Null
+	$modules.add("Microsoft.PowerShell.Management") | Out-Null
+	$modules.add("Microsoft.PowerShell.Utility") | Out-Null
+	$modules.add("PowerShellGet, PackageManagement") | Out-Null
+
+    Write-Host "Modules $($modules -join ',') "
+    Write-Host "Tools $($Toos -join ',') "
+    Write-Host ($PsversionTable | out-string)
+    
+	$id = new-guid
+	Write-Host "vso[task.logdetail id=$id;name=project;type=build;order=1]create new timeline record"
+	./.build/pipeline.install-tools.ps1 -workingPath $artifactsPath/tools -verbose:$VerbosePreference -DependentTools $Tools -DependentModules $Modules -SaveLockFile:($env:DONT_SAVE_MODULE_LOCK-ne"true") -LoadAll:$LoadAllmodules
+	Write-Host "vso[task.logdetail id=$id;state=Completed]update timeline record"
+
 	Write-Host "##[group]Settings"
     $settings = (Get-ProjectSettings -environment $environment -ConfigRootPath (join-path $PSScriptroot "config") -verbose:(Test-LogAreaEnabled -logging $verboseLogging -area "config") -overrides $parameterOverrides) 
     write-host ("##vso[build.updatebuildnumber] {0}.{1}" -f $settings.ProjectName, $settings.FullVersion)

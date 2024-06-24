@@ -17,11 +17,13 @@ BeforeDiscovery {
 	$Rules = (Get-ScriptAnalyzerRule  | Where-Object { $ExcludeRules -notcontains $_.ruleName }).RuleName
 }
 BeforeAll {
-	
 	$ExcludeRules = @('PSAvoidTrailingWhitespace', 'PSAvoidUsingWriteHost' ,'PSUseOutputTypeCorrectly')
-	if (-not (Test-path "Variable:ProjectName")) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
-	if (-not (Test-path "Variable:ModulePath")) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
-	if (-not (Test-path "Variable:SourcePath")) { $SourcePath = "$ModulePath" }
+	if (-not (Test-path "Variable:ProjectName")-or [string]::IsNullOrWhiteSpace($ProjectName) ) { $ProjectName = (get-item $PSScriptRoot).basename -replace ".tests", "" }
+	if (-not (Test-path "Variable:ModulePath") -or [string]::IsNullOrWhiteSpace($ModulePath) ) { $ModulePath = "$PSScriptRoot\..\$ProjectName.module" }
+	if (-not  (Test-path "Variable:SourcePath") -or [string]::IsNullOrWhiteSpace($sourcePath)) { $SourcePath = "$ModulePath" }
+
+	Write-Verbose "ModulePath = $ModulePath" -Verbose
+	Write-Verbose "SourcePath = $SourcePath" -Verbose
 	$ModulePath = resolve-path $ModulePath
 	$SourcePath = Resolve-path $SourcePath
 }

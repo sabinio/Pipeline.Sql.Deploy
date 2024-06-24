@@ -1,6 +1,12 @@
+#Requires -Modules Microsoft.PowerShell.Management, Microsoft.PowerShell.Utility, PowerShellGet, PackageManagement
 [CmdletBinding()]
-param($ArtifactsPath)
-try{
+param($workingPath
+	, $DependentModules
+	, $DependentTools
+	, $NugetPackages
+	, [Switch]$SaveLockFile
+	, [switch]$loadAll)
+try {
 function Repair-PSModulePath {
     Write-host "Repair PSMOdulePath"
     if ($PSVersionTable.PsEdition -eq "Core") {
@@ -29,7 +35,7 @@ if (Get-PSRepository PowershellGalleryTest -Verbose:$VerbosePreference -ErrorAct
     Unregister-PSRepository PowershellGalleryTest
     }
 
-$LatestVersion = "0.2.180" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
+$LatestVersion = "0.2.189" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
 Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
 Repair-PSModulePath 
@@ -97,20 +103,26 @@ push-location $ToolsPath
 
     &$env:NugetPath sources list| Where-Object {$_ -like "*powershellGallerytest*"} | ForEach-Object{&$env:NugetPath sources remove -name powershellgallerytest}
 
-    @{package = "Microsoft.SqlServer.DacFx"; subpath = "\lib\netstandard2.1"; ;env="NETCoreTargetsPath";nugetextraparams="-DependencyVersion","Ignore"} `
-    , @{package = "Microsoft.Data.SqlClient"; subpath = "\runtimes\win\lib\netcoreapp2.1"; version="3.0.1"; env="SqlClient" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    
+  <#
+    @{package = "Microsoft.SqlServer.DacFx"; subpath = "\lib\net6.0"; env="NETCoreTargetsPath";nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "Microsoft.SqlServer.TransactSql.ScriptDom"; subpath = "\lib\net6.0";env="ScriptDom" ;nugetextraparams="-DependencyVersion","Ignore"} `
     , @{package = "sabinio.Sql.System.Dacpacs"; env="SystemDacPacs" ;nugetextraparams="-DependencyVersion","Ignore"} `
-    , @{package = "System.ComponentModel.Composition"; subpath = "\lib\netcoreapp2.0";version="5.0.0"; env="ComponentModel" ;nugetextraparams="-DependencyVersion","Ignore"} `
-    , @{package = "System.IO.Packaging"; subpath = "\lib\netstandard2.0"; ;version="5.0.0";env="SystemIOPackaging" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "Microsoft.SqlServer.Server"; subpath = "\lib\netstandard2.0"; env="SQLServerServer" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "System.ComponentModel.Composition"; subpath = "\lib\net6.0"; env="ComponentModel" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "System.IO.Packaging"; subpath = "\lib\net6.0"; env="SystemIOPackaging" ;nugetextraparams="-DependencyVersion","Ignore"} `
+    , @{package = "Microsoft.SqlServer.Types"; subpath = "\lib\netstandard2.1"; env="types" ;nugetextraparams="-DependencyVersion","Ignore"} `
   | ForEach-Object { Install-ToolsPackageFromNuget -PackagePath . -Verbose:$VerbosePreference @_}
 
   $env:NETCoreTargetsPath = resolve-path $env:NETCoreTargetsPath
   
-  $env:SqlClient = Resolve-Path $env:SqlClient
+  #$env:SqlClient = Resolve-Path $env:SqlClient
   if ((copy-item (join-path $env:ComponentModel "*.dll")   $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:ComponentModel)" }
-  if ((copy-item (join-path $env:SystemIOPackaging "*.dll")   $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SystemIOPackaging)" }
-  if ((Copy-Item (join-path $env:SqlClient "*.dll")     $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SqlClient)" }
+  if ((Copy-Item (join-path $env:ScriptDom "*.dll")     $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SqlClient)" }
+  if ((Copy-Item (join-path $env:SQLServerServer "*.dll")     $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SqlClient)" }
   if ((Copy-Item (join-path $env:SystemDacPacs "*")  $env:NETCoreTargetsPath -Recurse -PassThru -Force).Count -eq 0) {Throw "Failed to copy files from $($env:SystemDacPacs)" }
+  if ((copy-item (join-path $env:SystemIOPackaging "*.dll")   $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SystemIOPackaging)" }
+  if ((copy-item (join-path $env:types "*.dll")   $env:NETCoreTargetsPath -PassThru).Count -ne 1) {Throw "Failed to copy 1 file from $($env:SystemIOPackaging)" }
 
 
    <# @{package = "Microsoft.Build.Sql"; subpath = "\tools\netstandard2.1"; version = "0.1.1-alpha";env="MicrosoftBuildSqlRoot";nugetextraparams="-DependencyVersion","Ignore"} `
@@ -122,6 +134,7 @@ push-location $ToolsPath
     if ((Copy-Item (join-path $env:SystemDacPacs "*")  $env:NETCoreTargetsPath -Recurse -PassThru -Force).Count -eq 0) {Throw "Failed to copy files from $($env:SystemDacPacs)" }
 
     if ((Copy-Item (join-path $env:SystemDacPacs "*")  $env:NETCoreTargetsPath -Recurse -PassThru -Force).Count -eq 0) {Throw "Failed to copy files from $($env:SystemDacPacs)" }
+    #>
     #>
 }
 finally {
