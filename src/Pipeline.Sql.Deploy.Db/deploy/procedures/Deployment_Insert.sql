@@ -13,8 +13,8 @@ AS
      where s.session_id = @@spid
      for json path, WITHOUT_ARRAY_WRAPPER )))
 
-	insert into deploy.Deployment(DeployPropertiesJSON)
-	values (@DeployPropertiesJSON)
+	insert into deploy.Deployment(DeployPropertiesJSON, SessionId)
+	values (@DeployPropertiesJSON, @@spid)
 
 	declare @DeploymentId INT
 	set @DeploymentId = Scope_identity()
