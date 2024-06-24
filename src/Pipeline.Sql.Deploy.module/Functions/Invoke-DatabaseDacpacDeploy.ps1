@@ -137,7 +137,9 @@ Function Invoke-DatabaseDacpacDeploy {
         
         $LASTEXITCODE = 0
         
-        $PSNativeCommandArgumentPassing ="legacy"
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'PS variable  used internally by PS not by our code')]
+        $PSNativeCommandArgumentPassing ="legacy" 
+        
         invoke-command -ScriptBlock {
             &$sqlpackagePath (Get-SqlPackageArgument)   #Ensure errors are sent to the errorvariable
         } -ev sqlpackageerror -OutVariable  SqlPackageExitCode 
