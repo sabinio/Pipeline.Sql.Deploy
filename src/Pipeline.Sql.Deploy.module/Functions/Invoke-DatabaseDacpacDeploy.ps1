@@ -136,7 +136,8 @@ Function Invoke-DatabaseDacpacDeploy {
         $ErrorActionPreference = "Continue"
         
         $LASTEXITCODE = 0
-
+        
+        $PSNativeCommandArgumentPassing ="legacy"
         invoke-command -ScriptBlock {
             &$sqlpackagePath (Get-SqlPackageArgument)   #Ensure errors are sent to the errorvariable
         } -ev sqlpackageerror -OutVariable  SqlPackageExitCode 
