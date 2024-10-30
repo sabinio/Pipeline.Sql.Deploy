@@ -34,8 +34,9 @@ Describe 'PSAnalyser Testing Modules ' -Tag "PSScriptAnalyzer" -ForEach $Modules
 		$HasResults = $RuleResults.Count -ne 0
 	} 
 	It " Rule <_>" -TestCases $Rules {
+        $rule = $_
 		if ($HasResults) {
-			($RuleResults | Where-Object { $_.Rulename -eq $rule }).Message | should -be $null Message "sdfsd"
+			($RuleResults | Where-Object { $_.Rulename -eq $rule }).Message | should -be $null 
                    
 		}
 	}

@@ -7,7 +7,7 @@
     <Name>Pipeline.Sql.Deploy.TestDb</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{3b9c11e7-10c2-4323-92f9-e270e838e82a}</ProjectGuid>
+    <ProjectGuid>{a2ae8f0f-296e-4ecf-b368-52c575de8ef5}</ProjectGuid>
     <DBVersion>140</DBVersion>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql140DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
@@ -18,7 +18,7 @@
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>False</SqlServerVerification>
@@ -80,5 +80,8 @@
       <GeneratePathProperty>True</GeneratePathProperty>
       <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scripts\" />
   </ItemGroup>
 </Project>

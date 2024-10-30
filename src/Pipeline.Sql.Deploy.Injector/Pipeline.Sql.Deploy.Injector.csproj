@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.3.563" />
+  </ItemGroup>
+   <Target Name="CopyDacpac" BeforeTargets="Build">
+    <Message Text="Executing CopyDacpac task." Importance="High" />
+    <Copy SourceFiles="$(ProjectDir)\..\Pipeline.Sql.Deploy.Db\bin\Debug\Pipeline.Sql.Deploy.Db.dacpac" DestinationFolder="$(ProjectDir)\..\Pipeline.Sql.Deploy.module\db\" />
+    <Message Text="Copied Pipeline.Sql.Deploy.Db.dacpac to Pipeline.Sql.Deploy.module db folder." Importance="High" />
+   </Target>    
+   <Target Name="CopyDLL" AfterTargets="Build">
+    <Message Text="Executing CopyDLL task." Importance="High" />
+    <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(ProjectDir)\..\Pipeline.Sql.Deploy.module\lib\" />
+    <Message Text="Copied Pipeline.Sql.Deploy.Injector.dll to Pipeline.Sql.Deploy.module lib folder." Importance="High" />
+   </Target>
+  <ItemGroup>
+    <ProjectReference Include="..\Pipeline.Sql.Deploy.Db\Pipeline.Sql.Deploy.Db.sqlproj" />
+  </ItemGroup>
+</Project>

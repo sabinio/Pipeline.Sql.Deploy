@@ -1,0 +1,40 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34902.65
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pipeline.Sql.Deploy.Injector", "Pipeline.Sql.Deploy.Injector\Pipeline.Sql.Deploy.Injector.csproj", "{2C989C82-DFED-41F7-87AA-6C77326697C0}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Pipeline.Sql.Deploy.Db", "Pipeline.Sql.Deploy.Db\Pipeline.Sql.Deploy.Db.sqlproj", "{3B9C11E7-10C2-4323-92F9-E270E838E82A}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Pipeline.Sql.Deploy.TestDb", "Pipeline.Sql.Deploy.TestDb\Pipeline.Sql.Deploy.TestDb.sqlproj", "{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C989C82-DFED-41F7-87AA-6C77326697C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C989C82-DFED-41F7-87AA-6C77326697C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C989C82-DFED-41F7-87AA-6C77326697C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C989C82-DFED-41F7-87AA-6C77326697C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B9C11E7-10C2-4323-92F9-E270E838E82A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B9C11E7-10C2-4323-92F9-E270E838E82A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B9C11E7-10C2-4323-92F9-E270E838E82A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{3B9C11E7-10C2-4323-92F9-E270E838E82A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B9C11E7-10C2-4323-92F9-E270E838E82A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B9C11E7-10C2-4323-92F9-E270E838E82A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D0FA2A5-D12E-4764-A020-F623C4710F26}
+	EndGlobalSection
+EndGlobal

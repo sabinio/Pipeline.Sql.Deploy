@@ -331,3 +331,6 @@ ASALocalRun/
 
 /out
 /artifacts
+
+/src/Pipeline.Sql.Deploy.module/db
+/src/Pipeline.Sql.Deploy.module/lib

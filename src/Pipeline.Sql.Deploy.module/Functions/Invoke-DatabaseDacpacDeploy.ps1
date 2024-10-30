@@ -30,7 +30,8 @@ Function Invoke-DatabaseDacpacDeploy {
         [Parameter(Mandatory = $true)]
         $CommandTimeout,
         $SettingsToCheck,
-        [string]$DBScriptPrefix
+        [string]$DBScriptPrefix,
+        [switch] $InjectDeployObjects
     )
 
     try {
@@ -77,7 +78,11 @@ Function Invoke-DatabaseDacpacDeploy {
         $sqlPackageCommand = New-Object Collections.Generic.List[String]
         Add-ToList $sqlPackageCommand "/Action:$Action"
 
-        
+        Function Get-ContributorDllPath {
+            $AdditionalDeploymentContributorPaths = "$($PSScriptRoot)\..\lib"
+            Write-Host "Contributor Path resolved to:  $AdditionalDeploymentContributorPaths"
+            $AdditionalDeploymentContributorPaths
+        }
 
         Add-ToList $sqlPackageCommand "/TargetTimeout:$TargetTimeout"
         if ([string]::IsNullOrWhiteSpace($DBScriptPrefix) ) { $DBScriptPrefix = [io.path]::GetFileNameWithoutExtension($dacpacfile) }
@@ -103,6 +108,18 @@ Function Invoke-DatabaseDacpacDeploy {
             Add-ToList $sqlPackageCommand -items $Variables
 
             Add-ToList $sqlPackageCommand "/p:CommandTimeout=$CommandTimeout"
+
+            if ($InjectDeployObjects) {
+                $AdditionalDeploymentContributorPaths = Get-ContributorDllPath
+                If (Test-Path -Path "$AdditionalDeploymentContributorPaths\Pipeline.Sql.Deploy.Injector.dll") {
+                    Write-Host "Found contributor dll"
+                }
+                else {
+                    Throw "InjectDeployObjects was requested but I did not find sabinio.DeployObjectsInjector contributor Pipeline.Sql.Deploy.Injector.dll at path: $AdditionalDeploymentContributorPaths"                     
+                }
+                Add-ToList $sqlPackageCommand "/p:AdditionalDeploymentContributors=sabinio.DeployObjectsInjector"                    
+                Add-ToList $sqlPackageCommand "/p:AdditionalDeploymentContributorPaths=$AdditionalDeploymentContributorPaths"
+            }
 
             if ($Action -eq "Publish") {
                 Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_db.sql"))

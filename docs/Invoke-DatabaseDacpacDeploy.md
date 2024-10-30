@@ -18,7 +18,7 @@ Invoke-DatabaseDacpacDeploy [-dacpacfile] <String> [-sqlpackagePath] <String> [-
  [[-TargetUser] <String>] [[-TargetPasswordSecure] <SecureString>] [[-TargetIntegratedSecurity] <String>]
  [[-ServiceObjective] <Object>] [[-PublishFile] <String>] [-OutputDeployScript] [-Variables] <Object>
  [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>]
- [[-DBScriptPrefix] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-DBScriptPrefix] <String>] [-InjectDeployObjects] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -60,6 +60,21 @@ Aliases:
 
 Required: False
 Position: 15
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InjectDeployObjects
+{{ Fill InjectDeployObjects Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -285,21 +300,6 @@ Aliases:
 
 Required: True
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
-
-Required: False
-Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

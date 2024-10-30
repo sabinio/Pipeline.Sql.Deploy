@@ -16,6 +16,9 @@ param($settings, $ArtifactsPath)
         
         Publish-Artifacts -artifactsPath  $artifactsPath -path "src/$($settings.ProjectName).module/*" -Name "$($settings.ProjectName)" -verbose:$VerbosePreference
         Publish-Artifacts -artifactsPath  $artifactsPath -path "src/$($settings.ProjectName).Tests/*" -Name "$($settings.ProjectName).Tests" -verbose:$VerbosePreference
+        Publish-Artifacts -artifactsPath  $artifactsPath -path "src/$($settings.ProjectName).Db/bin/Debug/Pipeline.Sql.Deploy.Db.dacpac" -Name "$($settings.ProjectName)/db" -verbose:$VerbosePreference
+        Publish-Artifacts -artifactsPath  $artifactsPath -path "src/$($settings.ProjectName).Injector/bin/Debug/net8.0-windows/$($settings.ProjectName).Injector.dll" -Name "$($settings.ProjectName)/lib" -verbose:$VerbosePreference
+        
 
         Publish-Artifacts -artifactsPath  $artifactsPath -path "docs/*" -Name "docs" -verbose:$VerbosePreference
 

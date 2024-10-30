@@ -1,11 +1,11 @@
 ﻿CREATE PROCEDURE [deploy].[DeploymentEvent_Insert]
-    @DeploymentId int = NULl,
-	@Event varchar(100),
-	@EventDate datetime = null
+    @DeploymentId int = NULL,
+	@Event        varchar(100),
+	@EventDate    datetime = NULL
 AS
 
 	--Find the 
-	if ( @DeploymentId is null) 
+	if ( @DeploymentId IS NULL) 
 	begin
 		set @DeploymentId = (select top 1 DeploymentId from [deploy].Deployment where SessionId = @@spid order by DeploymentCreated desc)
 	end

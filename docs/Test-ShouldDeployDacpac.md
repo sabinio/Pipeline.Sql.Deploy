@@ -14,8 +14,7 @@ schema: 2.0.0
 
 ```
 Test-ShouldDeployDacpac [[-settings] <Object>] [[-SettingsToCheck] <Object>] [[-dacpacfile] <String>]
- [[-publishFile] <String>] [[-DBDeploySettingsFile] <String>] [-IgnoreDate] [-CompareHash]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-publishFile] <String>] [[-DBDeploySettingsFile] <String>] [-IgnoreDate] [-CompareHash] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -132,21 +131,6 @@ Aliases:
 
 Required: False
 Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ProgressAction
-{{ Fill ProgressAction Description }}
-
-```yaml
-Type: ActionPreference
-Parameter Sets: (All)
-Aliases: proga
-
-Required: False
-Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

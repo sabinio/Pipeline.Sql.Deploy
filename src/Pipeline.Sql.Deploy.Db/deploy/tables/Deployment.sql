@@ -1,7 +1,8 @@
 ﻿CREATE TABLE [deploy].Deployment
 (
-	 DeploymentId INT identity(1,1) PRIMARY KEY,
-     DeploymentCreated datetime not null default getutcdate(),
-    [DeployPropertiesJSON] NVARCHAR(MAX) NULL,
-    SessionId int  default  ((0))
+	[DeploymentId]          int identity(1,1)   NOT NULL,
+    [DeploymentCreated]     datetime            NOT NULL CONSTRAINT [df_deploy_deployment_deploymnentCreated] DEFAULT getutcdate(),
+    [DeployPropertiesJSON]  nvarchar(MAX)           NULL,
+    [SessionId]             int                 NOT NULL CONSTRAINT [df_deploy_deployment_SessionId] DEFAULT  ((0)),
+    CONSTRAINT [pk_deploy_deployment] PRIMARY KEY ([DeploymentId])
 )
