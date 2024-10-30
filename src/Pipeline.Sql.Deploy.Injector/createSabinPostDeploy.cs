@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.SqlServer.Dac.Deployment;
-using System.Reflection;
-using System.Diagnostics.Metrics;
 
 namespace sabinio.DeployObjectsInjector
 {

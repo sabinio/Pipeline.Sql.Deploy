@@ -1,11 +1,6 @@
 ﻿using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.Dac.Deployment;
 using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
-using Assembly = System.Reflection.Assembly;
 
 
 namespace sabinio.DeployObjectsInjector
