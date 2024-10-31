@@ -103,6 +103,12 @@ push-location $ToolsPath
 
     &$env:NugetPath sources list| Where-Object {$_ -like "*powershellGallerytest*"} | ForEach-Object{&$env:NugetPath sources remove -name powershellgallerytest}
 
+
+      @{package = "Nunit.ConsoleRunner"; subpath = "\tools\"; env = "NunitToolsPath" ;nugetextraparams = "-DependencyVersion", "Ignore"} `
+    , @{package="NUnit.Extension.NUnitV2ResultWriter"} `
+     | ForEach-Object { Install-ToolsPackageFromNuget -PackagePath . -Verbose:$VerbosePreference @_ }
+
+    $env:NunitConsolePath =( resolve-path (join-path $env:nunitToolsPath "NUNIT3-CONSOLE.exe")).path    
     
   <#
     @{package = "Microsoft.SqlServer.DacFx"; subpath = "\lib\net6.0"; env="NETCoreTargetsPath";nugetextraparams="-DependencyVersion","Ignore"} `

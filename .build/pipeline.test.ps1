@@ -62,7 +62,14 @@ try {
 	}
     
     $NormalTests = Invoke-Pester -Configuration $pesterpreference 
-		
+
+    # run nUnit tests   
+    if (Test-Path "$outPath/test-results/") { $null }
+    else {
+        New-Item -ItemType Directory -Force -Path "$outPath/test-results/" | Out-Null 
+    }
+    ./.build/scripts/Invoke-Tests.ps1 -Tests "$artifactsPath\$($ProjectName).Injector.Tests\bin\Debug\net8.0-windows\Pipeline.Sql.Deploy.Injector.Tests.dll" -outputFolder "$outPath/test-results/"
+
     Write-Host "Normal Tests Total $($NormalTests.TotalCount ) Passed $($NormalTests.PassedCount) NotRun $($NormalTests.NotRunCount) Skipped $($NormalTests.SkippedCount)"
     Write-Host "ScriptAnalysis Tests Total $($ScriptAnalysis.TotalCount ) Passed $($ScriptAnalysis.PassedCount) NotRun $( $ScriptAnalysis.NotRunCount) "
     if ($settings.FailOnTests -eq $true -and ($NormalTests.FailedCount -gt 0 -or $ScriptAnalysis.FailedCount -gt 0)){
