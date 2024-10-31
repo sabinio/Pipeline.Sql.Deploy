@@ -7,8 +7,6 @@ param ( [string] $Tests
 
 $nunitpath = $env:NunitConsolePath
 
-WRite-Host "Resolved nUnit path to: $nunitpath";
-
 $nunitArgs = @($Tests)
 $nunitArgs += "--result=TestResult.xml;format=nunit2","--out=testoutput.log"
 
