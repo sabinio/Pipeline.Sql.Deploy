@@ -8,6 +8,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Pipeline.Sql.Deploy.Db", "P
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Pipeline.Sql.Deploy.TestDb", "Pipeline.Sql.Deploy.TestDb\Pipeline.Sql.Deploy.TestDb.sqlproj", "{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipeline.Sql.Deploy.Injector.Tests", "Pipeline.Sql.Deploy.Injector.Tests\Pipeline.Sql.Deploy.Injector.Tests.csproj", "{4F037D23-10E3-443C-B905-4FF1DD037362}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A2AE8F0F-296E-4ECF-B368-52C575DE8EF5}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4F037D23-10E3-443C-B905-4FF1DD037362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F037D23-10E3-443C-B905-4FF1DD037362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F037D23-10E3-443C-B905-4FF1DD037362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F037D23-10E3-443C-B905-4FF1DD037362}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,12 +30,7 @@ namespace sabinio.DeployObjectsInjector
             // Check if the element belongs to the [deploy] schema.
             if (element != null)
             {
-                string schemaName = GetSchema(element);
-
-                if (schemaName == "[deploy]")
-                {
-                    return true;
-                }
+                return GetSchema(element) == "[deploy]" ? true : false; 
             }
             return false;
         }

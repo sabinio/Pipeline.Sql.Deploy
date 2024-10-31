@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace sabinio.DeployObjectsInjector
@@ -6,16 +7,15 @@ namespace sabinio.DeployObjectsInjector
     public class ScriptTools
     {
 
-
-        private static string RemoveLeadingContentBeforePattern(string script, string pattern) {
-            string regex = $".*?{Regex.Escape(pattern)}";
-            return Regex.Replace(script, regex, string.Empty, RegexOptions.Singleline);
-        }
-
-        private static string RemoveTrailingContentAfterPattern(string script, string pattern)
+        private static string RemoveLeadingAndTrailingContent(string script, string leadInPattern, string leadOutPattern)
         {
-            string regex = $"{Regex.Escape(pattern)}.*?";
-            return Regex.Replace(script, regex, string.Empty, RegexOptions.Singleline);
+            string leadincapturegroup    = @$"(?<removeleadin>[\s\S]*)";
+            string usefulbitcapturegroup = @$"(?<usefulbit>[\s\S]*?)";
+            string leadoutcapturegroup   = @$"(?<removeleadout>[\s\S]*)";
+            string regex = $"{leadincapturegroup}{Regex.Escape(leadInPattern)}{usefulbitcapturegroup}{Regex.Escape(leadOutPattern)}{leadoutcapturegroup}";
+            Match match = Regex.Match(script, regex);
+            return match.Success ? match.Groups["usefulbit"].Value : script;
+
         }
 
         private static string startComment = @"
@@ -39,8 +39,7 @@ namespace sabinio.DeployObjectsInjector
 
         }
         public static string TidyUpDeployScript(string script) {
-            script = RemoveLeadingContentBeforePattern(script, "USE [$(DatabaseName)];");
-            script = RemoveTrailingContentAfterPattern(script, "PRINT N'Update complete.';");
+            script = RemoveLeadingAndTrailingContent(script, "USE [$(DatabaseName)];", "PRINT N'Update complete.';");
             return AddCommentBlocks(script);           
         }
 
