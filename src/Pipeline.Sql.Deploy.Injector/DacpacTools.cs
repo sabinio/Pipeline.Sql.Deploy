@@ -1,5 +1,6 @@
 ﻿using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Model;
+using System;
 using System.IO;
 
 
@@ -22,7 +23,13 @@ namespace sabinio.DeployObjectsInjector
 
         public static string CreateDeployObjectsScript(DacPackage dacpacToInject, DacPackage dacpacToAlter)
         {
-            var options = new DacDeployOptions() { CreateNewDatabase = false, ScriptDatabaseOptions = false, ScriptDeployStateChecks = false, BlockOnPossibleDataLoss = false };
+            var options = new DacDeployOptions() {  
+                CreateNewDatabase = false, 
+                ScriptDatabaseOptions = false, 
+                ScriptDeployStateChecks = false, 
+                BlockOnPossibleDataLoss = false,
+                ExcludeObjectTypes = [ObjectType.DatabaseOptions, ObjectType.Filegroups, ObjectType.Files]
+            };
             return DacServices.GenerateDeployScript(dacpacToInject, dacpacToAlter, "dummydbname", options);
         }
 

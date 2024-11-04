@@ -80,7 +80,7 @@ Function Invoke-DatabaseDacpacDeploy {
 
         Function Get-ContributorDllPath {
             $AdditionalDeploymentContributorPaths = "$($PSScriptRoot)\..\lib"
-            Write-Host "Contributor Path resolved to:  $AdditionalDeploymentContributorPaths"
+            Write-Verbose "Contributor Path resolved to:  $AdditionalDeploymentContributorPaths"
             $AdditionalDeploymentContributorPaths
         }
 

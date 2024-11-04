@@ -111,8 +111,20 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             Invoke-DatabaseDacpacDeploy -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items | Where-Object { $_ -like "*TargetUser*TestUser*" } } -Exactly 1 
         }
+
+        It "Should add Deployment Contributor arguments when InjectDeployObjects passed in " {
+            Invoke-DatabaseDacpacDeploy -InjectDeployObjects -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*AdditionalDeploymentContributors=sabinio.DeployObjectsInjector*" } -Exactly 1
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*AdditionalDeploymentContributorPaths*" } -Exactly 1
+        }     
+
+        It "Should not add Deployment Contributor arguments when InjectDeployObjects not passed in " {
+            Invoke-DatabaseDacpacDeploy -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*AdditionalDeploymentContributors=sabinio.DeployObjectsInjector*" } -Exactly 0
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*AdditionalDeploymentContributorPaths*" } -Exactly 0
+        }           
         
-        It "Shoud use Targetuser When User passed in " {
+        It "Shoud use ServiceObjective When ServiceObjective passed in " {
             Invoke-DatabaseDacpacDeploy -ServiceObjective "ReallyFast" -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 -TargetUSer "TestUser" -TargetPasswordSecure $BlankPassword
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*DatabaseServiceObjective*ReallyFast" } -Exactly 1 
         }

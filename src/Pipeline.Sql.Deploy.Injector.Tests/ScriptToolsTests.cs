@@ -1,5 +1,3 @@
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using NUnit.Framework;
 using sabinio.DeployObjectsInjector;
 namespace Pipeline.Sql.Deploy.Injector.Tests
 {

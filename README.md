@@ -1,6 +1,10 @@
 # Introduction
 
-Powershell module for managing the install of tools. Cmdlets to check if module is already installed, and whether to install a newer version.
+Powershell module for managing the deployment of SQL Server databases. 
+
+Cmdlets to check whether to deploy a newer version, or skip if the model, variables, and pre/post deployments scripts are identical to the last deployment.
+
+Optional deployment contributor to automatically deploy supporting objects into the \[deploy\] schema
 
 
 ## Documentation

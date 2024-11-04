@@ -3,6 +3,7 @@ param ( [string] $Tests
     ,$outputFolder 
     ,$where
     ,[string[]] $other
+    ,$artifactsPath
     )
 
 $nunitpath = $env:NunitConsolePath
@@ -11,10 +12,11 @@ $nunitArgs = @($Tests)
 $nunitArgs += "--result=TestResult.xml;format=nunit2","--out=testoutput.log"
 
 if ($outputFolder) {$nunitArgs += "--work=$outputFolder"}
+if ($artifactsPath) {$nunitArgs += "--params=artifactsPath=$artifactsPath"}
 if ($where) {$nunitArgs+=$where} #--where=test =~ AssertMergeScenario"
 if ($other) {Write-Host "Adding otherparams to nunit Args"; $nunitArgs += $Other}
 
-# $params.Keys | foreach-object{$nunitArgs += """--params=$_=$($params.$_)"""}
+
 
 
 Write-Host $nunitpath ($nunitArgs -Join " ") -ForegroundColor White -BackgroundColor DarkGreen
