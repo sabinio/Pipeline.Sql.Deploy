@@ -18,6 +18,7 @@ Function Invoke-DatabaseDacpacDeploy {
         [string]$TargetUser,
         [securestring]$TargetPasswordSecure, 
         [string]$TargetIntegratedSecurity ,
+        [switch]$TargetTrustServerCert,
 
         $ServiceObjective,
 
@@ -83,9 +84,6 @@ Function Invoke-DatabaseDacpacDeploy {
         if ([string]::IsNullOrWhiteSpace($DBScriptPrefix) ) { $DBScriptPrefix = [io.path]::GetFileNameWithoutExtension($dacpacfile) }
  
         If ($Action -eq "DriftReport") {
-            if ($Variables -Contains "/TargetTrustServerCertificate:true"){
-                Add-ToList $sqlPackageCommand ("/TargetTrustServerCertificate:True")
-            }
             Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_drift.xml"))
         }
         else {
@@ -114,6 +112,11 @@ Function Invoke-DatabaseDacpacDeploy {
 
         Add-ToList $sqlPackageCommand -items $Security
         Add-ToList $sqlPackageCommand -items $TargetDatabase 
+        
+        if ($TargetTrustServerCert) {
+            Add-ToList $sqlPackageCommand "/TargetTrustServerCertificate:True"
+        }
+        
         #  $sqlPackageCommand +="/p:CommentOutSetVarDeclarations=true
         New-Item $ScriptParentPath\$TargetDatabaseName -ItemType "Directory" -Force | Out-null
         

@@ -16,8 +16,8 @@ schema: 2.0.0
 Invoke-DatabaseDacpacDeploy [-dacpacfile] <String> [-sqlpackagePath] <String> [-action] <String>
  [-scriptParentPath] <String> [-TargetServerName] <String> [-TargetDatabaseName] <String>
  [[-TargetUser] <String>] [[-TargetPasswordSecure] <SecureString>] [[-TargetIntegratedSecurity] <String>]
- [[-ServiceObjective] <Object>] [[-PublishFile] <String>] [-OutputDeployScript] [-Variables] <Object>
- [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>]
+ [-TargetTrustServerCert] [[-ServiceObjective] <Object>] [[-PublishFile] <String>] [-OutputDeployScript]
+ [-Variables] <Object> [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>]
  [[-DBScriptPrefix] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -195,6 +195,21 @@ Aliases:
 
 Required: True
 Position: 12
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TargetTrustServerCert
+{{ Fill TargetTrustServerCert Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

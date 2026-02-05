@@ -170,7 +170,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             mock invoke-command {  } 
             mock Get-DeployPropertiesHash { @{} }
 
-            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "DriftReport"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -PublishFile "foo.xml" -Variables @("/v:foo","/p:bob","/TargetTrustServerCertificate:true") -TargetTimeout 10 -ServiceObjective p10 -CommandTimeout 100 
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "DriftReport"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -PublishFile "foo.xml" -Variables @("/v:foo","/p:bob") -TargetTrustServerCert -TargetTimeout 10 -ServiceObjective p10 -CommandTimeout 100 
         
             $result  | should -contain "/Action:DriftReport"
             $result  -replace "[/\\]","" | should -contain "OutputPath:TestDrive:ReturnValuesoutSomeDatabasetest_drift.xml"
@@ -184,6 +184,48 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             $result | should -contain "/TargetServerName:."
             $result | should -contain "/TargetDatabaseName:SomeDatabase"
             
+        }
+
+        It "Should use TargetTrustServerCert parameter for Script action"{
+            $env:SYSTEM_DEBUG = "true"
+            $Global:LASTEXITCODE = 0
+            mock invoke-command {  } 
+            mock Get-DeployPropertiesHash { @{} }
+
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTrustServerCert -TargetTimeout 10 -CommandTimeout 100 
+        
+            $result | should -contain "/Action:Script"
+            $result | should -contain "/TargetTrustServerCertificate:True"
+            $result | should -contain "/TargetServerName:."
+            $result | should -contain "/TargetDatabaseName:SomeDatabase"
+        }
+
+        It "Should use TargetTrustServerCert parameter for Publish action"{
+            $env:SYSTEM_DEBUG = "true"
+            $Global:LASTEXITCODE = 0
+            mock invoke-command {  } 
+            mock Get-DeployPropertiesHash { @{} }
+
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Publish"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTrustServerCert -TargetTimeout 10 -CommandTimeout 100 
+        
+            $result | should -contain "/Action:Publish"
+            $result | should -contain "/TargetTrustServerCertificate:True"
+            $result | should -contain "/TargetServerName:."
+            $result | should -contain "/TargetDatabaseName:SomeDatabase"
+        }
+
+        It "Should NOT include TargetTrustServerCertificate when parameter not specified"{
+            $env:SYSTEM_DEBUG = "true"
+            $Global:LASTEXITCODE = 0
+            mock invoke-command {  } 
+            mock Get-DeployPropertiesHash { @{} }
+
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+        
+            $result | should -contain "/Action:Script"
+            $result | should -not -contain "/TargetTrustServerCertificate:True"
+            $result | should -contain "/TargetServerName:."
+            $result | should -contain "/TargetDatabaseName:SomeDatabase"
         }
 
         AfterAll {

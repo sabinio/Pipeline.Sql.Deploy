@@ -45,7 +45,8 @@ Describe "Integration tests"{
             $DBSettings = [ordered]@{TargetServerName=$settings.serverName;
                 TargetUser=$settings.sqlAdminLogin;
                 TargetPasswordSecure=$Settings.SecurePassword;
-                TargetDatabaseName="TestDB"
+                TargetDatabaseName="TestDB";
+                TargetTrustServerCert=$true;
                 Variables=@("/v:foo=bar")
                 OutputDeployScript = $settings.OutputDeployScript;
                 action="Publish";
@@ -74,6 +75,7 @@ Describe "Integration tests"{
                 TargetUser=$settings.sqlAdminLogin;
                 TargetPasswordSecure=$Settings.SecurePassword;
                 TargetDatabaseName="TestDB"
+                TargetTrustServerCert = $true
                 Variables=@("/v:foo=bar")
                 OutputDeployScript = $settings.OutputDeployScript;
                 action="Publish";
