@@ -84,6 +84,9 @@ Function Invoke-DatabaseDacpacDeploy {
         if ([string]::IsNullOrWhiteSpace($DBScriptPrefix) ) { $DBScriptPrefix = [io.path]::GetFileNameWithoutExtension($dacpacfile) }
  
         If ($Action -eq "DriftReport") {
+            if ($Variables -Contains "/TargetTrustServerCertificate:true"){
+                Add-ToList $sqlPackageCommand ("/TargetTrustServerCertificate:True")
+            }
             Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_drift.xml"))
         }
         else {
