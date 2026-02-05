@@ -2,17 +2,10 @@
 Param(
     [string] $dbsolutionpath,
     [string] $config = "Debug",
-    [string[]] $ExtraMSBuildSwitches,
-    [string] $Msbuild  ,
-    [string] $nugetPath 
+    [string[]] $ExtraMSBuildSwitches
 )
 try {
-    Write-Verbose "nuget restore for $dbsolutionpath"
 
-    &$nugetPath restore $dbsolutionpath
-
-
-    Write-Verbose "Running MsBuild from $Msbuild"
 
     $msbuildArgs = @()
     $msbuildArgs += $ExtraMSBuildSwitches
