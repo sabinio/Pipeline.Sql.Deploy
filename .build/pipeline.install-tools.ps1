@@ -81,9 +81,13 @@ try {
     Install-AzDoArtifactsCredProvider
 
     Write-verbose "Downloading sqlpackage"
-    &dotnet tool install -g microsoft.sqlpackage --version 170.2.70 --allow-downgrade
-
     Write-host "Finding path for sqlpackage"
+    dotnet tool list  -g microsoft.sqlpackage
+    $sqlpackageInstall = dotnet tool list  -g microsoft.sqlpackage  | Where-Object {$_ -like '*microsoft.sqlpackage*' -and $_ -like '*170.2.70*'}
+    if ($sqlpackageInstall -eq $null){
+        write-Host "Installing sqlpackage"
+        dotnet tool install -g microsoft.sqlpackage --version 170.2.70 --allow-downgrade
+    }
     $env:SqlpackagePathExe = (get-command "sqlpackage").Source
     $env:sqlPackagePath = (get-item $env:SqlpackagePathExe).Parent.FullName
     Write-Host "sqlpackage installed"
