@@ -1,7 +1,7 @@
-@{Module="Az.keyVault";Version="4.11.0"},
+@{Module="Az.keyVault";Version="6.4.2"},
 @{Module="Pester";Version="5.6.0"},
 @{Module="Pipeline.Config";Version="0.2.96"},
 @{Module="platyps";Version="0.14.2"},
 @{Module="PowerShellGet";Version="2.2.5"},
-@{Module="PSScriptAnalyzer";Version="1.22.0"},
+@{Module="PSScriptAnalyzer";Version="1.24.0"},
 @{Module="SqlServer";Version="22.2.0"}

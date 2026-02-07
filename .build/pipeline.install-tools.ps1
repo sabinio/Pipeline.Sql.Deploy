@@ -35,7 +35,7 @@ try {
         Unregister-PSRepository PowershellGalleryTest
     }
 
-    $LatestVersion = "0.2.189" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
+    $LatestVersion = "0.2.213" #This is just too slow (Find-Module Pipeline.Tools -Repository "PSGallery").Version
     Write-Host "Getting Pipeline.Tools module $LatestVersion"
 
     Repair-PSModulePath 
