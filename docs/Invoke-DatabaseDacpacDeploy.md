@@ -12,13 +12,28 @@ schema: 2.0.0
 
 ## SYNTAX
 
+### IndividualTarget
 ```
-Invoke-DatabaseDacpacDeploy [-dacpacfile] <String> [-sqlpackagePath] <String> [-action] <String>
- [-scriptParentPath] <String> [-TargetServerName] <String> [-TargetDatabaseName] <String>
- [[-TargetUser] <String>] [[-TargetPasswordSecure] <SecureString>] [[-TargetIntegratedSecurity] <String>]
- [-TargetTrustServerCert] [[-ServiceObjective] <Object>] [[-PublishFile] <String>] [-OutputDeployScript]
- [-Variables] <Object> [-TargetTimeout] <Object> [-CommandTimeout] <Object> [[-SettingsToCheck] <Object>]
- [[-DBScriptPrefix] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Invoke-DatabaseDacpacDeploy -dacpacfile <String> -sqlpackagePath <String> -action <String>
+ -scriptParentPath <String> -TargetServerName <String> -TargetDatabaseName <String> [-TargetUser <String>]
+ [-TargetPasswordSecure <SecureString>] [-TargetIntegratedSecurity <String>] [-TargetTrustServerCert]
+ [-ServiceObjective <Object>] [-AccessToken <String>] [-AccessTokenSecure <SecureString>] [-TenantId <String>]
+ [-ClientId <String>] [-ClientSecret <String>] [-ClientSecretSecure <SecureString>] [-EntraAuth]
+ [-PublishFile <String>] [-OutputDeployScript] -Variables <Object> -TargetTimeout <Object>
+ -CommandTimeout <Object> [-SettingsToCheck <Object>] [-DBScriptPrefix <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
+```
+
+### ConnectionStringTarget
+```
+Invoke-DatabaseDacpacDeploy -dacpacfile <String> -sqlpackagePath <String> -action <String>
+ -scriptParentPath <String> [-TargetUser <String>] [-TargetPasswordSecure <SecureString>]
+ [-TargetIntegratedSecurity <String>] [-TargetTrustServerCert] -TargetConnectionString <String>
+ [-ServiceObjective <Object>] [-AccessToken <String>] [-AccessTokenSecure <SecureString>] [-TenantId <String>]
+ [-ClientId <String>] [-ClientSecret <String>] [-ClientSecretSecure <SecureString>] [-EntraAuth]
+ [-PublishFile <String>] [-OutputDeployScript] -Variables <Object> -TargetTimeout <Object>
+ -CommandTimeout <Object> [-SettingsToCheck <Object>] [-DBScriptPrefix <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,6 +50,81 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
+### -AccessToken
+{{ Fill AccessToken Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AccessTokenSecure
+{{ Fill AccessTokenSecure Description }}
+
+```yaml
+Type: SecureString
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientId
+{{ Fill ClientId Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientSecret
+{{ Fill ClientSecret Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientSecretSecure
+{{ Fill ClientSecretSecure Description }}
+
+```yaml
+Type: SecureString
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -CommandTimeout
 {{ Fill CommandTimeout Description }}
 
@@ -44,7 +134,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 13
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -59,7 +149,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 15
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -EntraAuth
+{{ Fill EntraAuth Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -89,7 +194,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 10
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -104,7 +209,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 9
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -119,7 +224,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 14
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TargetConnectionString
+{{ Fill TargetConnectionString Description }}
+
+```yaml
+Type: String
+Parameter Sets: ConnectionStringTarget
+Aliases:
+
+Required: True
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -130,11 +250,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: IndividualTarget
 Aliases:
 
 Required: True
-Position: 5
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -149,7 +269,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 8
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -164,7 +284,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 7
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -175,11 +295,11 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: IndividualTarget
 Aliases:
 
 Required: True
-Position: 4
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -194,7 +314,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 12
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -224,7 +344,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 6
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TenantId
+{{ Fill TenantId Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -239,7 +374,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 11
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -254,7 +389,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 2
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -269,7 +404,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -284,7 +419,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 3
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -299,7 +434,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

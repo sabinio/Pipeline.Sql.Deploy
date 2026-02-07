@@ -11,7 +11,7 @@ variables:
 - name: artifactsPath
   value: "$(Build.ArtifactStagingDirectory)/artifacts"
 - name: BaseVersionNumber 
-  value: "0.0"  
+  value: "1.0"  
 - name: Minor 
   value: $[counter(variables['BaseVersionNumber'], 1)]
 - name: VersionNumber 

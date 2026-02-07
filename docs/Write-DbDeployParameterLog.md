@@ -14,10 +14,10 @@ schema: 2.0.0
 
 ```
 Write-DbDeployParameterLog [[-dacpacfile] <String>] [[-action] <String>] [[-TargetServerName] <String>]
- [[-TargetDatabaseName] <String>] [[-TargetIntegratedSecurity] <String>] [[-ServiceObjective] <String>]
- [[-PublishFile] <String>] [[-Variables] <String[]>] [[-TargetTimeout] <String>] [[-CommandTimeout] <String>]
- [[-sqlpackagePath] <String>] [[-Username] <String>] [[-scriptParentPath] <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [[-TargetDatabaseName] <String>] [[-TargetConnectionString] <String>] [[-TargetIntegratedSecurity] <String>]
+ [[-ServiceObjective] <String>] [[-PublishFile] <String>] [[-Variables] <String[]>] [[-TargetTimeout] <String>]
+ [[-CommandTimeout] <String>] [[-sqlpackagePath] <String>] [[-Username] <String>]
+ [[-scriptParentPath] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -43,7 +43,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 9
+Position: 10
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -58,7 +58,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 6
+Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -73,7 +73,22 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 5
+Position: 6
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TargetConnectionString
+{{ Fill TargetConnectionString Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 4
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -103,7 +118,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 4
+Position: 5
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -133,7 +148,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 8
+Position: 9
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -148,7 +163,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 11
+Position: 12
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -163,7 +178,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 7
+Position: 8
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -208,7 +223,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 12
+Position: 13
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -223,7 +238,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 10
+Position: 11
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
