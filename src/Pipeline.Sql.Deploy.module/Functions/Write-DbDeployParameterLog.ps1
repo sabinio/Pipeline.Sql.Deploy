@@ -5,6 +5,7 @@ Function Write-DbDeployParameterLog {
         [string] $action,
         [string] $TargetServerName,
         [string] $TargetDatabaseName,
+        [string] $TargetConnectionString,
         [string] $TargetIntegratedSecurity,
         [string] $ServiceObjective,
         [string] $PublishFile,
@@ -19,8 +20,13 @@ Function Write-DbDeployParameterLog {
     Write-host "Deploying database to server" 
     Write-host "DacpacFile               : $dacpacfile" 
     Write-host "Action                   : $action" 
-    Write-host "TargetServerName         : $TargetServerName" 
-    Write-host "TargetDatabaseName       : $TargetDatabaseName" 
+    if($TargetServerName -ne $null){
+        Write-host "TargetServerName         : $TargetServerName" 
+        Write-host "TargetDatabaseName       : $TargetDatabaseName" 
+    }
+    else {
+        Write-host "TargetConnectionString   : $TargetConnectionString" 
+    }
     Write-host "TargetIntegratedSecurity : $TargetIntegratedSecurity" 
     Write-host "ServiceObjective         : $ServiceObjective"
     Write-host "Profile                  : $PublishFile" 

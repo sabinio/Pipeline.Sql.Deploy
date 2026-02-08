@@ -19,7 +19,7 @@ BeforeAll {
     . $ModulePath\Functions\Internal\Get-ModelChecksum.ps1
     . $ModulePath\Functions\Internal\Get-ReferencedDacpacsFromModel.ps1
     . $ModulePath\Functions\Internal\Add-ToList.ps1
-    
+    . $ModulePath\Functions\Internal\Get-EntraAccessToken.ps1
 }
 
 Describe 'Invoke-DatabaseDacpacDeploy' {
@@ -163,14 +163,24 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             $result  | should -contain "/TargetDatabaseName:SomeDatabase"
             
         }
+        It "Should not output access token" {
+            $env:SYSTEM_DEBUG = "true"
+            $Global:LASTEXITCODE = 0
+            mock invoke-command {  } 
+            mock Get-DeployPropertiesHash { @{} }
+            mock write-host {}
 
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -AccessToken "fake_token" -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+        
+            should -Invoke -CommandName "write-host" -ParameterFilter { $object -like "*fake_token*" } -Exactly 0
+        }
         It "Should allow for Drift Report"{
             $env:SYSTEM_DEBUG = "true"
             $Global:LASTEXITCODE = 0
             mock invoke-command {  } 
             mock Get-DeployPropertiesHash { @{} }
 
-            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "DriftReport"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -PublishFile "foo.xml" -Variables @("/v:foo","/p:bob","/TargetTrustServerCertificate:true") -TargetTimeout 10 -ServiceObjective p10 -CommandTimeout 100 
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "DriftReport"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -PublishFile "foo.xml" -Variables @("/v:foo","/p:bob") -TargetTrustServerCert -TargetTimeout 10 -ServiceObjective p10 -CommandTimeout 100 
         
             $result  | should -contain "/Action:DriftReport"
             $result  -replace "[/\\]","" | should -contain "OutputPath:TestDrive:ReturnValuesoutSomeDatabasetest_drift.xml"
@@ -185,9 +195,90 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             $result | should -contain "/TargetDatabaseName:SomeDatabase"
             
         }
-
         AfterAll {
             $env:SYSTEM_DEBUG = $previousDebug
         }
+    }
+    Describe "Invoke-DatabaseDacpacDeploy Parameter Checks" {
+            BeforeAll {
+                $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
+                if (test-path $folder) { remove-item $folder -Force -Recurse | out-null }
+                $dacpac = [System.io.path]::Combine("TestDrive:", "dacpac", "test.dacpac")
+                $sqlpackagePath = "sqlpackage"
+                new-item  TestDrive:/dacpac -type directory -force | Out-Null
+                copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
+                $env:SYSTEM_DEBUG = "true"
+                $Global:LASTEXITCODE = 0
+                mock invoke-command {  } 
+                mock Get-DeployPropertiesHash { @{} }
+            mock Add-ToList{}
+
+        }
+        It "Should use TargetTrustServerCert parameter for Script action"{
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTrustServerCert -TargetTimeout 10 -CommandTimeout 100 
+      
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter {$item -like "/TargetTrustServerCertificate:True"} -Exactly 1
+        }
+        It "Should NOT include TargetTrustServerCertificate when parameter not specified"{
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter {$item -like "/TargetTrustServerCertificate:True"} -Exactly 0
+        }
+
+         It "Should include TargetConnectionString when parameter specified"{
+
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+                                                                                                          
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetConnectionString*" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetDatabase*" } -Exactly 0
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetServer*" } -Exactly 0
+        }
+
+         It "Should include Accesstoken when parameter specified"{
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -AccessToken "sometoken" -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+                                                                                                          
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
+        }
+         It "Should include AccesstokenSecure when parameter specified"{
+            $tokenSecure = ConvertTo-SecureString "sometoken" -AsPlainText -Force
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -AccessTokenSecure $tokenSecure -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+                                                                                                          
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*sometoken" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
+        }
+
+         It "Should include clientid and clientsecret when parameter specified"{
+
+            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString "sometoken" -AsPlainText -Force} }
+            $tokenSecure = ConvertTo-SecureString "sometoken" -AsPlainText -Force
+            $foo = get-command Invoke-DatabaseDacpacDeploy | Select-Object -ExpandProperty parameters
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TenantId "TenantId" -ClientId "someclient" -ClientSecret "somesecret" -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+                                                                                                          
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*sometoken" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
+            Should -Invoke -CommandName "Get-EntraAccessToken" -ParameterFilter { $clientId -eq "someclient" -and $tenantId -eq "TenantId" -and $ClientSecret -eq "somesecret" } -Exactly 1
+        }
+
+
+         It "Should include clientid and clientsecret when parameter specified"{
+
+            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString "sometoken" -AsPlainText -Force} }
+            $secretSecure = ConvertTo-SecureString "somesecret" -AsPlainText -Force
+            $foo = get-command Invoke-DatabaseDacpacDeploy | Select-Object -ExpandProperty parameters
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TenantId "TenantId" -ClientId "someclient" -ClientSecretSecure $secretSecure -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+                                                                                                          
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*sometoken" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
+
+            Should -Invoke -CommandName "Get-EntraAccessToken" -ParameterFilter { $clientId -eq "someclient" -and $tenantId -eq "TenantId" -and ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ClientSecretSecure))  -eq "somesecret" )} -Exactly 1
+        }
+
     }
 }

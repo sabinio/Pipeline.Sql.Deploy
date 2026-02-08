@@ -11,16 +11,24 @@ Function Invoke-DatabaseDacpacDeploy {
         [string]$action,
         [Parameter(Mandatory = $true)]
         [string]$scriptParentPath,
-        [Parameter(Mandatory = $true)]
+        #Parameter set TargetServer and Database or ConnectionString
+        [Parameter(Mandatory = $true, ParameterSetName = "IndividualTarget")]
         [string]$TargetServerName,
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "IndividualTarget")]
         [string]$TargetDatabaseName,
         [string]$TargetUser,
         [securestring]$TargetPasswordSecure, 
         [string]$TargetIntegratedSecurity ,
-
+        [switch]$TargetTrustServerCert,
+        [Parameter(Mandatory = $true, ParameterSetName = "ConnectionStringTarget")]
+        [string]$TargetConnectionString,
         $ServiceObjective,
-
+        [String]$AccessToken,
+        [SecureString]$AccessTokenSecure,
+        [string]$TenantId,
+        [string]$ClientId,
+        [string]$ClientSecret,
+        [securestring]$ClientSecretSecure,
         [string]$PublishFile,
         [Switch]$OutputDeployScript,
         [Parameter(Mandatory = $true)]
@@ -46,6 +54,7 @@ Function Invoke-DatabaseDacpacDeploy {
                
         Write-DBDeployParameterLog  -dacpacfile	$dacpacfile `
             -action $action `
+            -TargetConnectionString $TargetConnectionString `
             -TargetServerName $TargetServerName `
             -TargetDatabaseName $TargetDatabaseName `
             -TargetIntegratedSecurity $TargetIntegratedSecurity `
@@ -72,8 +81,6 @@ Function Invoke-DatabaseDacpacDeploy {
             -SettingsToCheck $SettingsToCheck
 
 
-        $TargetDatabase = "/TargetServerName:$TargetServerName", "/TargetDatabaseName:$TargetDatabaseName"
-
         $sqlPackageCommand = New-Object Collections.Generic.List[String]
         Add-ToList $sqlPackageCommand "/Action:$Action"
 
@@ -82,11 +89,33 @@ Function Invoke-DatabaseDacpacDeploy {
         Add-ToList $sqlPackageCommand "/TargetTimeout:$TargetTimeout"
         if ([string]::IsNullOrWhiteSpace($DBScriptPrefix) ) { $DBScriptPrefix = [io.path]::GetFileNameWithoutExtension($dacpacfile) }
  
+        # Handle database name extraction for path construction - extract database name from connection string if needed
+        $DatabaseNameForPath = $TargetDatabaseName
+        if ($TargetConnectionString -and [string]::IsNullOrWhiteSpace($TargetDatabaseName)) {
+            # Extract database name from connection string
+            if ($TargetConnectionString -match "Database=([^;]+)") {
+                $DatabaseNameForPath = $matches[1]
+            }
+            elseif ($TargetConnectionString -match "Initial Catalog=([^;]+)") {
+                $DatabaseNameForPath = $matches[1]
+            }
+            else{
+                throw "Unable to extract database name from connection string. Please ensure the connection string contains 'Database' or 'Initial Catalog' parameter."
+            }
+        }
+
+        if ($TargetConnectionString) {
+            Add-ToList $sqlPackageCommand "/TargetConnectionString:$TargetConnectionString"
+        }
+        else {
+            $TargetDatabase = "/TargetServerName:$TargetServerName", "/TargetDatabaseName:$TargetDatabaseName"
+        }
+
         If ($Action -eq "DriftReport") {
             if ($Variables -Contains "/TargetTrustServerCertificate:true"){
                 Add-ToList $sqlPackageCommand ("/TargetTrustServerCertificate:True")
             }
-            Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_drift.xml"))
+            Add-ToList $sqlPackageCommand ("/OutputPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $DatabaseNameForPath, "$DBScriptPrefix`_drift.xml"))
         }
         else {
             if ($PublishFile) {
@@ -105,25 +134,47 @@ Function Invoke-DatabaseDacpacDeploy {
             Add-ToList $sqlPackageCommand "/p:CommandTimeout=$CommandTimeout"
 
             if ($Action -eq "Publish") {
-                Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_db.sql"))
+                Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $DatabaseNameForPath, "$DBScriptPrefix`_db.sql"))
             }
             elseif ($Action -eq "Script") {
-                Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $TargetDatabaseName, "$DBScriptPrefix`_db.sql"))
+                Add-ToList $sqlPackageCommand ("/DeployScriptPath:{0}" -f [IO.Path]::Combine($ScriptParentPath, $DatabaseNameForPath, "$DBScriptPrefix`_db.sql"))
             }
         }
 
-        Add-ToList $sqlPackageCommand -items $Security
-        Add-ToList $sqlPackageCommand -items $TargetDatabase 
+        if (-not $TargetConnectionString) {
+            Add-ToList $sqlPackageCommand -items $TargetDatabase 
+        } 
+        
+        if ($TargetTrustServerCert) {
+            Add-ToList $sqlPackageCommand "/TargetTrustServerCertificate:True"
+        }
+        
+        if ($AccessToken -or $AccessTokenSecure -or ( $ClientId -and ( $ClientSecret -or $ClientSecretSecure) -and $TenantId ) ) {
+            if ($AccessTokenSecure -or $AccessToken) {
+                Write-Host "Using Access Token provided clientId and secret being ignored"
+            }
+            else{
+                Write-Host "Getting Access Token using ClientId and ClientSecret"
+                $AccessTokenSecure = (Get-EntraAccessToken -ClientId $ClientId -ClientSecret $ClientSecret -ClientSecretSecure $ClientSecretSecure -TenantId $TenantId).AccessToken
+            }
+            if ($AccessTokenSecure -is [System.Security.SecureString]) {
+                    $AccessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($AccessTokenSecure))
+            }
+            $Security += "/AccessToken:$AccessToken"
+        }
+        
         #  $sqlPackageCommand +="/p:CommentOutSetVarDeclarations=true
-        New-Item $ScriptParentPath\$TargetDatabaseName -ItemType "Directory" -Force | Out-null
+        New-Item $ScriptParentPath\$DatabaseNameForPath -ItemType "Directory" -Force | Out-null
         
         if ($env:SYSTEM_DEBUG) {
             $sqlPackageCommand
         }
 
+        Add-ToList $sqlPackageCommand -items $Security
+
         Function Get-SqlPackageArgument {
             $sqlPackageCommand  | ForEach-Object {
-                if ($_ -like "*/v:DeployProperties*") {
+                if ($_ -like "*/v:DeployProperties*" ) {
                     $_
                 }
                 else {
@@ -150,7 +201,7 @@ Function Invoke-DatabaseDacpacDeploy {
             throw "SqlPackage returned non-zero exit code: $LASTEXITCODE"
         }
         
-        $result = [PscustomObject]@{Scripts = Get-ChildItem "$ScriptParentPath\$TargetDatabaseName" -File -Recurse }
+        $result = [PscustomObject]@{Scripts = Get-ChildItem "$ScriptParentPath\$DatabaseNameForPath" -File -Recurse }
 
         if ($OutputDeployScript) {
             $result.Scripts | ForEach-Object {

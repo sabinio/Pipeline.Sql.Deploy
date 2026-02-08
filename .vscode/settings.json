@@ -1,5 +1,8 @@
 {
-    "powershell.pester.outputVerbosity": "Diagnostic",
+    "powershell.pester.outputVerbosity": "Detailed",
     "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
-    "powershell.pester.useLegacyCodeLens": false
+    "powershell.pester.useLegacyCodeLens": false,
+    "chat.tools.terminal.autoApprove": {
+        "Invoke-Pester": true
+    }
 }
