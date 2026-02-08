@@ -42,13 +42,19 @@ Function Invoke-DatabaseDacpacDeploy {
     )
 
     try {
+        $EntraSecurity = $false
         if ($TargetUser) {
             #Used to be able to extract the password and pass to SQLPackage
             $TargetCredentials = New-Object System.Management.Automation.PSCredential($TargetUser, $TargetPasswordSecure )
             $Security = "/TargetUser:$($TargetCredentials.UserName)", "/TargetPassword:`$(`$TargetCredentials.GetNetworkCredential().Password)"
         }
         else {
-            $TargetIntegratedSecurity = $true
+            if ($AccessToken -or $AccessTokenSecure -or ( $ClientId -and ( $ClientSecret -or $ClientSecretSecure) -and $TenantId ) ) {
+                $EntraSecurity = $true    
+            }
+             else {
+                $TargetIntegratedSecurity = $true
+            }
             $Security = @()
         }
                
@@ -58,6 +64,7 @@ Function Invoke-DatabaseDacpacDeploy {
             -TargetServerName $TargetServerName `
             -TargetDatabaseName $TargetDatabaseName `
             -TargetIntegratedSecurity $TargetIntegratedSecurity `
+            -EntraSecurity $EntraSecurity `
             -ServiceObjective $ServiceObjective `
             -PublishFile $PublishFile `
             -Variables $Variables `
@@ -83,8 +90,6 @@ Function Invoke-DatabaseDacpacDeploy {
 
         $sqlPackageCommand = New-Object Collections.Generic.List[String]
         Add-ToList $sqlPackageCommand "/Action:$Action"
-
-        
 
         Add-ToList $sqlPackageCommand "/TargetTimeout:$TargetTimeout"
         if ([string]::IsNullOrWhiteSpace($DBScriptPrefix) ) { $DBScriptPrefix = [io.path]::GetFileNameWithoutExtension($dacpacfile) }
@@ -159,7 +164,8 @@ Function Invoke-DatabaseDacpacDeploy {
             }
             if ($AccessTokenSecure -is [System.Security.SecureString]) {
                     Write-Host "Extracting Access Token from SecureString"
-                    $AccessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($AccessTokenSecure))
+                    $cred = New-Object System.Management.Automation.PSCredential ("user", $AccessTokenSecure)
+                    $AccessToken = $cred.GetNetworkCredential().Password
             }
             write-host "Access token first 10 and last 10 characters: $($AccessToken.Substring(0,10))...$($AccessToken.Substring($AccessToken.Length - 10))"
 

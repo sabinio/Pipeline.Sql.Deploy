@@ -7,6 +7,7 @@ Function Write-DbDeployParameterLog {
         [string] $TargetDatabaseName,
         [string] $TargetConnectionString,
         [string] $TargetIntegratedSecurity,
+        [string] $EntraSecurity,
         [string] $ServiceObjective,
         [string] $PublishFile,
         [string[]] $Variables,
@@ -28,6 +29,7 @@ Function Write-DbDeployParameterLog {
         Write-host "TargetConnectionString   : $TargetConnectionString" 
     }
     Write-host "TargetIntegratedSecurity : $TargetIntegratedSecurity" 
+    Write-host "EntraSecurity            : $EntraSecurity"
     Write-host "ServiceObjective         : $ServiceObjective"
     Write-host "Profile                  : $PublishFile" 
     Write-host "Variables                : $($Variables -join ' ')" 

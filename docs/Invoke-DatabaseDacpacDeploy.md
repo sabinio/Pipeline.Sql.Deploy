@@ -18,10 +18,10 @@ Invoke-DatabaseDacpacDeploy -dacpacfile <String> -sqlpackagePath <String> -actio
  -scriptParentPath <String> -TargetServerName <String> -TargetDatabaseName <String> [-TargetUser <String>]
  [-TargetPasswordSecure <SecureString>] [-TargetIntegratedSecurity <String>] [-TargetTrustServerCert]
  [-ServiceObjective <Object>] [-AccessToken <String>] [-AccessTokenSecure <SecureString>] [-TenantId <String>]
- [-ClientId <String>] [-ClientSecret <String>] [-ClientSecretSecure <SecureString>] [-EntraAuth]
- [-PublishFile <String>] [-OutputDeployScript] -Variables <Object> -TargetTimeout <Object>
- -CommandTimeout <Object> [-SettingsToCheck <Object>] [-DBScriptPrefix <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ClientId <String>] [-ClientSecret <String>] [-ClientSecretSecure <SecureString>] [-PublishFile <String>]
+ [-OutputDeployScript] -Variables <Object> -TargetTimeout <Object> -CommandTimeout <Object>
+ [-SettingsToCheck <Object>] [-DBScriptPrefix <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### ConnectionStringTarget
@@ -30,10 +30,10 @@ Invoke-DatabaseDacpacDeploy -dacpacfile <String> -sqlpackagePath <String> -actio
  -scriptParentPath <String> [-TargetUser <String>] [-TargetPasswordSecure <SecureString>]
  [-TargetIntegratedSecurity <String>] [-TargetTrustServerCert] -TargetConnectionString <String>
  [-ServiceObjective <Object>] [-AccessToken <String>] [-AccessTokenSecure <SecureString>] [-TenantId <String>]
- [-ClientId <String>] [-ClientSecret <String>] [-ClientSecretSecure <SecureString>] [-EntraAuth]
- [-PublishFile <String>] [-OutputDeployScript] -Variables <Object> -TargetTimeout <Object>
- -CommandTimeout <Object> [-SettingsToCheck <Object>] [-DBScriptPrefix <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ClientId <String>] [-ClientSecret <String>] [-ClientSecretSecure <SecureString>] [-PublishFile <String>]
+ [-OutputDeployScript] -Variables <Object> -TargetTimeout <Object> -CommandTimeout <Object>
+ [-SettingsToCheck <Object>] [-DBScriptPrefix <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -145,21 +145,6 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -EntraAuth
-{{ Fill EntraAuth Description }}
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
