@@ -254,7 +254,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
          It "Should include clientid and clientsecret when parameter specified"{
 
             $secret = "some that is longer so we can give first and end bits" 
-            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString $secret -AsPlainText -Force} }
+            mock Get-EntraAccessToken{ @{access_token=$secret} }
             $tokenSecure = ConvertTo-SecureString "sometoken" -AsPlainText -Force
             $foo = get-command Invoke-DatabaseDacpacDeploy | Select-Object -ExpandProperty parameters
             $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TenantId "TenantId" -ClientId "someclient" -ClientSecret "somesecret" -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
@@ -270,7 +270,7 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
          It "Should include clientid and clientsecret when parameter specified"{
 
             $secret = "some that is longer so we can give first and end bits" 
-            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString $secret -AsPlainText -Force} }
+            mock Get-EntraAccessToken{ @{access_token=$secret} }
             $secretSecure = ConvertTo-SecureString "somelonger secret value" -AsPlainText -Force
             $foo = get-command Invoke-DatabaseDacpacDeploy | Select-Object -ExpandProperty parameters
             $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TenantId "TenantId" -ClientId "someclient" -ClientSecretSecure $secretSecure -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 

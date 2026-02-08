@@ -160,7 +160,8 @@ Function Invoke-DatabaseDacpacDeploy {
             }
             else{
                 Write-Host "Getting Access Token using ClientId and ClientSecret"
-                $AccessTokenSecure = (Get-EntraAccessToken -ClientId $ClientId -ClientSecret $ClientSecret -ClientSecretSecure $ClientSecretSecure -TenantId $TenantId).AccessToken
+                $AccessToken = (Get-EntraAccessToken -ClientId $ClientId -ClientSecret $ClientSecret -ClientSecretSecure $ClientSecretSecure -TenantId $TenantId).access_token
+                Write-Host $AccessToken
             }
             if ($AccessTokenSecure -is [System.Security.SecureString]) {
                     Write-Host "Extracting Access Token from SecureString"

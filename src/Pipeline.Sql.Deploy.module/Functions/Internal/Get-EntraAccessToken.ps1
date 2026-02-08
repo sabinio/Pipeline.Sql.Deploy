@@ -21,7 +21,7 @@ function Get-EntraAccessToken {
     } -ContentType 'application/x-www-form-urlencoded'
  
     if ($GetToken) {
-        Write-debug "Access token type is $($GetToken.token_type), expires $($GetToken.expires_on)"
+        Write-host "Access token type is $($GetToken.token_type), expires $($GetToken.expires_on)"
         return  $GetToken
     }
     else {
