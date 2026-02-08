@@ -158,8 +158,11 @@ Function Invoke-DatabaseDacpacDeploy {
                 $AccessTokenSecure = (Get-EntraAccessToken -ClientId $ClientId -ClientSecret $ClientSecret -ClientSecretSecure $ClientSecretSecure -TenantId $TenantId).AccessToken
             }
             if ($AccessTokenSecure -is [System.Security.SecureString]) {
+                    Write-Host "Extracting Access Token from SecureString"
                     $AccessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($AccessTokenSecure))
             }
+            write-host "Access token first 10 and last 10 characters: $($AccessToken.Substring(0,10))...$($AccessToken.Substring($AccessToken.Length - 10))"
+
             $Security += "/AccessToken:$AccessToken"
         }
         
