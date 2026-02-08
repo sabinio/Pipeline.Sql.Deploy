@@ -170,9 +170,9 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
             mock Get-DeployPropertiesHash { @{} }
             mock write-host {}
 
-            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -AccessToken "fake_token" -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "script"  -scriptParentPath $folder -TargetServerName "." -AccessToken "fake_token_that_is_long" -TargetDatabaseName "SomeDatabase" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
         
-            should -Invoke -CommandName "write-host" -ParameterFilter { $object -like "*fake_token*" } -Exactly 0
+            should -Invoke -CommandName "write-host" -ParameterFilter { $object -like "*fake_token_that_is_long*" } -Exactly 0
         }
         It "Should allow for Drift Report"{
             $env:SYSTEM_DEBUG = "true"
@@ -234,31 +234,33 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
         }
 
          It "Should include Accesstoken when parameter specified"{
-            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -AccessToken "sometoken" -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
+            $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -AccessToken "sometoken much longer value" -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
                                                                                                           
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
         }
          It "Should include AccesstokenSecure when parameter specified"{
-            $tokenSecure = ConvertTo-SecureString "sometoken" -AsPlainText -Force
+            $secret = "some that is longer so we can give first and end bits" 
+            $tokenSecure = ConvertTo-SecureString $secret -AsPlainText -Force
             $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -AccessTokenSecure $tokenSecure -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
                                                                                                           
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
-            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*sometoken" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*$secret" } -Exactly 1 
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
         }
 
          It "Should include clientid and clientsecret when parameter specified"{
 
-            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString "sometoken" -AsPlainText -Force} }
+            $secret = "some that is longer so we can give first and end bits" 
+            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString $secret -AsPlainText -Force} }
             $tokenSecure = ConvertTo-SecureString "sometoken" -AsPlainText -Force
             $foo = get-command Invoke-DatabaseDacpacDeploy | Select-Object -ExpandProperty parameters
             $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TenantId "TenantId" -ClientId "someclient" -ClientSecret "somesecret" -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
                                                                                                           
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
-            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*sometoken" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*$secret" } -Exactly 1 
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
             Should -Invoke -CommandName "Get-EntraAccessToken" -ParameterFilter { $clientId -eq "someclient" -and $tenantId -eq "TenantId" -and $ClientSecret -eq "somesecret" } -Exactly 1
@@ -267,17 +269,18 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
 
          It "Should include clientid and clientsecret when parameter specified"{
 
-            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString "sometoken" -AsPlainText -Force} }
-            $secretSecure = ConvertTo-SecureString "somesecret" -AsPlainText -Force
+            $secret = "some that is longer so we can give first and end bits" 
+            mock Get-EntraAccessToken{ @{accesstoken=ConvertTo-SecureString $secret -AsPlainText -Force} }
+            $secretSecure = ConvertTo-SecureString "somelonger secret value" -AsPlainText -Force
             $foo = get-command Invoke-DatabaseDacpacDeploy | Select-Object -ExpandProperty parameters
             $result = Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TenantId "TenantId" -ClientId "someclient" -ClientSecretSecure $secretSecure -TargetConnectionString "Server=.;Database=SomeDatabase;Trusted_Connection=True;" -Variables @() -TargetTimeout 10 -CommandTimeout 100 
                                                                                                           
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*" } -Exactly 1 
-            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*sometoken" } -Exactly 1 
+            Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $items -like "*AccessToken*$secret" } -Exactly 1 
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetUser*" -or $items -like "*TargetUser*" } -Exactly 0
             Should -Invoke -CommandName "Add-ToList" -ParameterFilter { $item -like "*TargetPassword*" -or $items -like "*TargetPassword*" } -Exactly 0
 
-            Should -Invoke -CommandName "Get-EntraAccessToken" -ParameterFilter { $clientId -eq "someclient" -and $tenantId -eq "TenantId" -and ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ClientSecretSecure))  -eq "somesecret" )} -Exactly 1
+            Should -Invoke -CommandName "Get-EntraAccessToken" -ParameterFilter { $clientId -eq "someclient" -and $tenantId -eq "TenantId" -and ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($ClientSecretSecure))  -eq "somelonger secret value" )} -Exactly 1
         }
 
     }

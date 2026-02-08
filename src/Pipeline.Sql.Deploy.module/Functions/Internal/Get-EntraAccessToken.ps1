@@ -8,6 +8,7 @@ function Get-EntraAccessToken {
     $resource = 'https://database.windows.net/'
  
     if ($clientSecretSecure) {
+        
         $clientSecret = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($clientSecretSecure))
     }
     $GetToken = Invoke-RestMethod -Method Post -UseBasicParsing `
