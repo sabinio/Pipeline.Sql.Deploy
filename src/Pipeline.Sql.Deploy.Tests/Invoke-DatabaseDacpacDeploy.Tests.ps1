@@ -284,4 +284,35 @@ Describe 'Invoke-DatabaseDacpacDeploy' {
         }
 
     }
+    Describe "Should be able to get the failed script if sqlpackage fails" {
+        BeforeAll {
+            $targetDatabase = "nonexistentdb"
+
+            $folder = [System.io.path]::Combine("TestDrive:", "ReturnValues", "out")
+            if (test-path $folder) { remove-item $folder -Force -Recurse | out-null }
+            new-item  (join-path $folder  $targetDatabase) -type directory -force | Out-Null
+            
+
+            $dacpac = [System.io.path]::Combine("TestDrive:", "dacpac", "test.dacpac")
+            $sqlpackagePath = "sqlpackage"
+            new-item  TestDrive:/dacpac -type directory -force | Out-Null
+            copy-item $PSScriptRoot/Test.dacpac $dacpac -Force 
+
+            mock invoke-command {
+                dir "nonfile" 
+            } #simmulating a command failure
+        }
+        It "Should return the failed script content" {
+             
+
+                 Set-Content "Some content" -Path "$folder\$targetDatabase\db.sql" -Force
+
+                $outputs =  Invoke-DatabaseDacpacDeploy  -dacpacfile $dacpac -sqlpackagePath $sqlpackagePath -action "Script"  -scriptParentPath $folder -TargetServerName "." -TargetDatabaseName $targetDatabase -Variables @() -TargetTimeout 10 -CommandTimeout 100 -ErrorAction "Continue" -ErrorVariable err
+
+                $outputs | should  -not -BeNullOrEmpty
+                $outputs.Scripts | should -not -BeNullOrEmpty
+                $outputs.Scripts[0].FullName| should -be (Get-Item "$folder\$targetDatabase\db.sql").FullName
+                $outputs | should -not -BeNullOrEmpty
+        }
+    }
 }

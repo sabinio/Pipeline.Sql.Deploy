@@ -39,6 +39,7 @@ Function Invoke-DatabaseDacpacDeploy {
         $CommandTimeout,
         $SettingsToCheck,
         [string]$DBScriptPrefix
+
     )
 
     try {
@@ -207,9 +208,7 @@ Function Invoke-DatabaseDacpacDeploy {
 
         $ErrorActionPreference = "Stop"
         
-        if ($Global:LASTEXITCODE -ne 0) {
-            throw "SqlPackage returned non-zero exit code: $LASTEXITCODE"
-        }
+        $LEC = $Global:LASTEXITCODE
         
         $result = [PscustomObject]@{Scripts = Get-ChildItem "$ScriptParentPath\$DatabaseNameForPath" -File -Recurse }
 
@@ -225,7 +224,17 @@ Function Invoke-DatabaseDacpacDeploy {
                 }
             }
         }
+        IF ($LEC -ne 0  ) {
+            #Write error with the exit code from SQLPackage, this will be used by the calling function to determine if the deployment succeeded or failed
+            #Proper writeError
+            $PSCmdlet.WriteError((New-Object System.Management.Automation.ErrorRecord( 
+                (New-Object System.Exception("SqlPackage returned non-zero exit code $LEC")), 
+                "SqlPackageDeploymentFailed", [System.Management.Automation.ErrorCategory]::NotSpecified, $null)))
+
+
+        }
         return $result
+
     }
     Catch {
         Throw $_
