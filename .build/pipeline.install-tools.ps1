@@ -78,6 +78,18 @@ try {
         (get-module $modules.module | ForEach-Object { "@{Module=`"$($_.Name)`";Version=`"$($_.Version)`"}" }) -Join ",`n" | out-file -encoding utf8 "$modulefile.lock"
     }
 
+    # Install-AzDoArtifactsCredProvider resolves the release through the GitHub API, which is
+    # rate limited on hosted agents. Pre-install from the release download URL (not rate limited)
+    # so it finds the netcore and netfx plugins already in place and skips the API call.
+    $nugetPath = Join-Path $env:userprofile ".nuget"
+    if (-not (Test-Path "$nugetPath/plugins/netcore") -or -not (Test-Path "$nugetPath/plugins/netfx")) {
+        Write-Host "Installing Azure Artifacts Credential Provider"
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+        $credProviderZip = Join-Path ([IO.Path]::GetTempPath()) "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
+        Invoke-WebRequest "https://github.com/microsoft/artifacts-credprovider/releases/latest/download/Microsoft.NetFx48.NuGet.CredentialProvider.zip" -OutFile $credProviderZip -UseBasicParsing
+        Expand-Archive $credProviderZip -DestinationPath $nugetPath -Force
+        Remove-Item $credProviderZip
+    }
     Install-AzDoArtifactsCredProvider
 
     Write-verbose "Downloading sqlpackage"

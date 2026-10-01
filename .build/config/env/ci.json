@@ -4,5 +4,6 @@
     "PowershellRepository":"PSGallery",
     "PowershellRepositoryFeed":"",
     "PowershellRepositoryUsername":"",
-    "PowershellRepositoryKey":""
+    "PowershellRepositoryKey":"",
+    "serverName":"(localdb)\\MSSQLLocalDB"
 }
