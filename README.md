@@ -10,3 +10,7 @@ Docs are generated to [docs folder](\docs\Home.md) using ```platyps```
 ## Release Notes
 
 Implementing DB Deploy based settings, to enable deployments to be conditional on if the database has changed
+
+## License
+
+Released under the [MIT License](LICENSE).

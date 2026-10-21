@@ -43,6 +43,16 @@ jobs:
         if ($PSVersionTable.PLatform -ne "Unix"){write-Host "##vso[task.setvariable variable=path;]$($env:localappdata)\Microsoft\dotnet;$($env:PATH)"}
         write-Host $env:PATH
 
+  - ${{ if eq(parameters.pool,'none') }}:
+    - task: PowerShell@2
+      displayName: 'Start SQL Server LocalDB'
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Hosted agents have no default SQL Server instance; the integration tests use LocalDB (see config/env/ci.json)
+          sqllocaldb start MSSQLLocalDB
+          sqllocaldb info MSSQLLocalDB
+
   - task: PowerShell@2
     name: build
     inputs:

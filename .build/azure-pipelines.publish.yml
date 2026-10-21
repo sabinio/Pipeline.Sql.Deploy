@@ -2,7 +2,7 @@ jobs:
 - job: Publish
   displayName: Publish
   pool:
-    name: 'sio-build-agents'
+    vmImage: 'windows-latest'
 
   steps:
   - checkout: none
